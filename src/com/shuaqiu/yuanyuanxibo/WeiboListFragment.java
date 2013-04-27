@@ -39,8 +39,7 @@ public class WeiboListFragment extends Fragment {
         View fragmentView = inflater.inflate(R.layout.fragment_weibo_list,
                 container, false);
 
-        ListView weiboList = (ListView) fragmentView
-                .findViewById(R.id.weibo_list);
+        ListView weiboList = (ListView) fragmentView;
 
         List<Map<String, Object>> weiboDatas = getWeiboData();
         ListAdapter weiboAdapter = new SimpleAdapter(getActivity(), weiboDatas,
