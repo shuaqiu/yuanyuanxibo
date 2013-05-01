@@ -3,46 +3,58 @@
  */
 package com.shuaqiu.yuanyuanxibo;
 
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 /**
  * @author shuaqiu Apr 27, 2013
- *
+ * 
  */
 public class WeiboListAdapter extends BaseAdapter {
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
-     */
+    private ViewBinder mBinder;
+
+    private int mResource;
+    private LayoutInflater mInflater;
+
+    public WeiboListAdapter(Context context, int resource, ViewBinder binder) {
+        mResource = resource;
+        mInflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        mBinder = binder;
+    }
+
     @Override
     public int getCount() {
-        return 0;
+        return mBinder.getDataItems().length();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
     @Override
     public Object getItem(int position) {
-        return null;
+        return mBinder.getDataItems().opt(position);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        return null;
+        View v;
+        if (convertView == null) {
+            v = mInflater.inflate(mResource, parent, false);
+        } else {
+            v = convertView;
+        }
+
+        mBinder.bindView(position, v);
+
+        return v;
     }
 
 }
