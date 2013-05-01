@@ -1,5 +1,6 @@
 package com.shuaqiu.yuanyuanxibo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -40,6 +41,8 @@ public class MainActivity extends FragmentActivity {
 
     LinearLayout actionBar = null;
 
+    private String accessToken = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +80,11 @@ public class MainActivity extends FragmentActivity {
             // this tab is selected.
             actionBar.findViewById(pageTitileId[i]).setOnClickListener(
                     new ActionBarClickListener(i));
+        }
+
+        if (accessToken == null) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
         }
     }
 
