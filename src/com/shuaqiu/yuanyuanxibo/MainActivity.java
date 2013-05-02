@@ -15,7 +15,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.webkit.WebView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity {
@@ -47,7 +49,29 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_main);
+        
+
+        if (accessToken == null) {
+        	initLoginView();
+        }else{
+        	initMainView();
+        }
+    }
+
+	private void initLoginView() {
+		RelativeLayout view = new RelativeLayout(this);
+		view.setId(R.id.home);
+		setContentView(view);
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction transaction = fm.beginTransaction();
+		LoginFragment fragment = new LoginFragment();
+		transaction.add(view.getId(), fragment);
+		transaction.commit();
+		fm.executePendingTransactions();
+	}
+
+	private void initMainView() {
+		setContentView(R.layout.activity_main);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
@@ -81,12 +105,7 @@ public class MainActivity extends FragmentActivity {
             actionBar.findViewById(pageTitileId[i]).setOnClickListener(
                     new ActionBarClickListener(i));
         }
-
-        if (accessToken == null) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-        }
-    }
+	}
 
     private class ActionBarClickListener implements OnClickListener {
         private int position;
