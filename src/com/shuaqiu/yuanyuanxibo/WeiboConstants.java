@@ -12,6 +12,8 @@ public interface WeiboConstants {
 
     String CLIENT_ID = "209297170";
 
+    String CLIENT_SECRET = "6252a5c211047a0007a149d91c369d9d";
+
     String REDIRECT_URI = "http://shuaqiu.github.io";
 
 }

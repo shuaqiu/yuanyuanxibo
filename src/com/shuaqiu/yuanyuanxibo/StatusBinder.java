@@ -17,7 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.shuaqiu.common.AsyncImageViewTask;
+import com.shuaqiu.common.task.AsyncImageViewTask;
 
 /**
  * @author shuaqiu 2013-4-30

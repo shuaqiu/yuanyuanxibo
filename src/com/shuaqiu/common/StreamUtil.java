@@ -15,6 +15,8 @@ import android.util.Log;
  */
 public class StreamUtil {
 
+    private static final String TAG = "stream";
+
     public static void tranfer(InputStream in, OutputStream out)
             throws IOException {
         byte[] buf = new byte[5120];
@@ -32,7 +34,7 @@ public class StreamUtil {
         try {
             closeable.close();
         } catch (IOException e) {
-            Log.e("stream", e.getMessage(), e);
+            Log.e(TAG, e.getMessage(), e);
         }
     }
 }

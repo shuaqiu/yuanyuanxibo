@@ -1,9 +1,11 @@
 /**
  * 
  */
-package com.shuaqiu.common;
+package com.shuaqiu.common.task;
 
 import java.io.IOException;
+
+import com.shuaqiu.common.BitmapUtil;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;

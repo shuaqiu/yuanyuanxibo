@@ -1,6 +1,11 @@
 package com.shuaqiu.yuanyuanxibo;
 
-import android.content.Intent;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -15,10 +20,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.shuaqiu.common.InputStreamHandler;
+import com.shuaqiu.common.task.AsyncHttpPostTask;
+import com.weibo.sdk.android.WeiboAuthListener;
+import com.weibo.sdk.android.WeiboDialogError;
+import com.weibo.sdk.android.WeiboException;
 
 public class MainActivity extends FragmentActivity {
     private static final int[] pageTitileId = new int[] { R.id.home,
@@ -49,29 +59,29 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
 
         if (accessToken == null) {
-        	initLoginView();
-        }else{
-        	initMainView();
+            initLoginView();
+        } else {
+            initMainView();
         }
     }
 
-	private void initLoginView() {
-		RelativeLayout view = new RelativeLayout(this);
-		view.setId(R.id.home);
-		setContentView(view);
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction transaction = fm.beginTransaction();
-		LoginFragment fragment = new LoginFragment();
-		transaction.add(view.getId(), fragment);
-		transaction.commit();
-		fm.executePendingTransactions();
-	}
+    private void initLoginView() {
+        RelativeLayout view = new RelativeLayout(this);
+        view.setId(R.id.home);
+        setContentView(view);
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        LoginFragment fragment = new LoginFragment();
+        fragment.setAuthListener(new AuthListener());
+        transaction.add(view.getId(), fragment);
+        transaction.commit();
+        fm.executePendingTransactions();
+    }
 
-	private void initMainView() {
-		setContentView(R.layout.activity_main);
+    private void initMainView() {
+        setContentView(R.layout.activity_main);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
@@ -105,7 +115,54 @@ public class MainActivity extends FragmentActivity {
             actionBar.findViewById(pageTitileId[i]).setOnClickListener(
                     new ActionBarClickListener(i));
         }
-	}
+    }
+
+    /**
+     * @author shuaqiu May 2, 2013
+     */
+    private final class AuthListener implements WeiboAuthListener {
+        @Override
+        public void onComplete(Bundle values) {
+            values.putString("client_id", WeiboConstants.CLIENT_ID);
+            values.putString("client_secret", WeiboConstants.CLIENT_SECRET);
+            values.putString("grant_type", "authorization_code");
+            values.putString("redirect_uri", WeiboConstants.REDIRECT_URI);
+
+            AsyncHttpPostTask<JSONObject> task = new AsyncHttpPostTask<JSONObject>(
+                    values, new InputStreamHandler<JSONObject>() {
+
+                        @Override
+                        public JSONObject handle(InputStream in)
+                                throws IOException {
+                            byte[] buf = new byte[in.available()];
+                            int readed = in.read(buf);
+                            if (readed != -1) {
+                                try {
+                                    String json = new String(buf);
+                                    System.err.println(json);
+                                    return new JSONObject(json);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            return null;
+                        }
+                    });
+            task.execute(WeiboConstants.API + "oauth2/access_token");
+        }
+
+        @Override
+        public void onWeiboException(WeiboException e) {
+        }
+
+        @Override
+        public void onError(WeiboDialogError e) {
+        }
+
+        @Override
+        public void onCancel() {
+        }
+    }
 
     private class ActionBarClickListener implements OnClickListener {
         private int position;

@@ -1,16 +1,9 @@
 package com.shuaqiu.yuanyuanxibo;
 
-import com.weibo.sdk.android.Weibo;
-import com.weibo.sdk.android.WeiboAuthListener;
-import com.weibo.sdk.android.WeiboDialog;
-import com.weibo.sdk.android.WeiboDialogError;
-import com.weibo.sdk.android.WeiboException;
-import com.weibo.sdk.android.util.Utility;
-
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnKeyListener;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Bundle;
@@ -25,54 +18,61 @@ import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.weibo.sdk.android.WeiboAuthListener;
+import com.weibo.sdk.android.WeiboDialogError;
+import com.weibo.sdk.android.WeiboException;
+import com.weibo.sdk.android.util.Utility;
+
 public class LoginFragment extends Fragment {
-	private static final  String TAG = "login";
+    private static final String TAG = "login";
 
-	private static final String AUTH_LISTENER = "auth_listener";
-	
-	private WebView mWebView;
-	private ProgressDialog mSpinner;
-	private WeiboAuthListener mListener;
-	
-	public LoginFragment() {
-	}
-	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_login, container, false);
+    private static final String AUTH_LISTENER = "auth_listener";
 
-		mListener = (WeiboAuthListener) getArguments().get(AUTH_LISTENER);
+    private WebView mWebView;
+    private ProgressDialog mSpinner;
+    private WeiboAuthListener mListener;
 
-		mSpinner = new ProgressDialog(getActivity());
-		mSpinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		mSpinner.setMessage("Loading...");
-		mSpinner.setOnKeyListener(new OnKeyListener() {
-			@Override
-			public boolean onKey(DialogInterface dialog, int keyCode,
-					KeyEvent event) {
-				try {
-					mSpinner.dismiss();
-					if (null != mWebView) {
-						mWebView.stopLoading();
-						mWebView.destroy();
-					}
-				} catch (Exception e) {
-				}
-				return false;
-			}
-		});
+    /**
+     * @param weiboAuthListener
+     */
+    public void setAuthListener(WeiboAuthListener authListener) {
+        mListener = authListener;
+    }
 
-		mWebView = (WebView) view.findViewById(R.id.authorize);
-		mWebView.getSettings().setJavaScriptEnabled(true);
-		mWebView.setWebViewClient(new WeiboWebViewClient());
-		mWebView.loadUrl(WeiboConstants.API + "oauth2/authorize?client_id="
-				+ WeiboConstants.CLIENT_ID + "&redirect_uri="
-				+ WeiboConstants.REDIRECT_URI + "&display=mobile");
-		return view;
-	}
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-	private class WeiboWebViewClient extends WebViewClient {
+        mSpinner = new ProgressDialog(getActivity());
+        mSpinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mSpinner.setMessage("Loading...");
+        mSpinner.setOnKeyListener(new OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode,
+                    KeyEvent event) {
+                try {
+                    mSpinner.dismiss();
+                    if (null != mWebView) {
+                        mWebView.stopLoading();
+                        mWebView.destroy();
+                    }
+                } catch (Exception e) {
+                }
+                return false;
+            }
+        });
+
+        mWebView = (WebView) view.findViewById(R.id.authorize);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.setWebViewClient(new WeiboWebViewClient());
+        mWebView.loadUrl(WeiboConstants.API + "oauth2/authorize?client_id="
+                + WeiboConstants.CLIENT_ID + "&redirect_uri="
+                + WeiboConstants.REDIRECT_URI + "&display=mobile");
+        return view;
+    }
+
+    private class WeiboWebViewClient extends WebViewClient {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -98,7 +98,7 @@ public class LoginFragment extends Fragment {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             Log.d(TAG, "onPageStarted URL: " + url);
-            if (url.startsWith(Weibo.redirecturl)) {
+            if (url.startsWith(WeiboConstants.REDIRECT_URI)) {
                 handleRedirectUrl(view, url);
                 view.stopLoading();
                 return;
@@ -124,26 +124,26 @@ public class LoginFragment extends Fragment {
         }
 
     }
-	
-	 private void handleRedirectUrl(WebView view, String url) {
-	        Bundle values = Utility.parseUrl(url);
 
-	        String error = values.getString("error");
-	        String error_code = values.getString("error_code");
+    private void handleRedirectUrl(WebView view, String url) {
+        Bundle values = Utility.parseUrl(url);
 
-	        if (error == null && error_code == null) {
-	            mListener.onComplete(values);
-	        } else if (error.equals("access_denied")) {
-	            // 用户或授权服务器拒绝授予数据访问权限
-	            mListener.onCancel();
-	        } else {
-	            if (error_code == null) {
-	                mListener.onWeiboException(new WeiboException(error, 0));
-	            } else {
-	                mListener.onWeiboException(new WeiboException(error, Integer
-	                        .parseInt(error_code)));
-	            }
+        String error = values.getString("error");
+        String error_code = values.getString("error_code");
 
-	        }
-	    }
+        if (error == null && error_code == null) {
+            mListener.onComplete(values);
+        } else if (error.equals("access_denied")) {
+            // 用户或授权服务器拒绝授予数据访问权限
+            mListener.onCancel();
+        } else {
+            if (error_code == null) {
+                mListener.onWeiboException(new WeiboException(error, 0));
+            } else {
+                mListener.onWeiboException(new WeiboException(error, Integer
+                        .parseInt(error_code)));
+            }
+
+        }
+    }
 }
