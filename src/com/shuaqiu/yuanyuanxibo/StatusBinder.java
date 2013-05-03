@@ -13,11 +13,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.shuaqiu.common.task.AsyncImageViewTask;
+import com.shuaqiu.common.ViewUtil;
 
 /**
  * @author shuaqiu 2013-4-30
@@ -66,7 +66,7 @@ public class StatusBinder implements ViewBinder {
         View v = view.findViewById(R.id.profile_image);
         String profileImage = optProfileImage(status);
         if (profileImage != null) {
-            setViewImage(v, profileImage);
+            ViewUtil.setViewImage(v, profileImage);
         }
     }
 
@@ -74,15 +74,18 @@ public class StatusBinder implements ViewBinder {
      * @param status
      */
     protected void setStatusViews(View view, JSONObject status) {
-        setViewText(view.findViewById(R.id.user_name), optUsername(status));
-        setViewText(view.findViewById(R.id.created_at), optCreateTime(status));
-        setViewText(view.findViewById(R.id.text), status.optString("text", ""));
-        setViewText(view.findViewById(R.id.source), optSource(status));
-        setViewText(view.findViewById(R.id.attitudes_count),
+        ViewUtil.setViewText(view.findViewById(R.id.user_name),
+                optUsername(status));
+        ViewUtil.setViewText(view.findViewById(R.id.created_at),
+                optCreateTime(status));
+        ViewUtil.setViewStatusText(view.findViewById(R.id.text),
+                optText(status));
+        ViewUtil.setViewText(view.findViewById(R.id.source), optSource(status));
+        ViewUtil.setViewText(view.findViewById(R.id.attitudes_count),
                 status.optString("attitudes_count", "0"));
-        setViewText(view.findViewById(R.id.reposts_count),
+        ViewUtil.setViewText(view.findViewById(R.id.reposts_count),
                 status.optString("reposts_count", "0"));
-        setViewText(view.findViewById(R.id.comments_count),
+        ViewUtil.setViewText(view.findViewById(R.id.comments_count),
                 status.optString("comments_count", "0"));
     }
 
@@ -105,19 +108,19 @@ public class StatusBinder implements ViewBinder {
      * @param retweetedStatus
      */
     protected void setRetweetedStatusViews(View view, JSONObject retweetedStatus) {
-        setViewText(view.findViewById(R.id.retweeted_user_name),
+        ViewUtil.setViewText(view.findViewById(R.id.retweeted_user_name),
                 optUsername(retweetedStatus));
-        setViewText(view.findViewById(R.id.retweeted_created_at),
+        ViewUtil.setViewText(view.findViewById(R.id.retweeted_created_at),
                 optCreateTime(retweetedStatus));
-        setViewText(view.findViewById(R.id.retweeted_text),
-                retweetedStatus.optString("text", ""));
-        setViewText(view.findViewById(R.id.retweeted_source),
+        ViewUtil.setViewStatusText(view.findViewById(R.id.retweeted_text),
+                optText(retweetedStatus));
+        ViewUtil.setViewText(view.findViewById(R.id.retweeted_source),
                 optSource(retweetedStatus));
-        setViewText(view.findViewById(R.id.retweeted_attitudes_count),
+        ViewUtil.setViewText(view.findViewById(R.id.retweeted_attitudes_count),
                 retweetedStatus.optString("retweeted_attitudes_count", "0"));
-        setViewText(view.findViewById(R.id.reposts_count),
+        ViewUtil.setViewText(view.findViewById(R.id.reposts_count),
                 retweetedStatus.optString("retweeted_reposts_count", "0"));
-        setViewText(view.findViewById(R.id.retweeted_comments_count),
+        ViewUtil.setViewText(view.findViewById(R.id.retweeted_comments_count),
                 retweetedStatus.optString("comments_count", "0"));
 
     }
@@ -134,7 +137,7 @@ public class StatusBinder implements ViewBinder {
         } else {
             v.setVisibility(View.VISIBLE);
             View progress = view.findViewById(R.id.progress);
-            setViewImage(v, thumbnailPic, progress);
+            ViewUtil.setViewImage(v, thumbnailPic, progress);
         }
 
     }
@@ -186,9 +189,16 @@ public class StatusBinder implements ViewBinder {
         return dateFormat.format(date);
     }
 
-    protected String optSource(JSONObject status) {
+    protected String optText(JSONObject status) {
+        String text = status.optString("text", "");
+
+        return text;
+    }
+
+    protected Spanned optSource(JSONObject status) {
         String source = status.optString("source");
-        return source.replaceAll("<a.*?>(.*?)</a>", "$1");
+        return Html.fromHtml(source);
+        // return source.replaceAll("<a.*?>(.*?)</a>", "$1");
     }
 
     protected String optThumbnailPic(JSONObject status) {
@@ -201,39 +211,6 @@ public class StatusBinder implements ViewBinder {
             return null;
         }
         return retweetedStatus.optString("thumbnail_pic", null);
-    }
-
-    protected void setViewImage(View v, String url) {
-        if (v == null) {
-            return;
-        }
-        if (v instanceof ImageView) {
-            ImageView imageView = (ImageView) v;
-            AsyncImageViewTask imageTask = new AsyncImageViewTask(imageView);
-            imageTask.execute(url);
-        }
-    }
-
-    protected void setViewImage(View v, String url, View progressView) {
-        if (v == null) {
-            return;
-        }
-        if (v instanceof ImageView) {
-            ImageView imageView = (ImageView) v;
-            AsyncImageViewTask imageTask = new AsyncImageViewTask(imageView,
-                    progressView);
-            imageTask.execute(url);
-        }
-    }
-
-    protected void setViewText(View v, String text) {
-        if (v == null) {
-            return;
-        }
-        if (v instanceof TextView) {
-            TextView textView = (TextView) v;
-            textView.setText(text);
-        }
     }
 
     @Override

@@ -115,7 +115,11 @@ public class HttpUtil {
      * @return
      */
     public static boolean downloadTo(URL url, File file) {
-        return httpGet(url, new FileHandler(file));
+        Boolean isDownloaded = httpGet(url, new FileHandler(file));
+        if (isDownloaded == null) {
+            return false;
+        }
+        return isDownloaded;
     }
 
     private static class FileHandler implements InputStreamHandler<Boolean> {

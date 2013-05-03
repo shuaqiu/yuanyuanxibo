@@ -33,6 +33,16 @@
             android:name="com.shuaqiu.yuanyuanxibo.LoginActivity"
             android:label="@string/title_activity_login" >
         </activity>
+        <activity
+            android:name="com.shuaqiu.yuanyuanxibo.UserInfoActivity"
+            android:label="@string/title_activity_user_info" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data
+                    android:host="user_info"
+                    android:scheme="yyxibo" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
