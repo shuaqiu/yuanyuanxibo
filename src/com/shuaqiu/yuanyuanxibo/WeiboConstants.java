@@ -20,4 +20,6 @@ public interface WeiboConstants {
 
     String OAUTH2_ACCESS_TOKEN = "oauth2/access_token";
 
+    String API_USER_INFO = "2/users/show.json";
+
 }

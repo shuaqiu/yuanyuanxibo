@@ -34,15 +34,13 @@ public class MainActivity extends FragmentActivity {
      */
     ViewPager mViewPager;
 
-    private Oauth2AccessToken accessToken = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        accessToken = AccessTokenKeeper.read(this);
-        if (accessToken.isSessionValid()) {
+        GrantedAccessToken.accessToken = AccessTokenKeeper.read(this);
+        if (GrantedAccessToken.accessToken.isSessionValid()) {
             initMainView();
         } else {
             initLoginView();
@@ -104,8 +102,8 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public void onComplete(String responseText) {
-            accessToken = new Oauth2AccessToken(responseText);
-            AccessTokenKeeper.save(mContext, accessToken);
+            GrantedAccessToken.accessToken = new Oauth2AccessToken(responseText);
+            AccessTokenKeeper.save(mContext, GrantedAccessToken.accessToken);
             initMainView();
         }
     }

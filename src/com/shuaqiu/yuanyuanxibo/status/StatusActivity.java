@@ -1,15 +1,17 @@
-package com.shuaqiu.yuanyuanxibo;
+package com.shuaqiu.yuanyuanxibo.status;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.Window;
 
-public class WeiboDetailActivity extends Activity implements OnTouchListener {
+import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.ViewBinder;
+
+public class StatusActivity extends Activity implements OnTouchListener {
 
     private ViewBinder binder;
 
@@ -21,7 +23,7 @@ public class WeiboDetailActivity extends Activity implements OnTouchListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_weibo_detail);
+        setContentView(R.layout.activity_status);
 
         binder = new StatusBinder(this);
 
@@ -30,13 +32,6 @@ public class WeiboDetailActivity extends Activity implements OnTouchListener {
         binder.bindView(position, getWindow().getDecorView());
 
         getWindow().getDecorView().setOnTouchListener(this);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.activity_weibo_detail, menu);
-        return true;
     }
 
     @Override

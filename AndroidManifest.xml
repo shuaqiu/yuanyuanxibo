@@ -26,15 +26,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.shuaqiu.yuanyuanxibo.WeiboDetailActivity"
+            android:name="com.shuaqiu.yuanyuanxibo.status.StatusActivity"
             android:label="@string/title_activity_weibo_detail" >
         </activity>
         <activity
-            android:name="com.shuaqiu.yuanyuanxibo.LoginActivity"
-            android:label="@string/title_activity_login" >
-        </activity>
-        <activity
-            android:name="com.shuaqiu.yuanyuanxibo.UserInfoActivity"
+            android:name="com.shuaqiu.yuanyuanxibo.user.UserInfoActivity"
             android:label="@string/title_activity_user_info" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

@@ -33,6 +33,8 @@ import javax.net.ssl.X509TrustManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.shuaqiu.yuanyuanxibo.WeiboConstants;
+
 /**
  * @author shuaqiu May 2, 2013
  */
@@ -47,6 +49,9 @@ public class HttpUtil {
      */
     public static URL parseUrl(String value) {
         try {
+            if (!value.startsWith("http")) {
+                value = WeiboConstants.API + value;
+            }
             return new URL(value);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
@@ -82,7 +87,6 @@ public class HttpUtil {
      * @param key
      * @param value
      * @return
-     * @throws UnsupportedEncodingException
      */
     public static String param(String key, Object value) {
         if (value == null) {
@@ -179,8 +183,12 @@ public class HttpUtil {
         InputStream in = null;
         try {
             if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                String msg = conn.getResponseCode() + ":"
+                        + conn.getResponseMessage();
+                Log.d(TAG, msg);
+
                 Map<String, List<String>> headerFields = conn.getHeaderFields();
-                System.err.println(headerFields);
+                Log.d(TAG, headerFields.toString());
                 return null;
             }
 
@@ -204,6 +212,7 @@ public class HttpUtil {
             InputStreamHandler<Result> handler) {
         HttpURLConnection conn = null;
         try {
+            Log.d(TAG, url.toString());
             conn = (HttpURLConnection) url.openConnection();
             // HTTPS
             setupHttps(conn);
@@ -217,6 +226,18 @@ public class HttpUtil {
             }
         }
         return null;
+    }
+
+    public static String httpGet(URL url) {
+        return httpGet(url, new StringHandler());
+    }
+
+    public static String httpGet(String urlStr, Bundle params) {
+        URL url = parseUrl(urlStr + "?" + param(params));
+        if (url == null) {
+            return null;
+        }
+        return httpGet(url, new StringHandler());
     }
 
     /**

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.shuaqiu.yuanyuanxibo;
+package com.shuaqiu.yuanyuanxibo.status;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -18,6 +18,9 @@ import android.text.Spanned;
 import android.view.View;
 
 import com.shuaqiu.common.ViewUtil;
+import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.ViewBinder;
+import com.shuaqiu.yuanyuanxibo.WeiboStatus;
 
 /**
  * @author shuaqiu 2013-4-30
@@ -159,7 +162,7 @@ public class StatusBinder implements ViewBinder {
         if (user == null) {
             return "";
         }
-        return user.optString("name", "");
+        return user.optString("screen_name", "");
     }
 
     // "Sat Apr 27 00:59:08 +0800 2013"

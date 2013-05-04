@@ -3,6 +3,8 @@
  */
 package com.shuaqiu.yuanyuanxibo;
 
+import com.shuaqiu.yuanyuanxibo.status.StatusListFragment;
+
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -26,7 +28,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         mContext = context;
-        items = new Fragment[] { new WeiboListFragment(), new Fragment(),
+        items = new Fragment[] { new StatusListFragment(), new Fragment(),
                 new Fragment(), new Fragment() };
     }
 

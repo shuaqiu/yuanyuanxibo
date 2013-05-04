@@ -1,11 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="@dimen/activity_horizontal_margin"
-    android:layout_marginLeft="@dimen/activity_vertical_margin"
-    android:layout_marginRight="@dimen/activity_vertical_margin"
-    android:layout_marginTop="@dimen/activity_horizontal_margin"
     android:orientation="vertical"
     tools:context=".UserInfoActivity" >
 
@@ -28,7 +24,9 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/five_dp"
+        android:paddingRight="@dimen/five_dp" >
 
         <ImageView
             android:id="@+id/profile_image"
@@ -74,6 +72,7 @@
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/five_dp"
         android:background="@drawable/bg_round"
         android:text="@string/empty" />
 

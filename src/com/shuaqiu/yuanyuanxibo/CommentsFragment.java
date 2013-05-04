@@ -3,6 +3,8 @@
  */
 package com.shuaqiu.yuanyuanxibo;
 
+import com.shuaqiu.yuanyuanxibo.status.StatusListAdapter;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,10 +23,10 @@ public class CommentsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         ListView listView = (ListView) inflater.inflate(
-                R.layout.fragment_comments, container, false);
+                R.layout.fragment_comment_list, container, false);
 
-        ListAdapter weiboAdapter = new WeiboListAdapter(getActivity(),
-                R.layout.listview_comment_list,
+        ListAdapter weiboAdapter = new StatusListAdapter(getActivity(),
+                R.layout.listview_comment,
                 new CommentBinder(getActivity()));
 
         listView.setAdapter(weiboAdapter);

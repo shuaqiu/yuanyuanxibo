@@ -1,7 +1,9 @@
 /**
  * 
  */
-package com.shuaqiu.yuanyuanxibo;
+package com.shuaqiu.yuanyuanxibo.status;
+
+import com.shuaqiu.yuanyuanxibo.ViewBinder;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,14 +15,14 @@ import android.widget.BaseAdapter;
  * @author shuaqiu Apr 27, 2013
  * 
  */
-public class WeiboListAdapter extends BaseAdapter {
+public class StatusListAdapter extends BaseAdapter {
 
     private ViewBinder mBinder;
 
     private int mResource;
     private LayoutInflater mInflater;
 
-    public WeiboListAdapter(Context context, int resource, ViewBinder binder) {
+    public StatusListAdapter(Context context, int resource, ViewBinder binder) {
         mResource = resource;
         mInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);

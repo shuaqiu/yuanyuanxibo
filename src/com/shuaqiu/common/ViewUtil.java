@@ -58,16 +58,42 @@ public class ViewUtil {
             TextView textView = (TextView) v;
             textView.setText(text);
 
-            Pattern pattern = Pattern.compile("@([^\\s:]+)");
-            String scheme = String.format("%s/?%s=", Defs.USER_SCHEME,
-                    Defs.USER_UID);
-            Linkify.addLinks(textView, pattern, scheme, null,
-                    new TransformFilter() {
-                        @Override
-                        public String transformUrl(Matcher match, String url) {
-                            return match.group(1);
-                        }
-                    });
+            addUserLinks(textView);
+            addTrendLinks(textView);
+            // Linkify.addLinks(textView, Linkify.WEB_URLS);
+        }
+    }
+
+    /**
+     * @param textView
+     */
+    private static void addUserLinks(TextView textView) {
+        Pattern pattern = Pattern.compile("@([^\\s:\\)）]+)");
+        String scheme = String.format("%s/?%s=", Defs.USER_SCHEME,
+                Defs.USER_NAME);
+        Linkify.addLinks(textView, pattern, scheme, null,
+                new GroupOneTransformFilter());
+    }
+
+    /**
+     * @param textView
+     */
+    private static void addTrendLinks(TextView textView) {
+        Pattern pattern = Pattern.compile("#([^\\s:\\)）]+)#");
+        String scheme = String.format("%s/?%s=", Defs.USER_SCHEME,
+                Defs.USER_NAME);
+        Linkify.addLinks(textView, pattern, scheme, null,
+                new GroupOneTransformFilter());
+    }
+
+    /**
+     * @author shuaqiu May 4, 2013
+     */
+    private static final class GroupOneTransformFilter implements
+            TransformFilter {
+        @Override
+        public String transformUrl(Matcher match, String url) {
+            return match.group(1);
         }
     }
 }
