@@ -16,4 +16,8 @@ public interface WeiboConstants {
 
     String REDIRECT_URI = "http://shuaqiu.github.io";
 
+    String OAUTH2_AUTHORIZE = "oauth2/authorize";
+
+    String OAUTH2_ACCESS_TOKEN = "oauth2/access_token";
+
 }

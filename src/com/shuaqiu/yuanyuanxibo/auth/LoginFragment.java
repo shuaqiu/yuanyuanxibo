@@ -1,5 +1,6 @@
-package com.shuaqiu.yuanyuanxibo;
+package com.shuaqiu.yuanyuanxibo.auth;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
@@ -18,27 +19,27 @@ import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.weibo.sdk.android.WeiboAuthListener;
-import com.weibo.sdk.android.WeiboDialogError;
-import com.weibo.sdk.android.WeiboException;
-import com.weibo.sdk.android.util.Utility;
+import com.shuaqiu.common.HttpUtil;
+import com.shuaqiu.common.task.AcessTokenTask;
+import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.WeiboConstants;
 
 public class LoginFragment extends Fragment {
-    private static final String TAG = "login";
 
-    private static final String AUTH_LISTENER = "auth_listener";
+    private static final String TAG = "login";
 
     private WebView mWebView;
     private ProgressDialog mSpinner;
-    private WeiboAuthListener mListener;
+    private AuthListener mAuthListener;
 
     /**
-     * @param weiboAuthListener
+     * @param authListener
      */
-    public void setAuthListener(WeiboAuthListener authListener) {
-        mListener = authListener;
+    public void setAuthListener(AuthListener authListener) {
+        mAuthListener = authListener;
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -66,9 +67,13 @@ public class LoginFragment extends Fragment {
         mWebView = (WebView) view.findViewById(R.id.authorize);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebViewClient(new WeiboWebViewClient());
-        mWebView.loadUrl(WeiboConstants.API + "oauth2/authorize?client_id="
-                + WeiboConstants.CLIENT_ID + "&redirect_uri="
-                + WeiboConstants.REDIRECT_URI + "&display=mobile");
+
+        Bundle args = new Bundle();
+        args.putString("client_id", WeiboConstants.CLIENT_ID);
+        args.putString("redirect_uri", WeiboConstants.REDIRECT_URI);
+        args.putString("display", "mobile");
+        mWebView.loadUrl(WeiboConstants.API + WeiboConstants.OAUTH2_AUTHORIZE
+                + "?" + HttpUtil.param(args));
         return view;
     }
 
@@ -91,8 +96,8 @@ public class LoginFragment extends Fragment {
         public void onReceivedError(WebView view, int errorCode,
                 String description, String failingUrl) {
             super.onReceivedError(view, errorCode, description, failingUrl);
-            mListener.onError(new WeiboDialogError(description, errorCode,
-                    failingUrl));
+            // onError(new WeiboDialogError(description, errorCode,
+            // failingUrl));
         }
 
         @Override
@@ -126,24 +131,46 @@ public class LoginFragment extends Fragment {
     }
 
     private void handleRedirectUrl(WebView view, String url) {
-        Bundle values = Utility.parseUrl(url);
+        Bundle values = HttpUtil.decodeUrl(HttpUtil.parseUrl(url));
 
         String error = values.getString("error");
         String error_code = values.getString("error_code");
 
         if (error == null && error_code == null) {
-            mListener.onComplete(values);
+            values.putString("client_id", WeiboConstants.CLIENT_ID);
+            values.putString("client_secret", WeiboConstants.CLIENT_SECRET);
+            values.putString("grant_type", "authorization_code");
+            values.putString("redirect_uri", WeiboConstants.REDIRECT_URI);
+
+            AcessTokenTask task = new AcessTokenTask(values, mAuthListener);
+            task.execute(WeiboConstants.API
+                    + WeiboConstants.OAUTH2_ACCESS_TOKEN);
+
         } else if (error.equals("access_denied")) {
             // 用户或授权服务器拒绝授予数据访问权限
-            mListener.onCancel();
+            onCancel();
         } else {
             if (error_code == null) {
-                mListener.onWeiboException(new WeiboException(error, 0));
+                onException(error, 0);
             } else {
-                mListener.onWeiboException(new WeiboException(error, Integer
-                        .parseInt(error_code)));
+                onException(error, Integer.parseInt(error_code));
             }
-
         }
+    }
+
+    /**
+     * @param weiboException
+     */
+    private void onException(String error, int errorCode) {
+    }
+
+    /**
+     * 
+     */
+    private void onCancel() {
+    }
+
+    private void onError() {
+
     }
 }

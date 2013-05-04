@@ -1,40 +1,23 @@
 package com.shuaqiu.yuanyuanxibo;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import com.shuaqiu.common.InputStreamHandler;
-import com.shuaqiu.common.task.AsyncHttpPostTask;
-import com.weibo.sdk.android.WeiboAuthListener;
-import com.weibo.sdk.android.WeiboDialogError;
-import com.weibo.sdk.android.WeiboException;
+import com.shuaqiu.yuanyuanxibo.auth.AccessTokenKeeper;
+import com.shuaqiu.yuanyuanxibo.auth.AuthListener;
+import com.shuaqiu.yuanyuanxibo.auth.LoginFragment;
+import com.shuaqiu.yuanyuanxibo.auth.Oauth2AccessToken;
 
 public class MainActivity extends FragmentActivity {
-    private static final int[] pageTitileId = new int[] { R.id.home,
-            R.id.at_me, R.id.comments, R.id.messages };
-    private static final int[] pageTitile = new int[] { R.string.home,
-            R.string.at_me, R.string.comments, R.string.messages };
+
+    protected static final String TAG = "main";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -51,33 +34,27 @@ public class MainActivity extends FragmentActivity {
      */
     ViewPager mViewPager;
 
-    LinearLayout actionBar = null;
-
-    private String accessToken = null;
+    private Oauth2AccessToken accessToken = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        if (accessToken == null) {
-            initLoginView();
-        } else {
+        accessToken = AccessTokenKeeper.read(this);
+        if (accessToken.isSessionValid()) {
             initMainView();
+        } else {
+            initLoginView();
         }
     }
 
     private void initLoginView() {
-        RelativeLayout view = new RelativeLayout(this);
-        view.setId(R.id.home);
-        setContentView(view);
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction transaction = fm.beginTransaction();
-        LoginFragment fragment = new LoginFragment();
-        fragment.setAuthListener(new AuthListener());
-        transaction.add(view.getId(), fragment);
-        transaction.commit();
-        fm.executePendingTransactions();
+        setContentView(R.layout.activity_login);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        LoginFragment loginFragment = (LoginFragment) fragmentManager
+                .findFragmentById(R.id.login);
+        loginFragment.setAuthListener(new MainAuthListener(this));
     }
 
     private void initMainView() {
@@ -85,7 +62,7 @@ public class MainActivity extends FragmentActivity {
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(
+        mSectionsPagerAdapter = new SectionsPagerAdapter(this,
                 getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
@@ -104,63 +81,32 @@ public class MainActivity extends FragmentActivity {
                     }
                 });
 
-        actionBar = (LinearLayout) findViewById(R.id.action_bar);
-
         // For each of the sections in the app, add a tab to the action bar.
         for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
             // Create a tab with text corresponding to the page title defined by
             // the adapter. Also specify this Activity object, which implements
             // the TabListener interface, as the callback (listener) for when
             // this tab is selected.
-            actionBar.findViewById(pageTitileId[i]).setOnClickListener(
-                    new ActionBarClickListener(i));
+            findViewById(SectionsPagerAdapter.mPageTitileId[i])
+                    .setOnClickListener(new ActionBarClickListener(i));
         }
     }
 
     /**
-     * @author shuaqiu May 2, 2013
+     * @author shuaqiu May 4, 2013
      */
-    private final class AuthListener implements WeiboAuthListener {
-        @Override
-        public void onComplete(Bundle values) {
-            values.putString("client_id", WeiboConstants.CLIENT_ID);
-            values.putString("client_secret", WeiboConstants.CLIENT_SECRET);
-            values.putString("grant_type", "authorization_code");
-            values.putString("redirect_uri", WeiboConstants.REDIRECT_URI);
+    private final class MainAuthListener implements AuthListener {
+        private Context mContext;
 
-            AsyncHttpPostTask<JSONObject> task = new AsyncHttpPostTask<JSONObject>(
-                    values, new InputStreamHandler<JSONObject>() {
-
-                        @Override
-                        public JSONObject handle(InputStream in)
-                                throws IOException {
-                            byte[] buf = new byte[in.available()];
-                            int readed = in.read(buf);
-                            if (readed != -1) {
-                                try {
-                                    String json = new String(buf);
-                                    System.err.println(json);
-                                    return new JSONObject(json);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            return null;
-                        }
-                    });
-            task.execute(WeiboConstants.API + "oauth2/access_token");
+        public MainAuthListener(Context context) {
+            mContext = context;
         }
 
         @Override
-        public void onWeiboException(WeiboException e) {
-        }
-
-        @Override
-        public void onError(WeiboDialogError e) {
-        }
-
-        @Override
-        public void onCancel() {
+        public void onComplete(String responseText) {
+            accessToken = new Oauth2AccessToken(responseText);
+            AccessTokenKeeper.save(mContext, accessToken);
+            initMainView();
         }
     }
 
@@ -184,81 +130,10 @@ public class MainActivity extends FragmentActivity {
         return true;
     }
 
-    public void onTabSelected(int position,
-            FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, switch to the corresponding page in
-        // the ViewPager.
-        mViewPager.setCurrentItem(position);
-    }
-
     public void onTabSelected(int position) {
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
         System.err.println("tab selected -->" + position);
         mViewPager.setCurrentItem(position);
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a DummySectionFragment (defined as a static inner class
-            // below) with the page number as its lone argument.
-            if (position == 0) {
-                return new WeiboListFragment();
-            }
-
-            Fragment fragment = new DummySectionFragment();
-            Bundle args = new Bundle();
-            args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public int getCount() {
-            return pageTitile.length;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return getString(pageTitile[position]);
-        }
-    }
-
-    /**
-     * A dummy fragment representing a section of the app, but that simply
-     * displays dummy text.
-     */
-    public static class DummySectionFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        public static final String ARG_SECTION_NUMBER = "section_number";
-
-        public DummySectionFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            // Create a new TextView and set its text to the fragment's section
-            // number argument value.
-            TextView textView = new TextView(getActivity());
-            textView.setGravity(Gravity.CENTER);
-            textView.setText(Integer.toString(getArguments().getInt(
-                    ARG_SECTION_NUMBER)));
-            return textView;
-        }
     }
 }

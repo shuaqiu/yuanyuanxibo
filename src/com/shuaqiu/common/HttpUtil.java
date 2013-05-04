@@ -4,22 +4,28 @@
 package com.shuaqiu.common;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -31,9 +37,9 @@ import android.util.Log;
  * @author shuaqiu May 2, 2013
  */
 public class HttpUtil {
-    private static final String TAG = "http";
+    static final String TAG = "http";
 
-    private static final int HTTP_OK = 200;
+    private static final String CONTENT_TYPE_FORM = "application/x-www-form-urlencoded";
 
     /**
      * @param value
@@ -65,6 +71,9 @@ public class HttpUtil {
                 p.append(param(key, value));
             }
         }
+        if (p.length() > 1) {
+            return p.substring(1);
+        }
 
         return p.toString();
     }
@@ -80,28 +89,129 @@ public class HttpUtil {
             return "";
         }
         try {
-            return key + "=" + URLEncoder.encode(value.toString(), "UTF-8");
+            return "&" + key + "="
+                    + URLEncoder.encode(value.toString(), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, e.getMessage(), e);
         }
         return "";
     }
 
-    public static <Result> Result httpGet(URL url,
-            InputStreamHandler<Result> handler) {
-        HttpURLConnection conn = null;
+    public static Bundle decodeUrl(URL url) {
+        if (url == null) {
+            return new Bundle();
+        }
+        Bundle b = decodeUrl(url.getQuery());
+        b.putAll(decodeUrl(url.getRef()));
+        return b;
+    }
+
+    public static Bundle decodeUrl(String s) {
+        Bundle params = new Bundle();
+        if (s != null) {
+            String array[] = s.split("&");
+            for (String parameter : array) {
+                String v[] = parameter.split("=");
+                try {
+                    params.putString(URLDecoder.decode(v[0], "UTF-8"),
+                            URLDecoder.decode(v[1], "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    Log.e(TAG, e.getMessage(), e);
+                }
+            }
+        }
+        return params;
+    }
+
+    /**
+     * @param url
+     * @param conn
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
+     */
+    private static void setupHttps(HttpURLConnection conn)
+            throws NoSuchAlgorithmException, KeyManagementException {
+        if (conn instanceof HttpsURLConnection) {
+            HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
+
+            httpsConn.setHostnameVerifier(new TrustAllHostnameVerifier());
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null,
+                    new TrustManager[] { new TrustAllX509TrustManager() },
+                    new SecureRandom());
+            httpsConn.setSSLSocketFactory(sslContext.getSocketFactory());
+        }
+    }
+
+    /**
+     * @param conn
+     * @param args
+     * @return
+     * @throws IOException
+     */
+    private static void writeRequestParam(HttpURLConnection conn, Bundle args)
+            throws IOException {
+        OutputStream out = null;
+        try {
+            out = conn.getOutputStream();
+            String param = param(args);
+            out.write(param.getBytes());
+            out.flush();
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw e;
+        } finally {
+            StreamUtil.close(out);
+        }
+    }
+
+    /**
+     * @param conn
+     * @param handler
+     * @param in
+     * @return
+     * @throws IOException
+     * @throws SSLPeerUnverifiedException
+     */
+    private static <Result> Result readResponse(HttpURLConnection conn,
+            InputStreamHandler<Result> handler) throws IOException {
         InputStream in = null;
         try {
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoInput(true);
-            if (conn.getResponseCode() == HTTP_OK) {
-                in = conn.getInputStream();
-                return handler.handle(in);
+            if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                Map<String, List<String>> headerFields = conn.getHeaderFields();
+                System.err.println(headerFields);
+                return null;
             }
-        } catch (Exception e) {
+
+            in = conn.getInputStream();
+
+            String contentEncoding = conn.getContentEncoding();
+            if (contentEncoding != null && contentEncoding.indexOf("gzip") > -1) {
+                in = new GZIPInputStream(in);
+            }
+            return handler.handle(in);
+
+        } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
         } finally {
             StreamUtil.close(in);
+        }
+        return null;
+    }
+
+    public static <Result> Result httpGet(URL url,
+            InputStreamHandler<Result> handler) {
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) url.openConnection();
+            // HTTPS
+            setupHttps(conn);
+
+            return readResponse(conn, handler);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
             if (conn != null) {
                 conn.disconnect();
             }
@@ -122,97 +232,67 @@ public class HttpUtil {
         return isDownloaded;
     }
 
-    private static class FileHandler implements InputStreamHandler<Boolean> {
-        private File file = null;
-
-        public FileHandler(File file) {
-            this.file = file;
-        }
-
-        @Override
-        public Boolean handle(InputStream in) throws IOException {
-            OutputStream out = null;
-            try {
-                File parentFile = file.getParentFile();
-                if (parentFile != null && !parentFile.exists()) {
-                    parentFile.mkdirs();
-                }
-                out = new FileOutputStream(file);
-
-                StreamUtil.tranfer(in, out);
-                return true;
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-            } finally {
-                StreamUtil.close(out);
-            }
-            return false;
-        }
-    }
-
     public static <Result> Result httpPost(URL url, Bundle args,
             InputStreamHandler<Result> handler) {
         HttpURLConnection conn = null;
-        InputStream in = null;
-        OutputStream out = null;
         try {
             conn = (HttpURLConnection) url.openConnection();
-            if (url.getProtocol().equals("https")) {
-                HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
-                httpsConn.setHostnameVerifier(new HostnameVerifier() {
-                    @Override
-                    public boolean verify(String hostname, SSLSession session) {
-                        return true;
-                    }
-                });
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null,
-                        new TrustManager[] { new X509TrustManager() {
+            // HTTPS
+            setupHttps(conn);
 
-                            @Override
-                            public X509Certificate[] getAcceptedIssuers() {
-                                return null;
-                            }
-
-                            @Override
-                            public void checkServerTrusted(
-                                    X509Certificate[] chain, String authType)
-                                    throws CertificateException {
-                            }
-
-                            @Override
-                            public void checkClientTrusted(
-                                    X509Certificate[] chain, String authType)
-                                    throws CertificateException {
-                            }
-                        } }, new SecureRandom());
-                httpsConn.setSSLSocketFactory(sslContext.getSocketFactory());
-            }
-            conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setUseCaches(false);
+            conn.setRequestProperty("Content-Type", CONTENT_TYPE_FORM);
 
             conn.connect();
 
-            out = conn.getOutputStream();
-            out.write(param(args).getBytes());
-            out.flush();
-            StreamUtil.close(out);
+            writeRequestParam(conn, args);
 
-            // if (conn.getResponseCode() == HTTP_OK) {
-            in = conn.getInputStream();
-            return handler.handle(in);
-            // }
+            return readResponse(conn, handler);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         } finally {
-            StreamUtil.close(in);
-            StreamUtil.close(out);
             if (conn != null) {
                 conn.disconnect();
             }
         }
         return null;
+    }
+
+    public static String httpPost(URL url, Bundle args) {
+        return httpPost(url, args, new StringHandler());
+    }
+
+    /**
+     * @author shuaqiu May 3, 2013
+     */
+    private static final class TrustAllX509TrustManager implements
+            X509TrustManager {
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+    }
+
+    /**
+     * @author shuaqiu May 3, 2013
+     */
+    private static final class TrustAllHostnameVerifier implements
+            HostnameVerifier {
+        @Override
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }
     }
 }
