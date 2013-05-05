@@ -9,11 +9,12 @@ import android.os.Bundle;
 import android.view.Window;
 
 import com.shuaqiu.common.ViewUtil;
+import com.shuaqiu.common.task.AsyncHttpGetTask;
 import com.shuaqiu.common.task.AsyncTaskListener;
+import com.shuaqiu.yuanyuanxibo.API.User;
 import com.shuaqiu.yuanyuanxibo.Defs;
-import com.shuaqiu.yuanyuanxibo.GrantedAccessToken;
+import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.R;
-import com.shuaqiu.yuanyuanxibo.WeiboConstants;
 
 public class UserInfoActivity extends Activity implements
         AsyncTaskListener<JSONObject> {
@@ -26,13 +27,13 @@ public class UserInfoActivity extends Activity implements
 
         setContentView(R.layout.activity_user_info);
 
-        String accessToken = GrantedAccessToken.accessToken.getAccessToken();
+        String accessToken = StateKeeper.accessToken.getAccessToken();
         String username = extractUsername();
 
         Bundle args = new Bundle();
         args.putString("access_token", accessToken);
         args.putString("screen_name", username);
-        new AsyncHttpGetTask(args, this).execute(WeiboConstants.API_USER_INFO);
+        new AsyncHttpGetTask(args, this).execute(User.USER_INFO);
     }
 
     private String extractUsername() {

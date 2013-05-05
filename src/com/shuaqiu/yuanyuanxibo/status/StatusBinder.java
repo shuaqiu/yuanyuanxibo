@@ -3,62 +3,39 @@
  */
 package com.shuaqiu.yuanyuanxibo.status;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.View;
+import android.widget.TextView;
 
+import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.ViewUtil;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.ViewBinder;
-import com.shuaqiu.yuanyuanxibo.WeiboStatus;
 
 /**
  * @author shuaqiu 2013-4-30
  */
 public class StatusBinder implements ViewBinder {
-
-    private static final long ONE_MINUTE = 60 * 1000L;
-
-    private static final long ONE_HOUR = 60 * ONE_MINUTE;
-
-    private static final long ONE_DAY = 24 * ONE_HOUR;
-
-    private JSONArray mData;
-
-    private DateFormat dateParser = new SimpleDateFormat(
-            "EEE MMM dd HH:mm:ss zzz yyyy", Locale.getDefault());
-    private DateFormat timeFormat;
-    private DateFormat dateFormat;
+    private TimeHelper mTimeHelper;
 
     public StatusBinder(Context context) {
-
-        mData = WeiboStatus.getInstance().getStatus();
-
-        timeFormat = android.text.format.DateFormat.getTimeFormat(context);
-        dateFormat = android.text.format.DateFormat.getDateFormat(context);
+        mTimeHelper = new TimeHelper(context);
     }
 
+    /**
+     * @param view
+     * @param data
+     */
     @Override
-    public void bindView(int position, View view) {
-        final JSONObject status = mData.optJSONObject(position);
-        if (status == null) {
-            return;
-        }
-
-        setProfileImage(view, status);
-        setStatusViews(view, status);
-        setRetweetedViews(view, status);
-        setThumbnailPic(view, status);
+    public void bindView(View view, final JSONObject data) {
+        setProfileImage(view, data);
+        setStatusViews(view, data);
+        setRetweetedViews(view, data);
+        setThumbnailPic(view, data);
     }
 
     /**
@@ -77,12 +54,13 @@ public class StatusBinder implements ViewBinder {
      * @param status
      */
     protected void setStatusViews(View view, JSONObject status) {
-        ViewUtil.setViewText(view.findViewById(R.id.user_name),
-                optUsername(status));
+        View usernameView = view.findViewById(R.id.user_name);
+        ViewUtil.setViewText(usernameView, optUsername(status));
+        ViewUtil.addUserLinks((TextView) usernameView, ViewUtil.USER_PATTERN);
         ViewUtil.setViewText(view.findViewById(R.id.created_at),
                 optCreateTime(status));
         ViewUtil.setViewStatusText(view.findViewById(R.id.text),
-                optText(status));
+                status.optString("text", ""));
         ViewUtil.setViewText(view.findViewById(R.id.source), optSource(status));
         ViewUtil.setViewText(view.findViewById(R.id.attitudes_count),
                 status.optString("attitudes_count", "0"));
@@ -111,18 +89,20 @@ public class StatusBinder implements ViewBinder {
      * @param retweetedStatus
      */
     protected void setRetweetedStatusViews(View view, JSONObject retweetedStatus) {
-        ViewUtil.setViewText(view.findViewById(R.id.retweeted_user_name),
-                optUsername(retweetedStatus));
+        View usernameView = view.findViewById(R.id.retweeted_user_name);
+        ViewUtil.setViewText(usernameView, optUsername(retweetedStatus));
+        ViewUtil.addUserLinks((TextView) usernameView, ViewUtil.USER_PATTERN);
+
         ViewUtil.setViewText(view.findViewById(R.id.retweeted_created_at),
                 optCreateTime(retweetedStatus));
         ViewUtil.setViewStatusText(view.findViewById(R.id.retweeted_text),
-                optText(retweetedStatus));
+                retweetedStatus.optString("text", ""));
         ViewUtil.setViewText(view.findViewById(R.id.retweeted_source),
                 optSource(retweetedStatus));
         ViewUtil.setViewText(view.findViewById(R.id.retweeted_attitudes_count),
-                retweetedStatus.optString("retweeted_attitudes_count", "0"));
-        ViewUtil.setViewText(view.findViewById(R.id.reposts_count),
-                retweetedStatus.optString("retweeted_reposts_count", "0"));
+                retweetedStatus.optString("attitudes_count", "0"));
+        ViewUtil.setViewText(view.findViewById(R.id.retweeted_reposts_count),
+                retweetedStatus.optString("reposts_count", "0"));
         ViewUtil.setViewText(view.findViewById(R.id.retweeted_comments_count),
                 retweetedStatus.optString("comments_count", "0"));
 
@@ -168,34 +148,7 @@ public class StatusBinder implements ViewBinder {
     // "Sat Apr 27 00:59:08 +0800 2013"
     protected String optCreateTime(JSONObject status) {
         String createdAt = status.optString("created_at");
-
-        try {
-            return format(dateParser.parse(createdAt));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return createdAt;
-    }
-
-    protected String format(Date date) {
-        long diff = System.currentTimeMillis() - date.getTime();
-
-        if (diff < ONE_MINUTE) {
-            return "刚刚";
-        }
-        if (diff < ONE_HOUR) {
-            return diff / ONE_MINUTE + "分钟前";
-        }
-        if (diff < ONE_DAY) {
-            return timeFormat.format(date);
-        }
-        return dateFormat.format(date);
-    }
-
-    protected String optText(JSONObject status) {
-        String text = status.optString("text", "");
-
-        return text;
+        return mTimeHelper.beautyTime(createdAt);
     }
 
     protected Spanned optSource(JSONObject status) {
@@ -214,10 +167,5 @@ public class StatusBinder implements ViewBinder {
             return null;
         }
         return retweetedStatus.optString("thumbnail_pic", null);
-    }
-
-    @Override
-    public JSONArray getDataItems() {
-        return mData;
     }
 }

@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import android.text.util.Linkify;
 import android.text.util.Linkify.TransformFilter;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +17,12 @@ import com.shuaqiu.yuanyuanxibo.Defs;
  * @author shuaqiu 2013-5-3
  */
 public class ViewUtil {
+    /**
+     * 中英文，數字，減號，下橫槓
+     */
+    public static final String USER_PATTERN = "([\\w\\-_\\u4e00-\\u9fa5]+)";
+
+    public static final String AT_USER_PATTERN = "@" + USER_PATTERN;
 
     public static void setViewImage(View v, String url) {
         if (v == null) {
@@ -60,7 +67,7 @@ public class ViewUtil {
 
             addUserLinks(textView);
             addTrendLinks(textView);
-            // Linkify.addLinks(textView, Linkify.WEB_URLS);
+            addWebLinks(textView);
         }
     }
 
@@ -68,7 +75,15 @@ public class ViewUtil {
      * @param textView
      */
     private static void addUserLinks(TextView textView) {
-        Pattern pattern = Pattern.compile("@([^\\s:\\)）]+)");
+        addUserLinks(textView, AT_USER_PATTERN);
+    }
+
+    /**
+     * @param textView
+     * @param userPattern
+     */
+    public static void addUserLinks(TextView textView, String userPattern) {
+        Pattern pattern = Pattern.compile(userPattern);
         String scheme = String.format("%s/?%s=", Defs.USER_SCHEME,
                 Defs.USER_NAME);
         Linkify.addLinks(textView, pattern, scheme, null,
@@ -80,10 +95,18 @@ public class ViewUtil {
      */
     private static void addTrendLinks(TextView textView) {
         Pattern pattern = Pattern.compile("#([^\\s:\\)）]+)#");
-        String scheme = String.format("%s/?%s=", Defs.USER_SCHEME,
-                Defs.USER_NAME);
+        String scheme = String.format("%s/?%s=", Defs.TREND_SCHEME,
+                Defs.TREND_NAME);
         Linkify.addLinks(textView, pattern, scheme, null,
                 new GroupOneTransformFilter());
+    }
+
+    /**
+     * @param textView
+     */
+    public static void addWebLinks(TextView textView) {
+        Linkify.addLinks(textView, Patterns.WEB_URL, null,
+                Linkify.sUrlMatchFilter, null);
     }
 
     /**

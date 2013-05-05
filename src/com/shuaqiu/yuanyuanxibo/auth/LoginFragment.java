@@ -21,8 +21,9 @@ import android.webkit.WebViewClient;
 
 import com.shuaqiu.common.HttpUtil;
 import com.shuaqiu.common.task.AcessTokenTask;
+import com.shuaqiu.yuanyuanxibo.API;
+import com.shuaqiu.yuanyuanxibo.API.OAuth;
 import com.shuaqiu.yuanyuanxibo.R;
-import com.shuaqiu.yuanyuanxibo.WeiboConstants;
 
 public class LoginFragment extends Fragment {
 
@@ -69,11 +70,10 @@ public class LoginFragment extends Fragment {
         mWebView.setWebViewClient(new WeiboWebViewClient());
 
         Bundle args = new Bundle();
-        args.putString("client_id", WeiboConstants.CLIENT_ID);
-        args.putString("redirect_uri", WeiboConstants.REDIRECT_URI);
+        args.putString("client_id", API.CLIENT_ID);
+        args.putString("redirect_uri", API.REDIRECT_URI);
         args.putString("display", "mobile");
-        mWebView.loadUrl(WeiboConstants.API + WeiboConstants.OAUTH2_AUTHORIZE
-                + "?" + HttpUtil.param(args));
+        mWebView.loadUrl(API.API + OAuth.AUTHORIZE + "?" + HttpUtil.param(args));
         return view;
     }
 
@@ -103,7 +103,7 @@ public class LoginFragment extends Fragment {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             Log.d(TAG, "onPageStarted URL: " + url);
-            if (url.startsWith(WeiboConstants.REDIRECT_URI)) {
+            if (url.startsWith(API.REDIRECT_URI)) {
                 handleRedirectUrl(view, url);
                 view.stopLoading();
                 return;
@@ -137,14 +137,13 @@ public class LoginFragment extends Fragment {
         String error_code = values.getString("error_code");
 
         if (error == null && error_code == null) {
-            values.putString("client_id", WeiboConstants.CLIENT_ID);
-            values.putString("client_secret", WeiboConstants.CLIENT_SECRET);
+            values.putString("client_id", API.CLIENT_ID);
+            values.putString("client_secret", API.CLIENT_SECRET);
             values.putString("grant_type", "authorization_code");
-            values.putString("redirect_uri", WeiboConstants.REDIRECT_URI);
+            values.putString("redirect_uri", API.REDIRECT_URI);
 
             AcessTokenTask task = new AcessTokenTask(values, mAuthListener);
-            task.execute(WeiboConstants.API
-                    + WeiboConstants.OAUTH2_ACCESS_TOKEN);
+            task.execute(API.API + OAuth.ACCESS_TOKEN);
 
         } else if (error.equals("access_denied")) {
             // 用户或授权服务器拒绝授予数据访问权限

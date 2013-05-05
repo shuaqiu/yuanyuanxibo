@@ -39,8 +39,8 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        GrantedAccessToken.accessToken = AccessTokenKeeper.read(this);
-        if (GrantedAccessToken.accessToken.isSessionValid()) {
+        StateKeeper.accessToken = AccessTokenKeeper.read(this);
+        if (StateKeeper.accessToken.isSessionValid()) {
             initMainView();
         } else {
             initLoginView();
@@ -102,8 +102,8 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public void onComplete(String responseText) {
-            GrantedAccessToken.accessToken = new Oauth2AccessToken(responseText);
-            AccessTokenKeeper.save(mContext, GrantedAccessToken.accessToken);
+            StateKeeper.accessToken = new Oauth2AccessToken(responseText);
+            AccessTokenKeeper.save(mContext, StateKeeper.accessToken);
             initMainView();
         }
     }

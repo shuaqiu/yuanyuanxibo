@@ -33,7 +33,7 @@ import javax.net.ssl.X509TrustManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.shuaqiu.yuanyuanxibo.WeiboConstants;
+import com.shuaqiu.yuanyuanxibo.API;
 
 /**
  * @author shuaqiu May 2, 2013
@@ -50,7 +50,7 @@ public class HttpUtil {
     public static URL parseUrl(String value) {
         try {
             if (!value.startsWith("http")) {
-                value = WeiboConstants.API + value;
+                value = API.API + value;
             }
             return new URL(value);
         } catch (Exception e) {

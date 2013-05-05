@@ -3,7 +3,8 @@
  */
 package com.shuaqiu.yuanyuanxibo.status;
 
-import com.shuaqiu.yuanyuanxibo.ViewBinder;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,9 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.shuaqiu.yuanyuanxibo.ViewBinder;
+
 /**
  * @author shuaqiu Apr 27, 2013
- * 
  */
 public class StatusListAdapter extends BaseAdapter {
 
@@ -22,22 +24,27 @@ public class StatusListAdapter extends BaseAdapter {
     private int mResource;
     private LayoutInflater mInflater;
 
-    public StatusListAdapter(Context context, int resource, ViewBinder binder) {
+    private JSONArray mStatuses;
+
+    public StatusListAdapter(Context context, int resource, ViewBinder binder,
+            JSONArray statuses) {
         mResource = resource;
         mInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         mBinder = binder;
+
+        mStatuses = statuses;
     }
 
     @Override
     public int getCount() {
-        return mBinder.getDataItems().length();
+        return mStatuses.length();
     }
 
     @Override
     public Object getItem(int position) {
-        return mBinder.getDataItems().opt(position);
+        return mStatuses.opt(position);
     }
 
     @Override
@@ -54,7 +61,10 @@ public class StatusListAdapter extends BaseAdapter {
             v = convertView;
         }
 
-        mBinder.bindView(position, v);
+        final JSONObject status = mStatuses.optJSONObject(position);
+        if (status != null) {
+            mBinder.bindView(v, status);
+        }
 
         return v;
     }

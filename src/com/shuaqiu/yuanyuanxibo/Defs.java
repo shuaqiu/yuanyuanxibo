@@ -12,4 +12,7 @@ public interface Defs {
 
     String USER_SCHEME = "yyxibo://user_info";
     String USER_NAME = "name";
+
+    String TREND_SCHEME = "yyxibo://trend_info";
+    String TREND_NAME = "name";
 }
