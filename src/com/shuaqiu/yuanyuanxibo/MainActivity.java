@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,7 +18,7 @@ import com.shuaqiu.yuanyuanxibo.auth.Oauth2AccessToken;
 
 public class MainActivity extends FragmentActivity {
 
-    protected static final String TAG = "main";
+    private static final String TAG = "main";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -43,6 +44,7 @@ public class MainActivity extends FragmentActivity {
         if (StateKeeper.accessToken.isSessionValid()) {
             initMainView();
         } else {
+            Log.d(TAG, "access token is invalid, need login!");
             initLoginView();
         }
     }
@@ -70,14 +72,7 @@ public class MainActivity extends FragmentActivity {
         // When swiping between different sections, select the corresponding
         // tab. We can also use ActionBar.Tab#select() to do this if we have
         // a reference to the Tab.
-        mViewPager
-                .setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        // actionBar.setSelectedNavigationItem(position);
-                        onTabSelected(position);
-                    }
-                });
+        mViewPager.setOnPageChangeListener(new MainPageChangeListener());
 
         // For each of the sections in the app, add a tab to the action bar.
         for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -86,7 +81,34 @@ public class MainActivity extends FragmentActivity {
             // the TabListener interface, as the callback (listener) for when
             // this tab is selected.
             findViewById(SectionsPagerAdapter.mPageTitileId[i])
-                    .setOnClickListener(new ActionBarClickListener(i));
+                    .setOnClickListener(new MainTabClickListener(i));
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    private void onTabSelected(int position) {
+        // When the given tab is selected, switch to the corresponding page in
+        // the ViewPager.
+        System.err.println("tab selected -->" + position);
+        mViewPager.setCurrentItem(position);
+    }
+
+    /**
+     * @author shuaqiu 2013-5-6
+     * 
+     */
+    private final class MainPageChangeListener extends
+            ViewPager.SimpleOnPageChangeListener {
+        @Override
+        public void onPageSelected(int position) {
+            // actionBar.setSelectedNavigationItem(position);
+            onTabSelected(position);
         }
     }
 
@@ -108,10 +130,10 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
-    private class ActionBarClickListener implements OnClickListener {
+    private class MainTabClickListener implements OnClickListener {
         private int position;
 
-        public ActionBarClickListener(int position) {
+        public MainTabClickListener(int position) {
             this.position = position;
         }
 
@@ -119,19 +141,5 @@ public class MainActivity extends FragmentActivity {
         public void onClick(View v) {
             onTabSelected(position);
         }
-    };
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    public void onTabSelected(int position) {
-        // When the given tab is selected, switch to the corresponding page in
-        // the ViewPager.
-        System.err.println("tab selected -->" + position);
-        mViewPager.setCurrentItem(position);
     }
 }
