@@ -20,9 +20,39 @@ public class ViewUtil {
     /**
      * 中英文，數字，減號，下橫槓
      */
-    public static final String USER_PATTERN = "([\\w\\-_\\u4e00-\\u9fa5]+)";
+    private static final String USER_PATTERN_STR = "([\\w\\-_\\u4e00-\\u9fa5]+)";
 
-    public static final String AT_USER_PATTERN = "@" + USER_PATTERN;
+    private static final GroupOneTransformFilter GROUP_ONE_TRANSFORM_FILTER = new GroupOneTransformFilter();
+
+    /**
+     * Bit field indicating that web URLs should be matched in methods that take
+     * an options mask
+     */
+    public static final int WEB_URLS = 0x01;
+
+    /**
+     * Bit field indicating that email addresses should be matched in methods
+     * that take an options mask
+     */
+    public static final int TREND = 0x02;
+
+    /**
+     * Bit field indicating that phone numbers should be matched in methods that
+     * take an options mask
+     */
+    public static final int AT_USER = 0x04;
+
+    /**
+     * Bit field indicating that street addresses should be matched in methods
+     * that take an options mask
+     */
+    public static final int USER = 0x08;
+
+    /**
+     * Bit mask indicating that all available patterns should be matched in
+     * methods that take an options mask
+     */
+    public static final int ALL = WEB_URLS | TREND | AT_USER;
 
     public static void setViewImage(View v, String url) {
         if (v == null) {
@@ -57,7 +87,7 @@ public class ViewUtil {
         }
     }
 
-    public static void setViewStatusText(View v, CharSequence text) {
+    public static void setViewText(View v, CharSequence text, int mask) {
         if (v == null) {
             return;
         }
@@ -65,48 +95,52 @@ public class ViewUtil {
             TextView textView = (TextView) v;
             textView.setText(text);
 
-            addUserLinks(textView);
-            addTrendLinks(textView);
-            addWebLinks(textView);
+            addLinks(textView, mask);
         }
     }
 
     /**
      * @param textView
+     * @param mask
      */
-    private static void addUserLinks(TextView textView) {
-        addUserLinks(textView, AT_USER_PATTERN);
+    public static void addLinks(View v, int mask) {
+        if (!(v instanceof TextView)) {
+            return;
+        }
+        TextView textView = (TextView) v;
+        if ((mask & WEB_URLS) != 0) {
+            Linkify.addLinks(textView, Patterns.WEB_URL, null,
+                    Linkify.sUrlMatchFilter, null);
+        }
+        if ((mask & TREND) != 0) {
+            Linkify.addLinks(textView, LinkPattern.TREND, LinkScheme.TREND,
+                    null, GROUP_ONE_TRANSFORM_FILTER);
+        }
+        if ((mask & AT_USER) != 0) {
+            Linkify.addLinks(textView, LinkPattern.AT_USER, LinkScheme.USER,
+                    null, GROUP_ONE_TRANSFORM_FILTER);
+        }
+        if ((mask & USER) != 0) {
+            Linkify.addLinks(textView, LinkPattern.USER, LinkScheme.USER, null,
+                    GROUP_ONE_TRANSFORM_FILTER);
+        }
     }
 
-    /**
-     * @param textView
-     * @param userPattern
-     */
-    public static void addUserLinks(TextView textView, String userPattern) {
-        Pattern pattern = Pattern.compile(userPattern);
-        String scheme = String.format("%s/?%s=", Defs.USER_SCHEME,
-                Defs.USER_NAME);
-        Linkify.addLinks(textView, pattern, scheme, null,
-                new GroupOneTransformFilter());
+    private interface LinkPattern {
+
+        Pattern USER = Pattern.compile(USER_PATTERN_STR);
+
+        Pattern AT_USER = Pattern.compile("@" + USER_PATTERN_STR);;
+
+        Pattern TREND = Pattern.compile("#([^\\s:\\)）]+)#");
     }
 
-    /**
-     * @param textView
-     */
-    private static void addTrendLinks(TextView textView) {
-        Pattern pattern = Pattern.compile("#([^\\s:\\)）]+)#");
-        String scheme = String.format("%s/?%s=", Defs.TREND_SCHEME,
+    private interface LinkScheme {
+        String USER = String
+                .format("%s/?%s=", Defs.USER_SCHEME, Defs.USER_NAME);
+
+        String TREND = String.format("%s/?%s=", Defs.TREND_SCHEME,
                 Defs.TREND_NAME);
-        Linkify.addLinks(textView, pattern, scheme, null,
-                new GroupOneTransformFilter());
-    }
-
-    /**
-     * @param textView
-     */
-    public static void addWebLinks(TextView textView) {
-        Linkify.addLinks(textView, Patterns.WEB_URL, null,
-                Linkify.sUrlMatchFilter, null);
     }
 
     /**

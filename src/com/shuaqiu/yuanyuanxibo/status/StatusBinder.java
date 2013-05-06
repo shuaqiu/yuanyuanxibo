@@ -6,10 +6,7 @@ package com.shuaqiu.yuanyuanxibo.status;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.text.Html;
-import android.text.Spanned;
 import android.view.View;
-import android.widget.TextView;
 
 import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.ViewUtil;
@@ -20,10 +17,16 @@ import com.shuaqiu.yuanyuanxibo.ViewBinder;
  * @author shuaqiu 2013-4-30
  */
 public class StatusBinder implements ViewBinder {
-    private TimeHelper mTimeHelper;
+    public enum Type {
+        LIST, DETAIL
+    }
 
-    public StatusBinder(Context context) {
+    private TimeHelper mTimeHelper;
+    private Type mType;
+
+    public StatusBinder(Context context, Type type) {
         mTimeHelper = new TimeHelper(context);
+        mType = type;
     }
 
     /**
@@ -55,12 +58,17 @@ public class StatusBinder implements ViewBinder {
      */
     protected void setStatusViews(View view, JSONObject status) {
         View usernameView = view.findViewById(R.id.user_name);
+        View textView = view.findViewById(R.id.text);
         ViewUtil.setViewText(usernameView, optUsername(status));
-        ViewUtil.addUserLinks((TextView) usernameView, ViewUtil.USER_PATTERN);
+        ViewUtil.setViewText(textView, status.optString("text", ""));
+        if (mType == Type.DETAIL) {
+            ViewUtil.addLinks(usernameView, ViewUtil.USER);
+            ViewUtil.addLinks(textView, ViewUtil.ALL);
+        }
+
         ViewUtil.setViewText(view.findViewById(R.id.created_at),
                 optCreateTime(status));
-        ViewUtil.setViewStatusText(view.findViewById(R.id.text),
-                status.optString("text", ""));
+
         ViewUtil.setViewText(view.findViewById(R.id.source), optSource(status));
         ViewUtil.setViewText(view.findViewById(R.id.attitudes_count),
                 status.optString("attitudes_count", "0"));
@@ -90,13 +98,16 @@ public class StatusBinder implements ViewBinder {
      */
     protected void setRetweetedStatusViews(View view, JSONObject retweetedStatus) {
         View usernameView = view.findViewById(R.id.retweeted_user_name);
+        View textView = view.findViewById(R.id.retweeted_text);
         ViewUtil.setViewText(usernameView, optUsername(retweetedStatus));
-        ViewUtil.addUserLinks((TextView) usernameView, ViewUtil.USER_PATTERN);
+        ViewUtil.setViewText(textView, retweetedStatus.optString("text", ""));
+        if (mType == Type.DETAIL) {
+            ViewUtil.addLinks(usernameView, ViewUtil.USER);
+            ViewUtil.addLinks(textView, ViewUtil.ALL);
+        }
 
         ViewUtil.setViewText(view.findViewById(R.id.retweeted_created_at),
                 optCreateTime(retweetedStatus));
-        ViewUtil.setViewStatusText(view.findViewById(R.id.retweeted_text),
-                retweetedStatus.optString("text", ""));
         ViewUtil.setViewText(view.findViewById(R.id.retweeted_source),
                 optSource(retweetedStatus));
         ViewUtil.setViewText(view.findViewById(R.id.retweeted_attitudes_count),
@@ -151,14 +162,19 @@ public class StatusBinder implements ViewBinder {
         return mTimeHelper.beautyTime(createdAt);
     }
 
-    protected Spanned optSource(JSONObject status) {
+    protected String optSource(JSONObject status) {
         String source = status.optString("source");
-        return Html.fromHtml(source);
-        // return source.replaceAll("<a.*?>(.*?)</a>", "$1");
+        // return Html.fromHtml(source);
+        return source.replaceAll("<a.*?>(.*?)</a>", "$1");
     }
 
     protected String optThumbnailPic(JSONObject status) {
-        String thumbnailPic = status.optString("thumbnail_pic", null);
+        String name = "thumbnail_pic";
+        if (mType == Type.DETAIL) {
+            name = "bmiddle_pic";
+        }
+
+        String thumbnailPic = status.optString(name, null);
         if (thumbnailPic != null) {
             return thumbnailPic;
         }
@@ -166,6 +182,6 @@ public class StatusBinder implements ViewBinder {
         if (retweetedStatus == null) {
             return null;
         }
-        return retweetedStatus.optString("thumbnail_pic", null);
+        return retweetedStatus.optString(name, null);
     }
 }

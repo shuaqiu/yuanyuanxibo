@@ -9,7 +9,6 @@ import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.View;
-import android.widget.TextView;
 
 import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.ViewUtil;
@@ -29,14 +28,13 @@ public class CommentBinder implements ViewBinder {
     @Override
     public void bindView(View view, final JSONObject comment) {
         View usernameView = view.findViewById(R.id.user_name);
-        ViewUtil.setViewText(usernameView, optUsername(comment));
-        ViewUtil.addUserLinks((TextView) usernameView, ViewUtil.USER_PATTERN);
+        ViewUtil.setViewText(usernameView, optUsername(comment), ViewUtil.USER);
 
         ViewUtil.setViewText(view.findViewById(R.id.created_at),
                 optCreateTime(comment));
 
-        ViewUtil.setViewStatusText(view.findViewById(R.id.text),
-                comment.optString("text", ""));
+        ViewUtil.setViewText(view.findViewById(R.id.text),
+                comment.optString("text", ""), ViewUtil.ALL);
 
         ViewUtil.setViewText(view.findViewById(R.id.source), optSource(comment));
     }

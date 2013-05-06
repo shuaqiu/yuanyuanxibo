@@ -44,7 +44,6 @@
             android:id="@+id/text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:autoLink="web"
             android:contentDescription="@string/text"
             android:text="@string/empty" />
 
@@ -84,7 +83,6 @@
                 android:id="@+id/retweeted_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:autoLink="web"
                 android:contentDescription="@string/text"
                 android:text="@string/empty" />
 
@@ -156,7 +154,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/from"
-                android:autoLink="web"
                 android:contentDescription="@string/source"
                 android:text="@string/empty" />
 

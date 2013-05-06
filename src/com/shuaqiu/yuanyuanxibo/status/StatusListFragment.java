@@ -3,19 +3,24 @@ package com.shuaqiu.yuanyuanxibo.status;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.View;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.shuaqiu.common.task.AsyncHttpGetTask;
 import com.shuaqiu.common.task.AsyncTaskListener;
 import com.shuaqiu.yuanyuanxibo.API.Status;
+import com.shuaqiu.yuanyuanxibo.CursorBinderAdpater;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
+import com.shuaqiu.yuanyuanxibo.content.CursorLoaderCallbacks;
+import com.shuaqiu.yuanyuanxibo.content.DBOpenHelper;
 
 /**
  * @author shuaqiu Apr 27, 2013
@@ -35,6 +40,11 @@ public class StatusListFragment extends ListFragment implements
 
         new AsyncHttpGetTask(params, this).execute(Status.FRIEND_TIMELINE);
 
+        CursorBinderAdpater adapter = new CursorBinderAdpater(getActivity(),
+                R.layout.listview_status, null,
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        getLoaderManager().initLoader(0, null,
+                new CursorLoaderCallbacks(getActivity(), adapter));
     }
 
     @Override
@@ -53,13 +63,23 @@ public class StatusListFragment extends ListFragment implements
         }
 
         JSONArray statuses = data.optJSONArray("statuses");
-        ListAdapter adapter = new StatusListAdapter(getActivity(),
-                R.layout.listview_status, new StatusBinder(getActivity()),
-                statuses);
-        setListAdapter(adapter);
 
-        ListView listView = getListView();
-        listView.focusableViewAvailable(listView);
-        listView.requestFocusFromTouch();
+        DBOpenHelper dbHelper = new DBOpenHelper(getActivity());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        for (int i = 0; i < statuses.length(); i++) {
+            JSONObject status = statuses.optJSONObject(i);
+            long id = status.optLong("id");
+            ContentValues values = new ContentValues(3);
+            values.put("id", id);
+            values.put("content", status.toString());
+            values.put("readed", 0);
+            db.insert("t_status", null, values);
+        }
+        db.close();
+        // ListAdapter adapter = new StatusListAdapter(getActivity(),
+        // R.layout.listview_status, new StatusBinder(getActivity(),
+        // StatusBinder.Type.LIST), statuses);
+        // setListAdapter(adapter);
     }
 }

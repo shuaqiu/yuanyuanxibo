@@ -31,7 +31,7 @@ public class StatusActivity extends Activity implements OnTouchListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_status);
 
-        mBinder = new StatusBinder(this);
+        mBinder = new StatusBinder(this, StatusBinder.Type.DETAIL);
         mData = WeiboStatus.getInstance().getStatus();
 
         Intent intent = getIntent();

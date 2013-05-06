@@ -37,7 +37,7 @@ public class TimeHelper {
 
     /**
      * @param timeStr
-     *            格式爲"Sat Apr 27 00:59:08 +0800 2013" 這樣的時間字符串
+     *            格式爲"Sat Apr 27 00:59:08 +0800 2013" 的時間字符串
      * @return
      */
     public String beautyTime(String timeStr) {
@@ -81,7 +81,18 @@ public class TimeHelper {
     private DateFormat getDateFormat() {
         if (dateFormat == null) {
             Locale locale = Locale.getDefault();
-            dateFormat = new SimpleDateFormat("MMM dd", locale);
+
+            boolean b24 = android.text.format.DateFormat
+                    .is24HourFormat(mContext);
+
+            String template = "MMM dd";
+            if (b24) {
+                template += " HH:mm";
+            } else {
+                template += " h:mm a";
+            }
+
+            dateFormat = new SimpleDateFormat(template, locale);
         }
         return dateFormat;
     }
@@ -89,6 +100,11 @@ public class TimeHelper {
     private DateFormat getTimeFormat() {
         if (timeFormat == null) {
             timeFormat = android.text.format.DateFormat.getTimeFormat(mContext);
+            if (timeFormat instanceof SimpleDateFormat) {
+                SimpleDateFormat f = (SimpleDateFormat) timeFormat;
+                Log.d(TAG, f.toLocalizedPattern());
+                Log.d(TAG, f.toPattern());
+            }
         }
         return timeFormat;
     }
