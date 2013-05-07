@@ -17,15 +17,21 @@ public class CursorLoaderCallbacks implements LoaderCallbacks<Cursor> {
 
     private Context mContext;
     private CursorAdapter mAdapter;
+    private String mTable;
+    private String[] mProjection;
 
-    public CursorLoaderCallbacks(Context context, CursorAdapter adapter) {
+    public CursorLoaderCallbacks(Context context, CursorAdapter adapter,
+            String table, String[] projection) {
         mContext = context;
         mAdapter = adapter;
+        mTable = table;
+        mProjection = projection;
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new AsyncDBLoader(mContext);
+        return new AsyncCursorLoader(mContext, mTable, mProjection, null, null,
+                null, null, "id desc");
     }
 
     @Override

@@ -22,7 +22,7 @@ public class CursorBinderAdpater extends ResourceCursorAdapter {
 
     private static final String TAG = "cursoradapter";
 
-    private ViewBinder mBinder;
+    private ViewBinder mViewBinder;
 
     private int mStringConversionColumn = -1;
     private CursorToStringConverter mCursorToStringConverter;
@@ -37,15 +37,17 @@ public class CursorBinderAdpater extends ResourceCursorAdapter {
      *            resource identifier of a layout file that defines the views
      *            for this list item. The layout file should include at least
      *            those named views defined in "to"
-     * @param c
+     * @param viewBinder
      *            The database cursor. Can be null if the cursor is not
      *            available yet.
      * @param flags
      *            Flags used to determine the behavior of the adapter, as per
      *            {@link CursorAdapter#CursorAdapter(Context, Cursor, int)}.
      */
-    public CursorBinderAdpater(Context context, int layout, Cursor c, int flags) {
-        super(context, layout, c, flags);
+    public CursorBinderAdpater(Context context, int layout,
+            ViewBinder viewBinder, int flags) {
+        super(context, layout, null, flags);
+        mViewBinder = viewBinder;
     }
 
     /**
@@ -72,11 +74,11 @@ public class CursorBinderAdpater extends ResourceCursorAdapter {
      */
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        String text = cursor.getString(2);
+        String text = cursor.getString(1);
         JSONObject data;
         try {
             data = new JSONObject(text);
-            mBinder.bindView(view, data);
+            mViewBinder.bindView(view, data);
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -91,7 +93,7 @@ public class CursorBinderAdpater extends ResourceCursorAdapter {
      * @see #setViewBinder(android.widget.SimpleCursorAdapter.ViewBinder)
      */
     public ViewBinder getViewBinder() {
-        return mBinder;
+        return mViewBinder;
     }
 
     /**
@@ -105,7 +107,7 @@ public class CursorBinderAdpater extends ResourceCursorAdapter {
      * @see #getViewBinder()
      */
     public void setViewBinder(ViewBinder viewBinder) {
-        mBinder = viewBinder;
+        mViewBinder = viewBinder;
     }
 
     /**
@@ -192,9 +194,38 @@ public class CursorBinderAdpater extends ResourceCursorAdapter {
     }
 
     @Override
-    public Cursor swapCursor(Cursor c) {
-        Cursor res = super.swapCursor(c);
-        return res;
+    public Cursor swapCursor(Cursor newCursor) {
+        if (newCursor == mCursor) {
+            return null;
+        }
+        Cursor oldCursor = mCursor;
+        if (oldCursor != null) {
+            if (mChangeObserver != null) {
+                oldCursor.unregisterContentObserver(mChangeObserver);
+            }
+            if (mDataSetObserver != null) {
+                oldCursor.unregisterDataSetObserver(mDataSetObserver);
+            }
+        }
+        mCursor = newCursor;
+        if (newCursor != null) {
+            if (mChangeObserver != null) {
+                newCursor.registerContentObserver(mChangeObserver);
+            }
+            if (mDataSetObserver != null) {
+                newCursor.registerDataSetObserver(mDataSetObserver);
+            }
+            mRowIDColumn = newCursor.getColumnIndexOrThrow("id");
+            mDataValid = true;
+            // notify the observers about the new cursor
+            notifyDataSetChanged();
+        } else {
+            mRowIDColumn = -1;
+            mDataValid = false;
+            // notify the observers about the lack of a data set
+            notifyDataSetInvalidated();
+        }
+        return oldCursor;
     }
 
     /**

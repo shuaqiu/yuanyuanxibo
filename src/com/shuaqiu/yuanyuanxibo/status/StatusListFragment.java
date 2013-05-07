@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -34,17 +35,25 @@ public class StatusListFragment extends ListFragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Context context = getActivity();
+        StatusBinder statusBinder = new StatusBinder(context,
+                StatusBinder.Type.LIST);
+        CursorBinderAdpater adapter = new CursorBinderAdpater(context,
+                R.layout.listview_status, statusBinder,
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        setListAdapter(adapter);
+
+        CursorLoaderCallbacks loadCallback = new CursorLoaderCallbacks(context,
+                adapter, "t_status", new String[] { "id", "content", "readed" });
+        getLoaderManager().initLoader(0, null, loadCallback);
+    }
+
+    public void refreshData() {
         Bundle params = new Bundle();
         String accessToken = StateKeeper.accessToken.getAccessToken();
         params.putString("access_token", accessToken);
 
         new AsyncHttpGetTask(params, this).execute(Status.FRIEND_TIMELINE);
-
-        CursorBinderAdpater adapter = new CursorBinderAdpater(getActivity(),
-                R.layout.listview_status, null,
-                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        getLoaderManager().initLoader(0, null,
-                new CursorLoaderCallbacks(getActivity(), adapter));
     }
 
     @Override
@@ -52,6 +61,7 @@ public class StatusListFragment extends ListFragment implements
         Log.d(TAG, "click at " + position);
 
         Intent intent = new Intent(getActivity(), StatusActivity.class);
+        intent.putExtra("data", getListAdapter().getItem(position).toString());
         intent.putExtra("position", position);
         startActivity(intent);
     }
@@ -74,9 +84,10 @@ public class StatusListFragment extends ListFragment implements
             values.put("id", id);
             values.put("content", status.toString());
             values.put("readed", 0);
-            db.insert("t_status", null, values);
+            db.replace("t_status", null, values);
         }
         db.close();
+
         // ListAdapter adapter = new StatusListAdapter(getActivity(),
         // R.layout.listview_status, new StatusBinder(getActivity(),
         // StatusBinder.Type.LIST), statuses);
