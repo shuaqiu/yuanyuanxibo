@@ -34,13 +34,21 @@
             android:label="@string/title_activity_user_info" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="user_info"
                     android:scheme="yyxibo" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name="com.shuaqiu.yuanyuanxibo.status.StatusService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>
