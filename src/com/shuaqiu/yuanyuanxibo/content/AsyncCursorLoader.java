@@ -34,7 +34,7 @@ public class AsyncCursorLoader extends AsyncTaskLoader<Cursor> {
     @Override
     public Cursor loadInBackground() {
         if (mDb == null || !mDb.isOpen()) {
-            mDb = new DBOpenHelper(getContext()).getWritableDatabase();
+            mDb = new DatabaseOpenHelper(getContext()).getWritableDatabase();
         }
         Cursor cursor = mDb.query(mTable, mProjection, mSelection,
                 mSelectionArgs, mGroupBy, mHaving, mSortOrder);

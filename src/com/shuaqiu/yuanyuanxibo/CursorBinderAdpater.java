@@ -193,41 +193,6 @@ public class CursorBinderAdpater extends ResourceCursorAdapter {
         return super.convertToString(cursor);
     }
 
-    @Override
-    public Cursor swapCursor(Cursor newCursor) {
-        if (newCursor == mCursor) {
-            return null;
-        }
-        Cursor oldCursor = mCursor;
-        if (oldCursor != null) {
-            if (mChangeObserver != null) {
-                oldCursor.unregisterContentObserver(mChangeObserver);
-            }
-            if (mDataSetObserver != null) {
-                oldCursor.unregisterDataSetObserver(mDataSetObserver);
-            }
-        }
-        mCursor = newCursor;
-        if (newCursor != null) {
-            if (mChangeObserver != null) {
-                newCursor.registerContentObserver(mChangeObserver);
-            }
-            if (mDataSetObserver != null) {
-                newCursor.registerDataSetObserver(mDataSetObserver);
-            }
-            mRowIDColumn = newCursor.getColumnIndexOrThrow("id");
-            mDataValid = true;
-            // notify the observers about the new cursor
-            notifyDataSetChanged();
-        } else {
-            mRowIDColumn = -1;
-            mDataValid = false;
-            // notify the observers about the lack of a data set
-            notifyDataSetInvalidated();
-        }
-        return oldCursor;
-    }
-
     /**
      * This class can be used by external clients of SimpleCursorAdapter to
      * define how the Cursor should be converted to a String.

@@ -12,15 +12,15 @@ import android.util.Log;
 /**
  * @author shuaqiu May 7, 2013
  */
-public class DBHelper {
+public class DatabaseHelper {
 
     private static final String TAG = "db";
 
-    private DBOpenHelper mDbOpenHelper;
+    private DatabaseOpenHelper mDbOpenHelper;
     private SQLiteDatabase mDb;
 
-    public DBHelper(Context context) {
-        mDbOpenHelper = new DBOpenHelper(context);
+    public DatabaseHelper(Context context) {
+        mDbOpenHelper = new DatabaseOpenHelper(context);
     }
 
     public void openForWrite() {
