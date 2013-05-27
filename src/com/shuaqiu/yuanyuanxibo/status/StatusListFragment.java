@@ -2,14 +2,17 @@ package com.shuaqiu.yuanyuanxibo.status;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
 import com.shuaqiu.yuanyuanxibo.CursorBinderAdpater;
+import com.shuaqiu.yuanyuanxibo.Defs;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.content.CursorLoaderCallbacks;
 import com.shuaqiu.yuanyuanxibo.content.DatabaseHelper;
@@ -44,6 +47,8 @@ public class StatusListFragment extends ListFragment {
 
         Intent service = new Intent(context, StatusService.class);
         context.startService(service);
+
+        receiveBroadcast();
     }
 
     @Override
@@ -53,5 +58,13 @@ public class StatusListFragment extends ListFragment {
         Intent intent = new Intent(getActivity(), StatusActivity.class);
         intent.putExtra("position", position);
         startActivity(intent);
+    }
+
+    private void receiveBroadcast() {
+        NewStatusReceiver receiver = new NewStatusReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Defs.NEW_STATUS);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+                receiver, filter);
     }
 }
