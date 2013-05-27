@@ -129,9 +129,9 @@ public class StatusBinder implements ViewBinder {
         if (thumbnailPic == null) {
             v.setVisibility(View.GONE);
         } else {
-            v.setVisibility(View.VISIBLE);
             View progress = view.findViewById(R.id.progress);
             ViewUtil.setViewImage(v, thumbnailPic, progress);
+            v.setVisibility(View.VISIBLE);
         }
 
     }

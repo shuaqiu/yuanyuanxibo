@@ -1,19 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal" >
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
 
-    <ImageView
-        android:id="@+id/profile_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/profile_image"
-        android:src="@drawable/ic_launcher" />
-
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_round_title" >
+
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/profile_image"
+            android:src="@drawable/ic_launcher" />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="false"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/profile_image"
+            android:contentDescription="@string/user_name"
+            android:text="@string/empty"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/created_at"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/ten_dp"
+            android:contentDescription="@string/created_at"
+            android:text="@string/empty"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/text"
+        android:text="@string/empty" />
+
+    <LinearLayout
+        android:id="@+id/retweeted"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/five_dp"
+        android:background="@color/cornsilk"
         android:orientation="vertical" >
 
         <RelativeLayout
@@ -21,7 +61,7 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/user_name"
+                android:id="@+id/retweeted_user_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
@@ -30,7 +70,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/created_at"
+                android:id="@+id/retweeted_created_at"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -41,145 +81,54 @@
         </RelativeLayout>
 
         <TextView
-            android:id="@+id/text"
+            android:id="@+id/retweeted_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/text"
             android:text="@string/empty" />
-
-        <LinearLayout
-            android:id="@+id/retweeted"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/five_dp"
-            android:background="@color/cornsilk"
-            android:orientation="vertical" >
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <TextView
-                    android:id="@+id/retweeted_user_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:contentDescription="@string/user_name"
-                    android:text="@string/empty"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/retweeted_created_at"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="@dimen/ten_dp"
-                    android:contentDescription="@string/created_at"
-                    android:text="@string/empty"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-            </RelativeLayout>
-
-            <TextView
-                android:id="@+id/retweeted_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/text"
-                android:text="@string/empty" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <TextView
-                    android:id="@+id/retweeted_from"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:text="@string/from" />
-
-                <TextView
-                    android:id="@+id/retweeted_source"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toRightOf="@+id/retweeted_from"
-                    android:contentDescription="@string/source"
-                    android:text="@string/empty" />
-
-                <TextView
-                    android:id="@+id/retweeted_attitudes_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="false"
-                    android:layout_marginRight="@dimen/ten_dp"
-                    android:layout_toLeftOf="@+id/retweeted_reposts_count"
-                    android:contentDescription="@string/attitudes_count"
-                    android:text="@string/empty"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
-                <TextView
-                    android:id="@+id/retweeted_reposts_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/ten_dp"
-                    android:layout_toLeftOf="@+id/retweeted_comments_count"
-                    android:contentDescription="@string/reposts_count"
-                    android:text="@string/empty"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
-                <TextView
-                    android:id="@+id/retweeted_comments_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="@dimen/ten_dp"
-                    android:contentDescription="@string/comments_count"
-                    android:text="@string/empty"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-            </RelativeLayout>
-        </LinearLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/from"
+                android:id="@+id/retweeted_from"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:text="@string/from" />
 
             <TextView
-                android:id="@+id/source"
+                android:id="@+id/retweeted_source"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/from"
+                android:layout_toRightOf="@+id/retweeted_from"
                 android:contentDescription="@string/source"
                 android:text="@string/empty" />
 
             <TextView
-                android:id="@+id/attitudes_count"
+                android:id="@+id/retweeted_attitudes_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="false"
                 android:layout_marginRight="@dimen/ten_dp"
-                android:layout_toLeftOf="@+id/reposts_count"
+                android:layout_toLeftOf="@+id/retweeted_reposts_count"
                 android:contentDescription="@string/attitudes_count"
                 android:text="@string/empty"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
-                android:id="@+id/reposts_count"
+                android:id="@+id/retweeted_reposts_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/ten_dp"
-                android:layout_toLeftOf="@+id/comments_count"
+                android:layout_toLeftOf="@+id/retweeted_comments_count"
                 android:contentDescription="@string/reposts_count"
                 android:text="@string/empty"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
-                android:id="@+id/comments_count"
+                android:id="@+id/retweeted_comments_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -188,13 +137,64 @@
                 android:text="@string/empty"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </RelativeLayout>
+    </LinearLayout>
 
-        <ImageView
-            android:id="@+id/thumbnail_pic"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/from"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/thumbnail_pic"
-            android:src="@drawable/ic_launcher" />
-    </LinearLayout>
+            android:layout_alignParentLeft="true"
+            android:text="@string/from" />
+
+        <TextView
+            android:id="@+id/source"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/from"
+            android:contentDescription="@string/source"
+            android:text="@string/empty" />
+
+        <TextView
+            android:id="@+id/attitudes_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="false"
+            android:layout_marginRight="@dimen/ten_dp"
+            android:layout_toLeftOf="@+id/reposts_count"
+            android:contentDescription="@string/attitudes_count"
+            android:text="@string/empty"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/reposts_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/ten_dp"
+            android:layout_toLeftOf="@+id/comments_count"
+            android:contentDescription="@string/reposts_count"
+            android:text="@string/empty"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/comments_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/ten_dp"
+            android:contentDescription="@string/comments_count"
+            android:text="@string/empty"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/thumbnail_pic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/thumbnail_pic"
+        android:src="@drawable/ic_launcher" />
 
 </LinearLayout>
