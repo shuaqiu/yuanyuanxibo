@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,30 +27,42 @@ public class StatusActivity extends Activity implements OnTouchListener {
     private Cursor mCursor;
     private int position;
 
+    private ViewPager mViewPager;
     private ViewBinder mBinder;
 
     private boolean isTouchMove;
     private float touchX;
+
+    private StatusPagerAdapter mAdpater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_status);
-
-        mBinder = new StatusBinder(this, StatusBinder.Type.DETAIL);
 
         mDbHelper = new DatabaseHelper(this);
         mDbHelper.openForRead();
+        new AsyncDatabaseTask().execute();
+
+        initViewPager();
 
         Intent intent = getIntent();
         position = intent.getIntExtra("position", 0);
 
         // bindView(getWindow().getDecorView(), position);
-        new AsyncDatabaseTask().execute();
 
-        getWindow().getDecorView().setOnTouchListener(this);
+        // getWindow().getDecorView().setOnTouchListener(this);
+    }
+
+    private void initViewPager() {
+        setContentView(R.layout.activity_status_pager);
+
+        mAdpater = new StatusPagerAdapter(this);
+
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(mAdpater);
     }
 
     /**
@@ -131,7 +144,9 @@ public class StatusActivity extends Activity implements OnTouchListener {
 
         @Override
         protected void onPostExecute(Void result) {
-            bindView(getWindow().getDecorView(), position);
+            // bindView(getWindow().getDecorView(), position);
+            mAdpater.changeCursor(mCursor);
+            mAdpater.notifyDataSetChanged();
         }
     }
 }
