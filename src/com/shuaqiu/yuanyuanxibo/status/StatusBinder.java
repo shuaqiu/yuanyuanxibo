@@ -11,6 +11,7 @@ import android.view.View;
 import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.ViewUtil;
 import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.ViewBinder;
 
 /**
@@ -170,7 +171,7 @@ public class StatusBinder implements ViewBinder {
 
     protected String optThumbnailPic(JSONObject status) {
         String name = "thumbnail_pic";
-        if (mType == Type.DETAIL) {
+        if (mType == Type.DETAIL && StateKeeper.isWifi) {
             name = "bmiddle_pic";
         }
 

@@ -11,7 +11,7 @@ import android.os.IBinder;
 
 public class StatusService extends Service {
 
-    private long delay = 5 * 60;
+    private long delay = 10 * 60;
 
     private ScheduledExecutorService mThreadPoll;
 

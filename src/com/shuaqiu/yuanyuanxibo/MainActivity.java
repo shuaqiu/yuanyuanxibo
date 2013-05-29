@@ -40,6 +40,9 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
+        // 首先初始化一下Wifi 的狀態
+        StateKeeper.isWifi = StateKeeper.isWifi(this);
+
         StateKeeper.accessToken = AccessTokenKeeper.read(this);
         if (StateKeeper.accessToken.isSessionValid()) {
             initMainView();

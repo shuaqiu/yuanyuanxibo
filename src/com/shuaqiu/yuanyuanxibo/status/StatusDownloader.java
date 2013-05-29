@@ -17,6 +17,9 @@ import android.util.Log;
 import com.shuaqiu.common.HttpUtil;
 import com.shuaqiu.yuanyuanxibo.API.Status;
 import com.shuaqiu.yuanyuanxibo.Defs;
+import com.shuaqiu.yuanyuanxibo.HttpCursor;
+import com.shuaqiu.yuanyuanxibo.HttpCursor.CursorPair;
+import com.shuaqiu.yuanyuanxibo.HttpCursorKeeper;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.content.DatabaseHelper;
 
@@ -40,6 +43,15 @@ class StatusDownloader implements Runnable {
         String accessToken = StateKeeper.accessToken.getAccessToken();
         params.putString("access_token", accessToken);
 
+        HttpCursor httpCursor = HttpCursorKeeper.read(mContext,
+                HttpCursor.Type.STATUS);
+        if (httpCursor != null && httpCursor.getPairs().length > 0) {
+            long max = httpCursor.getPairs()[0].getMax();
+            if (max > 0) {
+                params.putLong("since_id", max);
+            }
+        }
+
         String respText = HttpUtil.httpGet(Status.FRIEND_TIMELINE, params);
 
         if (respText == null) {
@@ -54,8 +66,31 @@ class StatusDownloader implements Runnable {
             return;
         }
 
+        saveHttpCursor(httpCursor, data);
+
         saveStatus(data);
         sendBoardcast(respText);
+    }
+
+    private void saveHttpCursor(HttpCursor httpCursor, JSONObject data) {
+        long max = getMax(data);
+        long min = data.optLong("next_cursor");
+        httpCursor.prepend(new CursorPair(System.currentTimeMillis(), min, max));
+        HttpCursorKeeper.save(mContext, httpCursor);
+    }
+
+    private long getMax(JSONObject data) {
+        long max = data.optLong("previous_cursor");
+        if (max > 0) {
+            return max;
+        }
+        JSONArray statuses = data.optJSONArray("statuses");
+        if (statuses.length() == 0) {
+            return max;
+        }
+        JSONObject status = statuses.optJSONObject(0);
+        long id = status.optLong(STATUS_ID);
+        return id;
     }
 
     /**

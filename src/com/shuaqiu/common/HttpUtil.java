@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -72,6 +73,10 @@ public class HttpUtil {
                     p.append(param(key, v));
                 }
             } else if (value.getClass().isArray()) {
+                int length = Array.getLength(value);
+                for (int i = 0; i < length; i++) {
+                    p.append(param(key, Array.get(value, i)));
+                }
             } else {
                 p.append(param(key, value));
             }
