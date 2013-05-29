@@ -59,13 +59,12 @@ public class StatusBinder implements ViewBinder {
      */
     protected void setStatusViews(View view, JSONObject status) {
         View usernameView = view.findViewById(R.id.user_name);
-        View textView = view.findViewById(R.id.text);
         ViewUtil.setViewText(usernameView, optUsername(status));
+        ViewUtil.addLinks(usernameView, ViewUtil.USER);
+
+        View textView = view.findViewById(R.id.text);
         ViewUtil.setViewText(textView, status.optString("text", ""));
-        if (mType == Type.DETAIL) {
-            ViewUtil.addLinks(usernameView, ViewUtil.USER);
-            ViewUtil.addLinks(textView, ViewUtil.ALL);
-        }
+        ViewUtil.addLinks(textView, ViewUtil.ALL);
 
         ViewUtil.setViewText(view.findViewById(R.id.created_at),
                 optCreateTime(status));
@@ -99,13 +98,12 @@ public class StatusBinder implements ViewBinder {
      */
     protected void setRetweetedStatusViews(View view, JSONObject retweetedStatus) {
         View usernameView = view.findViewById(R.id.retweeted_user_name);
-        View textView = view.findViewById(R.id.retweeted_text);
         ViewUtil.setViewText(usernameView, optUsername(retweetedStatus));
+        ViewUtil.addLinks(usernameView, ViewUtil.USER);
+
+        View textView = view.findViewById(R.id.retweeted_text);
         ViewUtil.setViewText(textView, retweetedStatus.optString("text", ""));
-        if (mType == Type.DETAIL) {
-            ViewUtil.addLinks(usernameView, ViewUtil.USER);
-            ViewUtil.addLinks(textView, ViewUtil.ALL);
-        }
+        ViewUtil.addLinks(textView, ViewUtil.ALL);
 
         ViewUtil.setViewText(view.findViewById(R.id.retweeted_created_at),
                 optCreateTime(retweetedStatus));
