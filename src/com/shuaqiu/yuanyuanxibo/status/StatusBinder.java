@@ -123,14 +123,20 @@ public class StatusBinder implements ViewBinder {
      */
     protected void setThumbnailPic(View view, JSONObject status) {
         View v = view.findViewById(R.id.thumbnail_pic);
+        View progress = view.findViewById(R.id.progress);
 
         String thumbnailPic = optThumbnailPic(status);
         if (thumbnailPic == null) {
             v.setVisibility(View.GONE);
+            if (progress != null) {
+                progress.setVisibility(View.GONE);
+            }
         } else {
-            View progress = view.findViewById(R.id.progress);
             ViewUtil.setViewImage(v, thumbnailPic, progress);
             v.setVisibility(View.VISIBLE);
+            if (mType == Type.DETAIL) {
+                // v.setOnClickListener(l);
+            }
         }
 
     }

@@ -3,8 +3,10 @@ package com.shuaqiu.yuanyuanxibo;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
@@ -96,8 +98,6 @@ public class MainActivity extends FragmentActivity {
         String action = intent.getAction();
         if (Defs.NEW_STATUS.equals(action)) {
             onTabSelected(0);
-            mSectionsPagerAdapter.getItem(0).getLoaderManager().getLoader(0)
-                    .takeContentChanged();
         }
     }
 
@@ -117,14 +117,15 @@ public class MainActivity extends FragmentActivity {
 
     /**
      * @author shuaqiu 2013-5-6
-     * 
      */
     private final class MainPageChangeListener extends
             ViewPager.SimpleOnPageChangeListener {
         @Override
         public void onPageSelected(int position) {
             // actionBar.setSelectedNavigationItem(position);
-            onTabSelected(position);
+            Fragment item = mSectionsPagerAdapter.getItem(0);
+            Loader<Object> loader = item.getLoaderManager().getLoader(0);
+            loader.takeContentChanged();
         }
     }
 

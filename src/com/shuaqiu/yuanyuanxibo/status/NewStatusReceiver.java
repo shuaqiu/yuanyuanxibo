@@ -48,8 +48,19 @@ public class NewStatusReceiver extends BroadcastReceiver {
 
     private PendingIntent createPendingIntent(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setAction(Defs.NEW_STATUS);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        // TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        // // Adds the back stack
+        // stackBuilder.addParentStack(MainActivity.class);
+        // // Adds the Intent to the top of the stack
+        // stackBuilder.addNextIntent(intent);
+        // // Gets a PendingIntent containing the entire back stack
+        // return stackBuilder.getPendingIntent(0,
+        // PendingIntent.FLAG_UPDATE_CURRENT);
+
         return PendingIntent.getActivity(context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }
