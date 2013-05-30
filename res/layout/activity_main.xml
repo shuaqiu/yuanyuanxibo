@@ -14,15 +14,20 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentTop="true"
+        android:background="@drawable/bg_round_title" >
 
         <TextView
             android:id="@+id/home"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
+            android:background="@drawable/action_bar"
             android:gravity="center"
-            android:text="@string/home" />
+            android:paddingBottom="@dimen/ten_dp"
+            android:paddingTop="@dimen/ten_dp"
+            android:text="@string/home"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/at_me"
@@ -30,7 +35,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:gravity="center"
-            android:text="@string/at_me" />
+            android:paddingBottom="@dimen/ten_dp"
+            android:paddingTop="@dimen/ten_dp"
+            android:text="@string/at_me"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/comments"
@@ -38,7 +46,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:gravity="center"
-            android:text="@string/comments" />
+            android:paddingBottom="@dimen/ten_dp"
+            android:paddingTop="@dimen/ten_dp"
+            android:text="@string/comments"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/messages"
@@ -46,7 +57,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:gravity="center"
-            android:text="@string/messages" />
+            android:paddingBottom="@dimen/ten_dp"
+            android:paddingTop="@dimen/ten_dp"
+            android:text="@string/messages"
+            android:textStyle="bold" />
+
     </LinearLayout>
 
     <android.support.v4.view.ViewPager
