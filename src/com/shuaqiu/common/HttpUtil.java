@@ -73,6 +73,7 @@ public class HttpUtil {
                     p.append(param(key, v));
                 }
             } else if (value.getClass().isArray()) {
+                Log.d(TAG, "the value is array:" + value);
                 int length = Array.getLength(value);
                 for (int i = 0; i < length; i++) {
                     p.append(param(key, Array.get(value, i)));

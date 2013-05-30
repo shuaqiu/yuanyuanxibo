@@ -1,6 +1,7 @@
 package com.shuaqiu.yuanyuanxibo;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -85,6 +86,18 @@ public class MainActivity extends FragmentActivity {
             // this tab is selected.
             findViewById(SectionsPagerAdapter.mPageTitileId[i])
                     .setOnClickListener(new MainTabClickListener(i));
+        }
+
+        tryShowNewItem();
+    }
+
+    private void tryShowNewItem() {
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        if (Defs.NEW_STATUS.equals(action)) {
+            onTabSelected(0);
+            mSectionsPagerAdapter.getItem(0).getLoaderManager().getLoader(0)
+                    .takeContentChanged();
         }
     }
 

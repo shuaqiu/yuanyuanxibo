@@ -60,7 +60,6 @@ public class HttpCursorKeeper {
             long min = pref.getLong("min_" + i, 0);
             long max = pref.getLong("max_" + i, 0);
             pairs[i] = new CursorPair(timestamp, min, max);
-            i++;
         }
         return new HttpCursor(type, pairs);
     }

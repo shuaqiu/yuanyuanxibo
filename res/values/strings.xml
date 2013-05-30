@@ -29,5 +29,6 @@
     <string name="title_activity_user_info">UserInfoActivity</string>
     <string name="user_info">User Info</string>
     <string name="gender">gender</string>
+    <string name="new_status">New Weibo</string>
 
 </resources>

@@ -37,7 +37,7 @@ class StatusDownloader implements Runnable {
 
     @Override
     public void run() {
-        Log.d(TAG, ".............to download status");
+        Log.d(TAG, "prepare to download");
 
         Bundle params = new Bundle();
         String accessToken = StateKeeper.accessToken.getAccessToken();
@@ -52,7 +52,9 @@ class StatusDownloader implements Runnable {
             }
         }
 
+        Log.d(TAG, "start to download");
         String respText = HttpUtil.httpGet(Status.FRIEND_TIMELINE, params);
+        Log.d(TAG, "downloaded: " + respText);
 
         if (respText == null) {
             return;
@@ -75,7 +77,8 @@ class StatusDownloader implements Runnable {
     private void saveHttpCursor(HttpCursor httpCursor, JSONObject data) {
         long max = getMax(data);
         long min = data.optLong("next_cursor");
-        httpCursor.prepend(new CursorPair(System.currentTimeMillis(), min, max));
+        httpCursor
+                .prepend(new CursorPair(System.currentTimeMillis(), min, max));
         HttpCursorKeeper.save(mContext, httpCursor);
     }
 
@@ -98,7 +101,11 @@ class StatusDownloader implements Runnable {
      */
     private void saveStatus(JSONObject data) {
         JSONArray statuses = data.optJSONArray("statuses");
+        if (statuses.length() == 0) {
+            return;
+        }
 
+        Log.d(TAG, "write status data to database");
         DatabaseHelper dbHelper = new DatabaseHelper(mContext);
         dbHelper.openForWrite();
 
@@ -119,6 +126,7 @@ class StatusDownloader implements Runnable {
      * @param respText
      */
     private void sendBoardcast(String respText) {
+        Log.d(TAG, "send boardcast");
         Intent intent = new Intent(Defs.NEW_STATUS);
         intent.putExtra("data", respText);
         // mContext.sendBroadcast(intent);

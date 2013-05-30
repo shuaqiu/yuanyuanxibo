@@ -28,7 +28,7 @@ public class StatusService extends Service {
         mThreadPoll = Executors.newScheduledThreadPool(1);
 
         StatusDownloader command = new StatusDownloader(this);
-        future = mThreadPoll.scheduleWithFixedDelay(command, 0, delay,
+        future = mThreadPoll.scheduleWithFixedDelay(command, 30, delay,
                 TimeUnit.SECONDS);
 
         return super.onStartCommand(intent, flags, startId);
