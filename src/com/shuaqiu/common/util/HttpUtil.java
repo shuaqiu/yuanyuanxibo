@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.shuaqiu.common;
+package com.shuaqiu.common.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +34,9 @@ import javax.net.ssl.X509TrustManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.shuaqiu.common.function.InputStreamFunction;
+import com.shuaqiu.common.function.SaveFileFunction;
+import com.shuaqiu.common.function.ToStringFunction;
 import com.shuaqiu.yuanyuanxibo.API;
 
 /**
@@ -178,14 +181,14 @@ public class HttpUtil {
 
     /**
      * @param conn
-     * @param handler
+     * @param function
      * @param in
      * @return
      * @throws IOException
      * @throws SSLPeerUnverifiedException
      */
     private static <Result> Result readResponse(HttpURLConnection conn,
-            InputStreamHandler<Result> handler) throws IOException {
+            InputStreamFunction<Result> function) throws IOException {
         InputStream in = null;
         try {
             if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -204,7 +207,7 @@ public class HttpUtil {
             if (contentEncoding != null && contentEncoding.indexOf("gzip") > -1) {
                 in = new GZIPInputStream(in);
             }
-            return handler.handle(in);
+            return function.apply(in);
 
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -215,7 +218,7 @@ public class HttpUtil {
     }
 
     public static <Result> Result httpGet(URL url,
-            InputStreamHandler<Result> handler) {
+            InputStreamFunction<Result> function) {
         HttpURLConnection conn = null;
         try {
             Log.d(TAG, url.toString());
@@ -223,7 +226,7 @@ public class HttpUtil {
             // HTTPS
             setupHttps(conn);
 
-            return readResponse(conn, handler);
+            return readResponse(conn, function);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         } finally {
@@ -235,7 +238,7 @@ public class HttpUtil {
     }
 
     public static String httpGet(URL url) {
-        return httpGet(url, new StringHandler());
+        return httpGet(url, ToStringFunction.getInstance());
     }
 
     public static String httpGet(String urlStr, Bundle params) {
@@ -243,7 +246,7 @@ public class HttpUtil {
         if (url == null) {
             return null;
         }
-        return httpGet(url, new StringHandler());
+        return httpGet(url);
     }
 
     /**
@@ -252,7 +255,7 @@ public class HttpUtil {
      * @return
      */
     public static boolean downloadTo(URL url, File file) {
-        Boolean isDownloaded = httpGet(url, new FileHandler(file));
+        Boolean isDownloaded = httpGet(url, new SaveFileFunction(file));
         if (isDownloaded == null) {
             return false;
         }
@@ -260,7 +263,7 @@ public class HttpUtil {
     }
 
     public static <Result> Result httpPost(URL url, Bundle args,
-            InputStreamHandler<Result> handler) {
+            InputStreamFunction<Result> function) {
         HttpURLConnection conn = null;
         try {
             conn = (HttpURLConnection) url.openConnection();
@@ -276,7 +279,7 @@ public class HttpUtil {
 
             writeRequestParam(conn, args);
 
-            return readResponse(conn, handler);
+            return readResponse(conn, function);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         } finally {
@@ -288,7 +291,7 @@ public class HttpUtil {
     }
 
     public static String httpPost(URL url, Bundle args) {
-        return httpPost(url, args, new StringHandler());
+        return httpPost(url, args, ToStringFunction.getInstance());
     }
 
     /**

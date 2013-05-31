@@ -10,7 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-import com.shuaqiu.common.task.Function;
+import com.shuaqiu.common.function.Function;
 import com.shuaqiu.common.task.Promise;
 import com.shuaqiu.yuanyuanxibo.CursorBinderAdpater;
 import com.shuaqiu.yuanyuanxibo.Defs;

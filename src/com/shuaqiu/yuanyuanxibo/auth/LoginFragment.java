@@ -19,8 +19,8 @@ import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.shuaqiu.common.HttpUtil;
 import com.shuaqiu.common.task.AcessTokenTask;
+import com.shuaqiu.common.util.HttpUtil;
 import com.shuaqiu.yuanyuanxibo.API;
 import com.shuaqiu.yuanyuanxibo.API.OAuth;
 import com.shuaqiu.yuanyuanxibo.R;

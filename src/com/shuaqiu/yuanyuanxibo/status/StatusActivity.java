@@ -30,7 +30,7 @@ public class StatusActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_status_pager);
+        setContentView(R.layout.pager);
 
         mDbHelper = new DatabaseHelper(this);
         mDbHelper.openForRead();

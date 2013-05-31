@@ -58,6 +58,10 @@ public class DatabaseHelper {
         mDbOpenHelper.close();
     }
 
+    public enum ColumnType {
+        TEXT, INTEGER, BOOLEAN
+    }
+
     public static interface Status {
         String TABLE_NAME = "t_status";
 

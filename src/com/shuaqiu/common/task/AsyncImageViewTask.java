@@ -5,7 +5,7 @@ package com.shuaqiu.common.task;
 
 import java.io.IOException;
 
-import com.shuaqiu.common.BitmapUtil;
+import com.shuaqiu.common.util.BitmapUtil;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;

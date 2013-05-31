@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.shuaqiu.common;
+package com.shuaqiu.common.util;
 
 import java.io.Closeable;
 import java.io.IOException;

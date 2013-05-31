@@ -8,7 +8,7 @@ import java.net.URL;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.shuaqiu.common.HttpUtil;
+import com.shuaqiu.common.util.HttpUtil;
 import com.shuaqiu.yuanyuanxibo.auth.AuthListener;
 
 /**

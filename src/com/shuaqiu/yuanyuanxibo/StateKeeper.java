@@ -19,15 +19,18 @@ public final class StateKeeper {
     public static boolean isWifi;
 
     public static boolean isWifi(Context context) {
-        ConnectivityManager manager = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo info = manager.getActiveNetworkInfo();
+        NetworkInfo info = getActiveNetworkInfo(context);
         if (info == null || info.isConnected()) {
             return false;
         }
 
         int type = info.getType();
         return type == ConnectivityManager.TYPE_WIFI;
+    }
+
+    private static NetworkInfo getActiveNetworkInfo(Context context) {
+        ConnectivityManager manager = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        return manager.getActiveNetworkInfo();
     }
 }

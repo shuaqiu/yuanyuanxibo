@@ -20,7 +20,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table if not exists t_status(_id integer primary key, content text, readed integer)");
+        db.execSQL(StatusHelper.getDdl());
     }
 
     @Override

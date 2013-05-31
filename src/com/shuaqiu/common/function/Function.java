@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.shuaqiu.common.task;
+package com.shuaqiu.common.function;
 
 /**
  * @author shuaqiu 2013-5-31

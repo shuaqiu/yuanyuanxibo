@@ -1,4 +1,4 @@
-package com.shuaqiu.common;
+package com.shuaqiu.common.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

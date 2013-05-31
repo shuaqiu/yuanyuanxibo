@@ -7,7 +7,11 @@ import java.util.concurrent.TimeUnit;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.IBinder;
+
+import com.shuaqiu.yuanyuanxibo.WifiReceiver;
 
 public class StatusService extends Service {
 
@@ -18,6 +22,8 @@ public class StatusService extends Service {
     private ScheduledExecutorService mThreadPoll;
 
     private ScheduledFuture<?> future;
+
+    private WifiReceiver mWifiReceiver;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,6 +40,10 @@ public class StatusService extends Service {
         future = mThreadPoll.scheduleWithFixedDelay(command, 30, delay,
                 TimeUnit.SECONDS);
 
+        mWifiReceiver = new WifiReceiver();
+        registerReceiver(mWifiReceiver, new IntentFilter(
+                ConnectivityManager.CONNECTIVITY_ACTION));
+
         super.onStartCommand(intent, flags, startId);
         return START_NOT_STICKY;
     }
@@ -46,5 +56,7 @@ public class StatusService extends Service {
             future.cancel(true);
         }
         mThreadPoll.shutdown();
+
+        unregisterReceiver(mWifiReceiver);
     }
 }

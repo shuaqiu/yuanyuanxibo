@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
-import com.shuaqiu.common.task.Function;
+import com.shuaqiu.common.function.Function;
 import com.shuaqiu.yuanyuanxibo.HttpCursor;
 import com.shuaqiu.yuanyuanxibo.HttpCursor.CursorPair;
 import com.shuaqiu.yuanyuanxibo.HttpCursorKeeper;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.shuaqiu.common;
+package com.shuaqiu.common.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

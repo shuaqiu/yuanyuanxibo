@@ -10,7 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.shuaqiu.common.HttpUtil;
+import com.shuaqiu.common.util.HttpUtil;
 
 public class AsyncHttpGetTask extends AsyncTask<String, Void, String> {
     private static final String TAG = "httpget";

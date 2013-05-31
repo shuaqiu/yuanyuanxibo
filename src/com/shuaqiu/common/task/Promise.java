@@ -3,6 +3,8 @@
  */
 package com.shuaqiu.common.task;
 
+import com.shuaqiu.common.function.Function;
+
 import android.os.AsyncTask;
 
 /**

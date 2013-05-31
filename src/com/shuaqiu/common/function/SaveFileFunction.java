@@ -1,27 +1,28 @@
 /**
  * 
  */
-package com.shuaqiu.common;
+package com.shuaqiu.common.function;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.util.Log;
 
-public class FileHandler implements InputStreamHandler<Boolean> {
+import com.shuaqiu.common.util.StreamUtil;
+
+public class SaveFileFunction implements InputStreamFunction<Boolean> {
     private static final String TAG = "file";
 
     private File file = null;
 
-    public FileHandler(File file) {
+    public SaveFileFunction(File file) {
         this.file = file;
     }
 
     @Override
-    public Boolean handle(InputStream in) throws IOException {
+    public Boolean apply(InputStream in) {
         OutputStream out = null;
         try {
             File parentFile = file.getParentFile();

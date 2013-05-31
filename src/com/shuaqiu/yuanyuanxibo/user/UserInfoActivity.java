@@ -8,9 +8,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Window;
 
-import com.shuaqiu.common.ViewUtil;
 import com.shuaqiu.common.task.AsyncHttpGetTask;
 import com.shuaqiu.common.task.AsyncTaskListener;
+import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.yuanyuanxibo.API.User;
 import com.shuaqiu.yuanyuanxibo.Defs;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;

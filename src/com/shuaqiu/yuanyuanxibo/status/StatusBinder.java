@@ -9,7 +9,7 @@ import android.content.Context;
 import android.view.View;
 
 import com.shuaqiu.common.TimeHelper;
-import com.shuaqiu.common.ViewUtil;
+import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.ViewBinder;
@@ -17,7 +17,7 @@ import com.shuaqiu.yuanyuanxibo.ViewBinder;
 /**
  * @author shuaqiu 2013-4-30
  */
-public class StatusBinder implements ViewBinder {
+public class StatusBinder implements ViewBinder<JSONObject> {
     public enum Type {
         LIST, DETAIL
     }

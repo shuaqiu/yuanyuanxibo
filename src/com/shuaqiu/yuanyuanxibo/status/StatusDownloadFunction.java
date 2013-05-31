@@ -6,8 +6,8 @@ package com.shuaqiu.yuanyuanxibo.status;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.shuaqiu.common.HttpUtil;
-import com.shuaqiu.common.task.Function;
+import com.shuaqiu.common.function.Function;
+import com.shuaqiu.common.util.HttpUtil;
 import com.shuaqiu.yuanyuanxibo.API.Status;
 import com.shuaqiu.yuanyuanxibo.HttpCursor;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
