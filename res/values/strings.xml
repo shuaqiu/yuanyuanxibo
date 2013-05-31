@@ -3,10 +3,10 @@
 
     <string name="app_name">YuanYuanXiBo</string>
     <string name="settings">Settings</string>
-    <string name="home">home</string>
+    <string name="home">Home</string>
     <string name="at_me">\@me</string>
-    <string name="comments">comments</string>
-    <string name="messages">messages</string>
+    <string name="comments">Comments</string>
+    <string name="messages">Messages</string>
     <string name="profile_image">profile image</string>
     <string name="weibo">http://weibo.com</string>
     <string name="empty">empty</string>
@@ -19,8 +19,7 @@
     <string name="comments_count">comments count</string>
     <string name="reposts_count">reposts count</string>
     <string name="attitudes_count">attitudes count</string>
-    <string name="from">"from "</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="from">&quot;From &quot;</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_weibo_detail">WeiboDetailActivity</string>
     <string name="reply">reply</string>
@@ -29,6 +28,8 @@
     <string name="title_activity_user_info">UserInfoActivity</string>
     <string name="user_info">User Info</string>
     <string name="gender">gender</string>
-    <string name="new_status">New Weibo</string>
+    <string name="new_status">You have %d new weibos</string>
+    <string name="to_show">Click to show new weibos</string>
+    <string name="refresh">Refresh</string>
 
 </resources>

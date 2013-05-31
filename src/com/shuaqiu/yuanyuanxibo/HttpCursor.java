@@ -60,6 +60,10 @@ public class HttpCursor {
             init(timestamp, min, max);
         }
 
+        public CursorPair(long min, long max) {
+            init(System.currentTimeMillis(), min, max);
+        }
+
         private void init(long timestamp, long min, long max) {
             this.timestamp = timestamp;
             this.min = min;

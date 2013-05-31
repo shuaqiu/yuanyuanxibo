@@ -10,17 +10,13 @@ import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.shuaqiu.common.HttpUtil;
-import com.shuaqiu.yuanyuanxibo.API.Status;
 import com.shuaqiu.yuanyuanxibo.Defs;
 import com.shuaqiu.yuanyuanxibo.HttpCursor;
 import com.shuaqiu.yuanyuanxibo.HttpCursor.CursorPair;
 import com.shuaqiu.yuanyuanxibo.HttpCursorKeeper;
-import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.content.DatabaseHelper;
 
 class StatusDownloader implements Runnable {
@@ -30,31 +26,23 @@ class StatusDownloader implements Runnable {
     private static final String STATUS_ID = "id";
 
     private Context mContext;
+    private boolean isBroadcast = true;
 
     public StatusDownloader(Context context) {
         mContext = context;
     }
 
+    public void setBroadcast(boolean isBroadcast) {
+        this.isBroadcast = isBroadcast;
+    }
+
     @Override
     public void run() {
-        Log.d(TAG, "prepare to download");
-
-        Bundle params = new Bundle();
-        String accessToken = StateKeeper.accessToken.getAccessToken();
-        params.putString("access_token", accessToken);
-
         HttpCursor httpCursor = HttpCursorKeeper.read(mContext,
                 HttpCursor.Type.STATUS);
-        if (httpCursor != null && httpCursor.getPairs().length > 0) {
-            long max = httpCursor.getPairs()[0].getMax();
-            if (max > 0) {
-                params.putLong("since_id", max);
-            }
-        }
 
-        Log.d(TAG, "start to download");
-        String respText = HttpUtil.httpGet(Status.FRIEND_TIMELINE, params);
-        Log.d(TAG, "downloaded: " + respText);
+        StatusDownloadFunction download = StatusDownloadFunction.getInstance();
+        String respText = download.apply(httpCursor);
 
         if (respText == null) {
             return;
@@ -68,18 +56,34 @@ class StatusDownloader implements Runnable {
             return;
         }
 
+        JSONArray statuses = data.optJSONArray("statuses");
+        if (statuses.length() == 0) {
+            Log.d(TAG, "not data");
+            return;
+        }
+
+        int savedCount = saveStatus(statuses);
+        if (savedCount == 0) {
+            Log.d(TAG, "fail to save");
+            return;
+        }
+
         saveHttpCursor(httpCursor, data);
 
-        saveStatus(data);
-        sendBoardcast(respText);
+        if (isBroadcast) {
+            sendBoardcast(savedCount);
+        }
     }
 
     private void saveHttpCursor(HttpCursor httpCursor, JSONObject data) {
+        long min = getMin(data);
         long max = getMax(data);
-        long min = data.optLong("next_cursor");
-        httpCursor
-                .prepend(new CursorPair(System.currentTimeMillis(), min, max));
+        httpCursor.prepend(new CursorPair(min, max));
         HttpCursorKeeper.save(mContext, httpCursor);
+    }
+
+    private long getMin(JSONObject data) {
+        return data.optLong("next_cursor");
     }
 
     private long getMax(JSONObject data) {
@@ -92,19 +96,15 @@ class StatusDownloader implements Runnable {
             return max;
         }
         JSONObject status = statuses.optJSONObject(0);
-        long id = status.optLong(STATUS_ID);
+        long id = status.optLong("id");
         return id;
     }
 
     /**
      * @param data
+     * @return
      */
-    private void saveStatus(JSONObject data) {
-        JSONArray statuses = data.optJSONArray("statuses");
-        if (statuses.length() == 0) {
-            return;
-        }
-
+    private int saveStatus(JSONArray statuses) {
         Log.d(TAG, "write status data to database");
         DatabaseHelper dbHelper = new DatabaseHelper(mContext);
         dbHelper.openForWrite();
@@ -120,16 +120,17 @@ class StatusDownloader implements Runnable {
             dbHelper.saveOrUpdate(DatabaseHelper.Status.TABLE_NAME, values);
         }
         dbHelper.close();
+
+        return statuses.length();
     }
 
     /**
-     * @param respText
+     * @param savedCount
      */
-    private void sendBoardcast(String respText) {
+    private void sendBoardcast(int savedCount) {
         Log.d(TAG, "send boardcast");
         Intent intent = new Intent(Defs.NEW_STATUS);
-        intent.putExtra("data", respText);
-        // mContext.sendBroadcast(intent);
+        intent.putExtra("count", savedCount);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 }

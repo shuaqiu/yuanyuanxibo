@@ -38,6 +38,9 @@ public class MainActivity extends FragmentActivity {
      */
     ViewPager mViewPager;
 
+    private int defaultBackground = 0;
+    private int selectedBackground = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,19 +89,28 @@ public class MainActivity extends FragmentActivity {
             // the adapter. Also specify this Activity object, which implements
             // the TabListener interface, as the callback (listener) for when
             // this tab is selected.
-            findViewById(SectionsPagerAdapter.mPageTitileId[i])
-                    .setOnClickListener(new MainTabClickListener(i));
+            View tab = findViewById(SectionsPagerAdapter.TITLE_IDS[i]);
+            tab.setOnClickListener(new MainTabClickListener(i));
+            if (i == 0) {
+                tab.setBackgroundColor(getSelectedBackground());
+            }
         }
 
-        tryShowNewItem();
+        findViewById(R.id.refresh).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int currentItem = mViewPager.getCurrentItem();
+                Fragment item = mSectionsPagerAdapter.getItem(currentItem);
+                if (item instanceof RefreshableListFragment) {
+                    ((RefreshableListFragment) item).refresh();
+                }
+            }
+        });
     }
 
-    private void tryShowNewItem() {
+    private boolean hasNewStatus() {
         Intent intent = getIntent();
-        String action = intent.getAction();
-        if (Defs.NEW_STATUS.equals(action)) {
-            onTabSelected(0);
-        }
+        return intent != null && Defs.NEW_STATUS.equals(intent.getAction());
     }
 
     @Override
@@ -122,11 +134,35 @@ public class MainActivity extends FragmentActivity {
             ViewPager.SimpleOnPageChangeListener {
         @Override
         public void onPageSelected(int position) {
-            // actionBar.setSelectedNavigationItem(position);
-            Fragment item = mSectionsPagerAdapter.getItem(0);
-            Loader<Object> loader = item.getLoaderManager().getLoader(0);
-            loader.takeContentChanged();
+            if (hasNewStatus()) {
+                Fragment item = mSectionsPagerAdapter.getItem(0);
+                Loader<Object> loader = item.getLoaderManager().getLoader(0);
+                loader.takeContentChanged();
+            }
+
+            for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+                View tab = findViewById(SectionsPagerAdapter.TITLE_IDS[i]);
+                if (i == position) {
+                    tab.setBackgroundColor(getSelectedBackground());
+                } else {
+                    tab.setBackgroundColor(getDefaultBackground());
+                }
+            }
         }
+    }
+
+    public int getDefaultBackground() {
+        if (defaultBackground == 0) {
+            defaultBackground = getResources().getColor(R.color.azure);
+        }
+        return defaultBackground;
+    }
+
+    public int getSelectedBackground() {
+        if (selectedBackground == 0) {
+            selectedBackground = getResources().getColor(R.color.g_blue);
+        }
+        return selectedBackground;
     }
 
     /**

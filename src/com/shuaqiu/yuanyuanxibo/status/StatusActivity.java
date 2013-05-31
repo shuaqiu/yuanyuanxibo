@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Window;
 
 import com.shuaqiu.yuanyuanxibo.R;
@@ -13,11 +14,12 @@ import com.shuaqiu.yuanyuanxibo.content.DatabaseHelper;
 
 public class StatusActivity extends FragmentActivity {
 
-    private static final String TAG = "status";
+    private static final String TAG = "statusactivity";
 
     private DatabaseHelper mDbHelper;
     private Cursor mCursor;
     private int mPosition;
+    private long mMaxId;
 
     private ViewPager mViewPager;
 
@@ -37,6 +39,7 @@ public class StatusActivity extends FragmentActivity {
 
         Intent intent = getIntent();
         mPosition = intent.getIntExtra("position", 0);
+        mMaxId = intent.getLongExtra("maxId", -1);
     }
 
     @Override
@@ -67,13 +70,22 @@ public class StatusActivity extends FragmentActivity {
 
         @Override
         protected Void doInBackground(String... params) {
-            mCursor = mDbHelper
-                    .query(table, columns, null, null, orderBy, null);
+            Log.d(TAG, "try to load status");
+            String selection = null;
+            String[] selectionArgs = null;
+            if (mMaxId > 0) {
+                Log.d(TAG, "filter id <= " + mMaxId);
+                selection = "id <= ?";
+                selectionArgs = new String[] { Long.toString(mMaxId) };
+            }
+            mCursor = mDbHelper.query(table, columns, selection, selectionArgs,
+                    orderBy, null);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
+            Log.d(TAG, "loaded status, begin to show");
             initViewPager();
         }
     }

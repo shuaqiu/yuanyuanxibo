@@ -11,6 +11,8 @@ import android.os.IBinder;
 
 public class StatusService extends Service {
 
+    static boolean isRunning = false;
+
     private long delay = 10 * 60;
 
     private ScheduledExecutorService mThreadPoll;
@@ -24,6 +26,7 @@ public class StatusService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        isRunning = true;
 
         mThreadPoll = Executors.newScheduledThreadPool(1);
 
@@ -31,11 +34,14 @@ public class StatusService extends Service {
         future = mThreadPoll.scheduleWithFixedDelay(command, 30, delay,
                 TimeUnit.SECONDS);
 
-        return super.onStartCommand(intent, flags, startId);
+        super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        isRunning = false;
+
         if (future != null) {
             future.cancel(true);
         }

@@ -22,7 +22,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:background="@drawable/action_bar"
             android:gravity="center"
             android:paddingBottom="@dimen/ten_dp"
             android:paddingTop="@dimen/ten_dp"
@@ -62,6 +61,12 @@
             android:text="@string/messages"
             android:textStyle="bold" />
 
+        <ImageButton
+            android:id="@+id/refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_refresh"
+            android:contentDescription="@string/refresh" />
     </LinearLayout>
 
     <android.support.v4.view.ViewPager

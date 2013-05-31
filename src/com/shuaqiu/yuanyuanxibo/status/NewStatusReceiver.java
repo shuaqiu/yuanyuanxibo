@@ -28,14 +28,19 @@ public class NewStatusReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "received broadcast that downloaded some new status");
-        // intent.getStringExtra("data")
+        int count = intent.getIntExtra("count", 0);
+        if (count == 0) {
+            return;
+        }
 
         NotificationManager manager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 context);
-        builder.setContentTitle(context.getString(R.string.new_status));
+        builder.setContentTitle(context.getString(R.string.new_status, count));
+        builder.setContentText(context.getString(R.string.to_show));
+        builder.setNumber(count);
         builder.setAutoCancel(true);
         builder.setSmallIcon(R.drawable.ic_launcher);
 
