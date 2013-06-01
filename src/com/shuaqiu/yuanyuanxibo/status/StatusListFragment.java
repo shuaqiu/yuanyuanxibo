@@ -3,21 +3,21 @@ package com.shuaqiu.yuanyuanxibo.status;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
 import com.shuaqiu.common.function.Function;
 import com.shuaqiu.common.task.Promise;
-import com.shuaqiu.yuanyuanxibo.CursorBinderAdpater;
 import com.shuaqiu.yuanyuanxibo.Defs;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.RefreshableListFragment;
+import com.shuaqiu.yuanyuanxibo.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.content.CursorLoaderCallbacks;
-import com.shuaqiu.yuanyuanxibo.content.DatabaseHelper;
+import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 
 /**
  * @author shuaqiu Apr 27, 2013
@@ -26,25 +26,22 @@ public class StatusListFragment extends RefreshableListFragment {
 
     private static final String TAG = "statuslist";
 
-    String table = DatabaseHelper.Status.TABLE_NAME;
-    String[] columns = new String[] { DatabaseHelper.Status.ID,
-            DatabaseHelper.Status.CONTENT, DatabaseHelper.Status.READED };
-    String orderBy = DatabaseHelper.Status.ID + " desc";
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         Context context = getActivity();
-        StatusBinder statusBinder = new StatusBinder(context,
-                StatusBinder.Type.LIST);
-        CursorBinderAdpater adapter = new CursorBinderAdpater(context,
-                R.layout.listview_status, statusBinder,
-                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        BundleStatusBinder statusBinder = new BundleStatusBinder(context,
+                BundleStatusBinder.Type.LIST);
+        // CursorBinderAdpater adapter = new CursorBinderAdpater(context,
+        // R.layout.listview_status, statusBinder,
+        // CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        SimpleCursorAdapter<Bundle> adapter = new StatusCursorAdapter(context, R.layout.listview_status, statusBinder);
         setListAdapter(adapter);
 
         CursorLoaderCallbacks loadCallback = new CursorLoaderCallbacks(context,
-                adapter, table, columns, orderBy);
+                adapter, StatusHelper.TABLE, StatusHelper.names(),
+                StatusHelper.ORDER_BY);
         getLoaderManager().initLoader(0, null, loadCallback);
 
         startService(context);
@@ -88,8 +85,28 @@ public class StatusListFragment extends RefreshableListFragment {
     }
 
     /**
+     * @author shuaqiu 2013-6-2
+     *
+     */
+    private final class StatusCursorAdapter extends SimpleCursorAdapter<Bundle> {
+        /**
+         * @param context
+         * @param resource
+         * @param binder
+         */
+        private StatusCursorAdapter(Context context, int resource,
+                ViewBinder<Bundle> binder) {
+            super(context, resource, binder);
+        }
+
+        @Override
+        protected Bundle toData(Cursor cursor) {
+            return StatusHelper.toBundle(cursor);
+        }
+    }
+
+    /**
      * @author shuaqiu 2013-5-31
-     * 
      */
     private final class DownloadFunction implements Function<Void, Void> {
         @Override
@@ -103,7 +120,6 @@ public class StatusListFragment extends RefreshableListFragment {
 
     /**
      * @author shuaqiu 2013-5-31
-     * 
      */
     private final class ReloadFunction implements Function<Void, Void> {
         @Override

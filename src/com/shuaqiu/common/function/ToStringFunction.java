@@ -14,7 +14,7 @@ import com.shuaqiu.common.util.StreamUtil;
 
 public class ToStringFunction implements InputStreamFunction<String> {
 
-    private static final String TAG = "StringHandler";
+    private static final String TAG = "ToStringFunction";
 
     private static ToStringFunction instance = null;
 

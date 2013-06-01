@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
@@ -17,13 +16,11 @@ import com.shuaqiu.yuanyuanxibo.Defs;
 import com.shuaqiu.yuanyuanxibo.HttpCursor;
 import com.shuaqiu.yuanyuanxibo.HttpCursor.CursorPair;
 import com.shuaqiu.yuanyuanxibo.HttpCursorKeeper;
-import com.shuaqiu.yuanyuanxibo.content.DatabaseHelper;
+import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 
 class StatusDownloader implements Runnable {
 
-    private static final String TAG = "statusdownload";
-
-    private static final String STATUS_ID = "id";
+    private static final String TAG = "StatusDownloader";
 
     private Context mContext;
     private boolean isBroadcast = true;
@@ -106,22 +103,13 @@ class StatusDownloader implements Runnable {
      */
     private int saveStatus(JSONArray statuses) {
         Log.d(TAG, "write status data to database");
-        DatabaseHelper dbHelper = new DatabaseHelper(mContext);
-        dbHelper.openForWrite();
 
-        for (int i = 0; i < statuses.length(); i++) {
-            JSONObject status = statuses.optJSONObject(i);
-            long id = status.optLong(STATUS_ID);
+        StatusHelper helper = new StatusHelper(mContext);
+        helper.openForWrite();
+        int count = helper.saveOrUpdate(statuses);
+        helper.close();
+        return count;
 
-            ContentValues values = new ContentValues(3);
-            values.put(DatabaseHelper.Status.ID, id);
-            values.put(DatabaseHelper.Status.CONTENT, status.toString());
-            values.put(DatabaseHelper.Status.READED, 0);
-            dbHelper.saveOrUpdate(DatabaseHelper.Status.TABLE_NAME, values);
-        }
-        dbHelper.close();
-
-        return statuses.length();
     }
 
     /**

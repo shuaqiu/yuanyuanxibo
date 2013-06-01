@@ -10,17 +10,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 
-import com.shuaqiu.yuanyuanxibo.content.DatabaseHelper;
+import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 
 /**
  * @author shuaqiu 2013-5-28
- * 
  */
 public class StatusPagerAdapter extends FragmentStatePagerAdapter {
-    private static final String TAG = "statusadapter";
+    private static final String TAG = "StatusPagerAdapter";
 
     private Cursor mCursor;
-    private int mContentIndex = -1;
 
     public StatusPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -40,6 +38,7 @@ public class StatusPagerAdapter extends FragmentStatePagerAdapter {
         Cursor oldCursor = mCursor;
         mCursor = newCursor;
         if (newCursor != null) {
+            Log.d(TAG, "cursor changed");
             // notify the observers about the new cursor
             notifyDataSetChanged();
         }
@@ -55,7 +54,7 @@ public class StatusPagerAdapter extends FragmentStatePagerAdapter {
         return mCursor.getCount();
     }
 
-    private String getContent(int position) {
+    private Bundle getStatusBundle(int position) {
         if (mCursor == null || mCursor.isClosed()) {
             // ? need to query data?
             return null;
@@ -65,27 +64,14 @@ public class StatusPagerAdapter extends FragmentStatePagerAdapter {
             // TODO fetch more data, insert into database, then query again.
             return null;
         }
-        int contentIndex = getContentIndex();
-        if (contentIndex == -1) {
-            Log.w(TAG, "Can't find the context column");
-            return null;
-        }
-        return mCursor.getString(contentIndex);
-    }
-
-    private int getContentIndex() {
-        if (mContentIndex == -1) {
-            mContentIndex = mCursor
-                    .getColumnIndex(DatabaseHelper.Status.CONTENT);
-        }
-        return mContentIndex;
+        return StatusHelper.toBundle(mCursor, position);
     }
 
     @Override
     public Fragment getItem(int position) {
         StatusFragment fragment = new StatusFragment();
         Bundle args = new Bundle();
-        args.putString(StatusFragment.STATUS_CONTENT, getContent(position));
+        args.putBundle(StatusFragment.STATUS, getStatusBundle(position));
         fragment.setArguments(args);
         return fragment;
     }

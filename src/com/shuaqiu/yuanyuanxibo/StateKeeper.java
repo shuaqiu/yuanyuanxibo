@@ -6,6 +6,7 @@ package com.shuaqiu.yuanyuanxibo;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import com.shuaqiu.yuanyuanxibo.auth.Oauth2AccessToken;
 
@@ -13,6 +14,8 @@ import com.shuaqiu.yuanyuanxibo.auth.Oauth2AccessToken;
  * @author shuaqiu May 4, 2013
  */
 public final class StateKeeper {
+
+    private static final String TAG = "StateKeeper";
 
     public static Oauth2AccessToken accessToken;
 
@@ -25,6 +28,7 @@ public final class StateKeeper {
         }
 
         int type = info.getType();
+        Log.d(TAG, "type : " + type);
         return type == ConnectivityManager.TYPE_WIFI;
     }
 

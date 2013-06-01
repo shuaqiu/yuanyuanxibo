@@ -26,4 +26,9 @@ public class Tuple<M, N> {
     public N getValue2() {
         return n;
     }
+
+    @Override
+    public String toString() {
+        return "(" + m + "," + n + ")";
+    }
 }

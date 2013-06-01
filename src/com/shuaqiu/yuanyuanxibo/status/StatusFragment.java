@@ -3,9 +3,6 @@
  */
 package com.shuaqiu.yuanyuanxibo.status;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -18,16 +15,15 @@ import com.shuaqiu.yuanyuanxibo.ViewBinder;
 
 /**
  * @author shuaqiu 2013-5-29
- * 
  */
 public class StatusFragment extends Fragment {
-    public static final String STATUS_CONTENT = "STATUS_CONTENT";
+    public static final String STATUS = "STATUS_CONTENT";
 
     private static final String TAG = "status";
 
-    private static ViewBinder sBinder;
+    private static ViewBinder<Bundle> sBinder;
 
-    private String mContent;
+    private Bundle mStatus;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,24 +39,22 @@ public class StatusFragment extends Fragment {
      * @param position
      */
     private void bindView(View view) {
-        if (mContent == null) {
-            mContent = getArguments().getString(STATUS_CONTENT);
+        if (mStatus == null) {
+            mStatus = getArguments().getBundle(STATUS);
         }
-        if (mContent == null) {
+        if (mStatus == null) {
             return;
         }
-        try {
-            JSONObject status = new JSONObject(mContent);
-            getViewBinder().bindView(view, status);
-        } catch (JSONException e) {
-            Log.e(TAG, e.getMessage(), e);
-            return;
-        }
+
+        getViewBinder().bindView(view, mStatus);
+
     }
 
-    private ViewBinder getViewBinder() {
+    private ViewBinder<Bundle> getViewBinder() {
         if (sBinder == null) {
-            sBinder = new StatusBinder(getActivity(), StatusBinder.Type.DETAIL);
+            Log.d(TAG, "init the view binder");
+            sBinder = new BundleStatusBinder(getActivity(),
+                    BundleStatusBinder.Type.DETAIL);
         }
         return sBinder;
     }

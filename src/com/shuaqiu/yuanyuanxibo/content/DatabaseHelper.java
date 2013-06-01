@@ -62,11 +62,4 @@ public class DatabaseHelper {
         TEXT, INTEGER, BOOLEAN
     }
 
-    public static interface Status {
-        String TABLE_NAME = "t_status";
-
-        String ID = "_id";
-        String CONTENT = "content";
-        String READED = "readed";
-    }
 }

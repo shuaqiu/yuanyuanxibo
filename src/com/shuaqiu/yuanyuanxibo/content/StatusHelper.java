@@ -1,14 +1,12 @@
 package com.shuaqiu.yuanyuanxibo.content;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.shuaqiu.common.Tuple;
@@ -17,13 +15,27 @@ import com.shuaqiu.common.Tuple;
  * @author shuaqiu 2013-5-31
  */
 public class StatusHelper extends DatabaseHelper {
-    public static final String TABLE = "t_status";
 
     private static final String TAG = "StatusHelper";
 
-    private static final String ORDER_BY = Column.id.name() + " desc";
+    public static final String TABLE = "t_status";
 
-    //
+    /** 排序字段 */
+    public static final String ORDER_BY = Column.id.name() + " desc";
+
+    /** 轉發的微博的key */
+    public static final String RETWEETED_STATUS = "retweeted_status";
+
+    /** 被轉發微博的字段前綴 */
+    private static final String RETWEETED = "retweeted_";
+
+    private static final Column[] COLUMNS = Column.values();
+
+    /**
+     * 微博的列定義
+     * 
+     * @author shuaqiu 2013-5-31
+     */
     public enum Column {
         /** 微博ID */
         id(ColumnType.INTEGER),
@@ -124,9 +136,8 @@ public class StatusHelper extends DatabaseHelper {
         ddl.append(TABLE);
         ddl.append("(");
 
-        Column[] columns = Column.values();
         int i = 0;
-        for (Column column : columns) {
+        for (Column column : COLUMNS) {
             if (i > 0) {
                 ddl.append(", ");
             }
@@ -143,15 +154,59 @@ public class StatusHelper extends DatabaseHelper {
     }
 
     public static String[] names() {
-        Column[] columns = Column.values();
-
-        String[] names = new String[columns.length];
+        String[] names = new String[COLUMNS.length];
         int i = 0;
-        for (Column column : columns) {
+        for (Column column : COLUMNS) {
             names[i++] = column.name();
         }
 
         return names;
+    }
+
+    public static Bundle toBundle(Cursor cursor, int position) {
+        boolean isSuccessMoved = cursor.moveToPosition(position);
+        if (!isSuccessMoved) {
+            return Bundle.EMPTY;
+        }
+
+        return toBundle(cursor);
+    }
+
+    public static Bundle toBundle(Cursor cursor) {
+        int len = COLUMNS.length / 2;
+        Bundle status = new Bundle(len + 1);
+        Bundle retweetedStatus = new Bundle(len);
+        for (Column c : COLUMNS) {
+            if (cursor.isNull(c.ordinal())) {
+                // 如果字段是null 值, 則不作處理
+                continue;
+            }
+
+            Bundle target = status;
+            String field = c.name();
+            if (field.startsWith(RETWEETED)) {
+                // 如果是被轉發的微博字段, 則轉移一下目標
+                target = retweetedStatus;
+                field = field.replace(RETWEETED, "");
+            }
+            try {
+                // 獲取值, 并放到bundle 中
+                if (c.type == ColumnType.TEXT) {
+                    target.putString(field, cursor.getString(c.ordinal()));
+                } else if (c.type == ColumnType.INTEGER) {
+                    target.putLong(field, cursor.getLong(c.ordinal()));
+                } else if (c.type == ColumnType.BOOLEAN) {
+                    target.putBoolean(field, cursor.getInt(c.ordinal()) == 1);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+        }
+
+        if (retweetedStatus.size() > 0) {
+            status.putBundle(RETWEETED_STATUS, retweetedStatus);
+        }
+        return status;
     }
 
     /**
@@ -163,32 +218,6 @@ public class StatusHelper extends DatabaseHelper {
 
     public Cursor query(String selection, String[] selectionArgs, String limit) {
         return query(TABLE, names(), selection, selectionArgs, ORDER_BY, limit);
-    }
-
-    public Map<Column, Object> toMap(Cursor cursor, int position) {
-        Column[] columns = Column.values();
-        Map<Column, Object> m = new HashMap<Column, Object>(columns.length);
-
-        boolean isSuccessMoved = cursor.moveToPosition(position);
-        if (!isSuccessMoved) {
-            return m;
-        }
-
-        for (Column c : columns) {
-            try {
-                if (c.type == ColumnType.TEXT) {
-                    m.put(c, cursor.getString(c.ordinal()));
-                } else if (c.type == ColumnType.INTEGER) {
-                    m.put(c, cursor.getLong(c.ordinal()));
-                } else if (c.type == ColumnType.BOOLEAN) {
-                    m.put(c, cursor.getInt(c.ordinal()) == 1);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-        }
-
-        return m;
     }
 
     public int saveOrUpdate(JSONArray statuses) {
@@ -208,16 +237,15 @@ public class StatusHelper extends DatabaseHelper {
     }
 
     private ContentValues extract(JSONObject status) {
-        Column[] columns = Column.values();
-        JSONObject retweetedStatus = status.optJSONObject("retweeted_status");
+        JSONObject retweetedStatus = status.optJSONObject(RETWEETED_STATUS);
 
-        int size = columns.length;
+        int size = COLUMNS.length;
         if (retweetedStatus == null) {
             size /= 2;
         }
         ContentValues values = new ContentValues(size);
 
-        for (Column c : columns) {
+        for (Column c : COLUMNS) {
             Tuple<JSONObject, String> tuple = resolveTargetAndField(status,
                     retweetedStatus, c);
             if (tuple == null) {
@@ -251,7 +279,7 @@ public class StatusHelper extends DatabaseHelper {
         JSONObject target = status;
         String field = c.name();
 
-        if (field.startsWith("retweeted_")) {
+        if (field.startsWith(RETWEETED)) {
             // 處理轉發微博字段
             if (retweetedStatus == null) {
                 // 如果是原創微博, 則沒有轉發的微博, 則不需要處理這些字段
@@ -259,7 +287,7 @@ public class StatusHelper extends DatabaseHelper {
             }
             // 目標設為轉發的微博, 字段名則是去掉前綴
             target = retweetedStatus;
-            field = field.replace("retweeted_", "");
+            field = field.replace(RETWEETED, "");
         }
 
         if (field.startsWith("user_")) {

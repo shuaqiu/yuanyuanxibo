@@ -8,7 +8,8 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
+
+import com.shuaqiu.common.widget.CursorAdapter;
 
 /**
  * @author shuaqiu May 6, 2013

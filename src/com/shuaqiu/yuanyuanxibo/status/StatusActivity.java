@@ -10,13 +10,13 @@ import android.util.Log;
 import android.view.Window;
 
 import com.shuaqiu.yuanyuanxibo.R;
-import com.shuaqiu.yuanyuanxibo.content.DatabaseHelper;
+import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 
 public class StatusActivity extends FragmentActivity {
 
     private static final String TAG = "statusactivity";
 
-    private DatabaseHelper mDbHelper;
+    private StatusHelper mStatusHelper;
     private Cursor mCursor;
     private int mPosition;
     private long mMaxId;
@@ -32,8 +32,8 @@ public class StatusActivity extends FragmentActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.pager);
 
-        mDbHelper = new DatabaseHelper(this);
-        mDbHelper.openForRead();
+        mStatusHelper = new StatusHelper(this);
+        mStatusHelper.openForRead();
 
         new AsyncDatabaseTask().execute();
 
@@ -49,7 +49,7 @@ public class StatusActivity extends FragmentActivity {
         if (mCursor != null && !mCursor.isClosed()) {
             mCursor.close();
         }
-        mDbHelper.close();
+        mStatusHelper.close();
     }
 
     private void initViewPager() {
@@ -63,10 +63,6 @@ public class StatusActivity extends FragmentActivity {
     }
 
     private class AsyncDatabaseTask extends AsyncTask<String, Void, Void> {
-        String table = DatabaseHelper.Status.TABLE_NAME;
-        String[] columns = new String[] { DatabaseHelper.Status.ID,
-                DatabaseHelper.Status.CONTENT, DatabaseHelper.Status.READED };
-        String orderBy = DatabaseHelper.Status.ID + " desc";
 
         @Override
         protected Void doInBackground(String... params) {
@@ -78,8 +74,7 @@ public class StatusActivity extends FragmentActivity {
                 selection = "id <= ?";
                 selectionArgs = new String[] { Long.toString(mMaxId) };
             }
-            mCursor = mDbHelper.query(table, columns, selection, selectionArgs,
-                    orderBy, null);
+            mCursor = mStatusHelper.query(selection, selectionArgs, "100");
             return null;
         }
 

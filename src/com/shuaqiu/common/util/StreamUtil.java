@@ -15,7 +15,7 @@ import android.util.Log;
  */
 public class StreamUtil {
 
-    private static final String TAG = "stream";
+    private static final String TAG = "StreamUtil";
 
     public static void tranfer(InputStream in, OutputStream out)
             throws IOException {
