@@ -73,7 +73,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/five_dp"
-        android:background="@drawable/bg_round"
+        android:background="@drawable/bg_round_retweeted"
         android:text="@string/empty" />
 
 </LinearLayout>

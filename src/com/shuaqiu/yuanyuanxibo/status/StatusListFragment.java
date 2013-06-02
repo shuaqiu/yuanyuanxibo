@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +25,7 @@ import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
  */
 public class StatusListFragment extends RefreshableListFragment {
 
-    private static final String TAG = "statuslist";
+    private static final String TAG = "StatusListFragment";
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -32,11 +33,12 @@ public class StatusListFragment extends RefreshableListFragment {
 
         Context context = getActivity();
         BundleStatusBinder statusBinder = new BundleStatusBinder(context,
-                BundleStatusBinder.Type.LIST);
+                StatusBinder.Type.LIST);
         // CursorBinderAdpater adapter = new CursorBinderAdpater(context,
         // R.layout.listview_status, statusBinder,
         // CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        SimpleCursorAdapter<Bundle> adapter = new StatusCursorAdapter(context, R.layout.listview_status, statusBinder);
+        SimpleCursorAdapter<Bundle> adapter = new StatusCursorAdapter(context,
+                R.layout.listview_status, statusBinder);
         setListAdapter(adapter);
 
         CursorLoaderCallbacks loadCallback = new CursorLoaderCallbacks(context,
@@ -86,7 +88,6 @@ public class StatusListFragment extends RefreshableListFragment {
 
     /**
      * @author shuaqiu 2013-6-2
-     *
      */
     private final class StatusCursorAdapter extends SimpleCursorAdapter<Bundle> {
         /**
@@ -124,7 +125,8 @@ public class StatusListFragment extends RefreshableListFragment {
     private final class ReloadFunction implements Function<Void, Void> {
         @Override
         public Void apply(Void params) {
-            getLoaderManager().getLoader(0).takeContentChanged();
+            Loader<Object> loader = getLoaderManager().getLoader(0);
+            loader.forceLoad();
             return null;
         }
     }

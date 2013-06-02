@@ -31,5 +31,9 @@
     <string name="new_status">You have %d new weibos</string>
     <string name="to_show">Click to show new weibos</string>
     <string name="refresh">Refresh</string>
+    <string name="attitude">attitude</string>
+    <string name="repost">repost</string>
+    <string name="comment">comment</string>
+    <string name="favorite">favorite</string>
 
 </resources>

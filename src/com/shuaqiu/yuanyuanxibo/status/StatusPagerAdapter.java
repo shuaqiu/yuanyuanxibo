@@ -20,6 +20,8 @@ public class StatusPagerAdapter extends FragmentStatePagerAdapter {
 
     private Cursor mCursor;
 
+    private int mCount = 0;
+
     public StatusPagerAdapter(FragmentManager fm) {
         super(fm);
     }
@@ -37,26 +39,29 @@ public class StatusPagerAdapter extends FragmentStatePagerAdapter {
         }
         Cursor oldCursor = mCursor;
         mCursor = newCursor;
-        if (newCursor != null) {
+        if (newCursor == null || mCursor.isClosed()) {
+            mCount = 0;
+        } else {
             Log.d(TAG, "cursor changed");
             // notify the observers about the new cursor
             notifyDataSetChanged();
+            mCount = mCursor.getCount();
         }
         return oldCursor;
     }
 
     @Override
     public int getCount() {
-        if (mCursor == null) {
-            return 0;
-        }
-        Log.d(TAG, "count ->" + mCursor.getCount());
-        return mCursor.getCount();
+        return mCount;
     }
 
     private Bundle getStatusBundle(int position) {
         if (mCursor == null || mCursor.isClosed()) {
             // ? need to query data?
+            return null;
+        }
+
+        if (position < -1 || position > mCount) {
             return null;
         }
 

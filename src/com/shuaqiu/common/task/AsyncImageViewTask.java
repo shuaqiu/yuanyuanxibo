@@ -5,12 +5,12 @@ package com.shuaqiu.common.task;
 
 import java.io.IOException;
 
-import com.shuaqiu.common.util.BitmapUtil;
-
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ImageView;
+
+import com.shuaqiu.common.util.BitmapUtil;
 
 /**
  * @author shuaqiu May 1, 2013
@@ -45,9 +45,9 @@ public class AsyncImageViewTask extends AsyncTask<String, Integer, Bitmap> {
      */
     @Override
     protected void onPostExecute(Bitmap result) {
-        mImageView.setVisibility(View.VISIBLE);
         if (result != null) {
             mImageView.setImageBitmap(result);
+            mImageView.setVisibility(View.VISIBLE);
         }
 
         if (mProgressView != null) {

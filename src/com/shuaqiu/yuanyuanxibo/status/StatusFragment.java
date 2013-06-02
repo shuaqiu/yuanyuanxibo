@@ -29,7 +29,7 @@ public class StatusFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater
-                .inflate(R.layout.activity_status, container, false);
+                .inflate(R.layout.fragment_status, container, false);
         bindView(view);
         return view;
     }
@@ -54,7 +54,7 @@ public class StatusFragment extends Fragment {
         if (sBinder == null) {
             Log.d(TAG, "init the view binder");
             sBinder = new BundleStatusBinder(getActivity(),
-                    BundleStatusBinder.Type.DETAIL);
+                    StatusBinder.Type.DETAIL);
         }
         return sBinder;
     }

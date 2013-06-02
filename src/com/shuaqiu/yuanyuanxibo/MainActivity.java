@@ -1,12 +1,10 @@
 package com.shuaqiu.yuanyuanxibo;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
@@ -23,14 +21,6 @@ public class MainActivity extends FragmentActivity {
 
     private static final String TAG = "main";
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
-     * will keep every loaded fragment in memory. If this becomes too memory
-     * intensive, it may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
@@ -91,27 +81,18 @@ public class MainActivity extends FragmentActivity {
             // this tab is selected.
             View tab = findViewById(SectionsPagerAdapter.TITLE_IDS[i]);
             tab.setOnClickListener(new MainTabClickListener(i));
-            if (i == 0) {
-                tab.setBackgroundColor(getSelectedBackground());
-            }
         }
 
-        findViewById(R.id.refresh).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int currentItem = mViewPager.getCurrentItem();
-                Fragment item = mSectionsPagerAdapter.getItem(currentItem);
-                if (item instanceof RefreshableListFragment) {
-                    ((RefreshableListFragment) item).refresh();
-                }
-            }
-        });
+        setTabBackground(0);
+
+        findViewById(R.id.refresh).setOnClickListener(
+                new RefreshClickListener());
     }
 
-    private boolean hasNewStatus() {
-        Intent intent = getIntent();
-        return intent != null && Defs.NEW_STATUS.equals(intent.getAction());
-    }
+    // private boolean hasNewStatus() {
+    // Intent intent = getIntent();
+    // return intent != null && Defs.NEW_STATUS.equals(intent.getAction());
+    // }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -128,41 +109,56 @@ public class MainActivity extends FragmentActivity {
     }
 
     /**
-     * @author shuaqiu 2013-5-6
+     * @param position
      */
-    private final class MainPageChangeListener extends
-            ViewPager.SimpleOnPageChangeListener {
-        @Override
-        public void onPageSelected(int position) {
-            if (hasNewStatus()) {
-                Fragment item = mSectionsPagerAdapter.getItem(0);
-                Loader<Object> loader = item.getLoaderManager().getLoader(0);
-                loader.takeContentChanged();
-            }
-
-            for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-                View tab = findViewById(SectionsPagerAdapter.TITLE_IDS[i]);
-                if (i == position) {
-                    tab.setBackgroundColor(getSelectedBackground());
-                } else {
-                    tab.setBackgroundColor(getDefaultBackground());
-                }
+    private void setTabBackground(int position) {
+        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+            View tab = findViewById(SectionsPagerAdapter.TITLE_IDS[i]);
+            if (i == position) {
+                tab.setBackgroundColor(getSelectedBackground());
+            } else {
+                tab.setBackgroundColor(getDefaultBackground());
             }
         }
     }
 
-    public int getDefaultBackground() {
+    private int getDefaultBackground() {
         if (defaultBackground == 0) {
             defaultBackground = getResources().getColor(R.color.azure);
         }
         return defaultBackground;
     }
 
-    public int getSelectedBackground() {
+    private int getSelectedBackground() {
         if (selectedBackground == 0) {
             selectedBackground = getResources().getColor(R.color.g_blue);
         }
         return selectedBackground;
+    }
+
+    /**
+     * @author shuaqiu Jun 2, 2013
+     */
+    private final class RefreshClickListener implements OnClickListener {
+        @Override
+        public void onClick(View v) {
+            int currentItem = mViewPager.getCurrentItem();
+            Fragment item = mSectionsPagerAdapter.getItem(currentItem);
+            if (item instanceof RefreshableListFragment) {
+                ((RefreshableListFragment) item).refresh();
+            }
+        }
+    }
+
+    /**
+     * @author shuaqiu 2013-5-6
+     */
+    private final class MainPageChangeListener extends
+            ViewPager.SimpleOnPageChangeListener {
+        @Override
+        public void onPageSelected(int position) {
+            setTabBackground(position);
+        }
     }
 
     /**

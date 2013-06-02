@@ -30,7 +30,7 @@ public class StatusActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.pager);
+        setContentView(R.layout.activity_status);
 
         mStatusHelper = new StatusHelper(this);
         mStatusHelper.openForRead();

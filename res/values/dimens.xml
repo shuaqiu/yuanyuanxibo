@@ -4,5 +4,6 @@
     <dimen name="sixteen_dp">16dp</dimen>
     <dimen name="ten_dp">10dp</dimen>
     <dimen name="five_dp">5dp</dimen>
+    <dimen name="three_dp">3dp</dimen>
 
 </resources>
