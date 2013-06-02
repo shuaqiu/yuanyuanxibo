@@ -3,8 +3,11 @@
  */
 package com.shuaqiu.yuanyuanxibo.status;
 
+import org.json.JSONArray;
+
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
@@ -13,6 +16,8 @@ import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
  * @author shuaqiu 2013-4-30
  */
 public class BundleStatusBinder extends StatusBinder<Bundle> {
+
+    private static final String TAG = "BundleStatusBinder";
 
     public BundleStatusBinder(Context context, Type type) {
         super(context, type);
@@ -63,23 +68,52 @@ public class BundleStatusBinder extends StatusBinder<Bundle> {
     @Override
     protected String optThumbnailPic(Bundle status) {
         String name = Column.thumbnail_pic.name();
-        if (mType == Type.DETAIL) {// && StateKeeper.isWifi) {
+        if (isOptMiddlePic()) {
             name = Column.bmiddle_pic.name();
         }
 
         String thumbnailPic = status.getString(name);
-        if (thumbnailPic != null && !thumbnailPic.equals("")) {
-            return thumbnailPic;
-        }
-        Bundle retweetedStatus = optRetweetedStatus(status);
-        if (retweetedStatus == null) {
-            return null;
-        }
-        thumbnailPic = retweetedStatus.getString(name);
         if (thumbnailPic == null || thumbnailPic.equals("")) {
-            return null;
+            Bundle retweetedStatus = optRetweetedStatus(status);
+            if (retweetedStatus == null) {
+                return null;
+            }
+
+            thumbnailPic = retweetedStatus.getString(name);
+            if (thumbnailPic == null || thumbnailPic.equals("")) {
+                return null;
+            }
         }
         return thumbnailPic;
+    }
+
+    @Override
+    protected String[] optPics(Bundle status) {
+        String name = Column.pic_urls.name();
+
+        String thumbnailPic = status.getString(name);
+        if (thumbnailPic == null || thumbnailPic.equals("[]")) {
+            Bundle retweetedStatus = optRetweetedStatus(status);
+            if (retweetedStatus == null) {
+                return null;
+            }
+            thumbnailPic = retweetedStatus.getString(name);
+            if (thumbnailPic == null || thumbnailPic.equals("[]")) {
+                return null;
+            }
+        }
+
+        return optPics(thumbnailPic);
+    }
+
+    private String[] optPics(String jsonStr) {
+        try {
+            JSONArray arr = new JSONArray(jsonStr);
+            return optPics(arr);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return null;
     }
 
     @Override

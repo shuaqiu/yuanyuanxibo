@@ -32,7 +32,7 @@ public class StatusListFragment extends RefreshableListFragment {
         super.onViewCreated(view, savedInstanceState);
 
         Context context = getActivity();
-        BundleStatusBinder statusBinder = new BundleStatusBinder(context,
+        StatusBinder<Bundle> statusBinder = new BundleStatusBinder(context,
                 StatusBinder.Type.LIST);
         // CursorBinderAdpater adapter = new CursorBinderAdpater(context,
         // R.layout.listview_status, statusBinder,

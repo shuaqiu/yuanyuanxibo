@@ -47,7 +47,6 @@
     </RelativeLayout>
 
     <ScrollView
-        android:id="@+id/status_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -56,6 +55,7 @@
         android:layout_below="@+id/status_user" >
 
         <LinearLayout
+            android:id="@+id/status_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
@@ -274,6 +274,5 @@
                 android:layout_gravity="center" />
         </LinearLayout>
     </ScrollView>
-
 
 </RelativeLayout>

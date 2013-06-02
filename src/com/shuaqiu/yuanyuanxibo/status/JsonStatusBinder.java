@@ -3,11 +3,11 @@
  */
 package com.shuaqiu.yuanyuanxibo.status;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
 
-import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
 
@@ -65,7 +65,7 @@ public class JsonStatusBinder extends StatusBinder<JSONObject> {
     @Override
     protected String optThumbnailPic(JSONObject status) {
         String name = Column.thumbnail_pic.name();
-        if (mType == Type.DETAIL && StateKeeper.isWifi) {
+        if (isOptMiddlePic()) {
             name = Column.bmiddle_pic.name();
         }
 
@@ -78,6 +78,25 @@ public class JsonStatusBinder extends StatusBinder<JSONObject> {
             return null;
         }
         return retweetedStatus.optString(name, null);
+    }
+
+    @Override
+    protected String[] optPics(JSONObject status) {
+        String name = Column.pic_urls.name();
+
+        JSONArray picUrls = status.optJSONArray(name);
+        if (picUrls == null || picUrls.equals("[]")) {
+            JSONObject retweetedStatus = optRetweetedStatus(status);
+            if (retweetedStatus == null) {
+                return null;
+            }
+            picUrls = retweetedStatus.optJSONArray(name);
+            if (picUrls == null || picUrls.equals("[]")) {
+                return null;
+            }
+        }
+
+        return optPics(picUrls);
     }
 
     @Override

@@ -3,8 +3,16 @@
  */
 package com.shuaqiu.yuanyuanxibo.status;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.content.Context;
+import android.content.res.Resources;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 
 import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.util.ViewUtil;
@@ -21,10 +29,13 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         LIST, DETAIL
     }
 
+    protected Context mContext;
     protected TimeHelper mTimeHelper;
     protected Type mType;
+    protected LayoutParams mLayoutParams;
 
     public StatusBinder(Context context, Type type) {
+        mContext = context;
         mTimeHelper = new TimeHelper(context);
         mType = type;
     }
@@ -133,9 +144,71 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         } else {
             ViewUtil.setViewImage(v, thumbnailPic, progress);
             if (mType == Type.DETAIL) {
+                setPics(view, status);
                 // v.setOnClickListener(l);
             }
         }
+    }
+
+    /**
+     * 如果有多張圖片, 則進行顯示
+     * 
+     * @param view
+     * @param status
+     */
+    protected void setPics(View view, Data status) {
+        String[] pics = optPics(status);
+        if (pics == null || pics.length == 0) {
+            return;
+        }
+        LinearLayout content = (LinearLayout) view
+                .findViewById(R.id.status_content);
+        LayoutParams params = getLayoutParams();
+        for (String pic : pics) {
+            // <ImageView
+            // android:id="@+id/thumbnail_pic"
+            // android:layout_width="wrap_content"
+            // android:layout_height="wrap_content"
+            // android:layout_gravity="center"
+            // android:layout_margin="@dimen/five_dp"
+            // android:contentDescription="@string/thumbnail_pic"
+            // android:src="@drawable/ic_launcher"
+            // android:visibility="gone" />
+            ImageView v = new ImageView(mContext);
+            v.setVisibility(View.GONE);
+            v.setLayoutParams(params);
+            content.addView(v);
+
+            ViewUtil.setViewImage(v, pic);
+        }
+    }
+
+    /**
+     * 獲取用於顯示其他圖片的佈局參數
+     * 
+     * @return the mLayoutParams
+     */
+    private LayoutParams getLayoutParams() {
+        if (mLayoutParams == null) {
+            mLayoutParams = initLayoutParams();
+        }
+        return mLayoutParams;
+    }
+
+    /**
+     * 構造用於顯示其他圖片的佈局參數
+     * 
+     * @return
+     */
+    private LayoutParams initLayoutParams() {
+        LayoutParams params = new LayoutParams(
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
+        Resources resources = mContext.getResources();
+        int margin = resources.getDimensionPixelSize(R.dimen.five_dp);
+        params.setMargins(margin, margin, margin, margin);
+        return params;
     }
 
     /**
@@ -197,6 +270,48 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     protected abstract String optThumbnailPic(Data status);
 
     /**
+     * 獲取微博的圖片內容
+     * 
+     * @param status
+     * @return
+     */
+    protected abstract String[] optPics(Data status);
+
+    /**
+     * 獲取圖片列表
+     * 
+     * <pre>
+     * "pic_urls": [
+     *      {
+     *          "thumbnail_pic": "http://ww2.sinaimg.cn/thumbnail/5259a295jw1e5a6fael8mj20m80gpaeb.jpg"
+     *      },
+     *      {
+     *          "thumbnail_pic": "http://ww2.sinaimg.cn/thumbnail/5259a295jw1e5a6figbbzj20m80gogo7.jpg"
+     *      }
+     * ]
+     * </pre>
+     * 
+     * @param arr
+     * @return
+     */
+    protected String[] optPics(JSONArray arr) {
+        if (arr.length() < 2) {
+            return null;
+        }
+        // 第一張圖片不需要再處理了, 直接通過外層的數據可以獲取到
+        String[] pics = new String[arr.length() - 1];
+        for (int i = 1; i < arr.length(); i++) {
+            JSONObject json = arr.optJSONObject(i);
+            String pic = json.optString(Column.thumbnail_pic.name(), null);
+            if (isOptMiddlePic()) {
+                pic = pic.replace("thumbnail", "bmiddle");
+            }
+            pics[i - 1] = pic;
+        }
+        return pics;
+    }
+
+    /**
      * 獲取微博的一些數量數據, 比如轉發數, 評論數
      * 
      * @param status
@@ -204,5 +319,14 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * @return
      */
     protected abstract String optCount(Data status, Column c);
+
+    /**
+     * 是否獲取大圖
+     * 
+     * @return
+     */
+    protected boolean isOptMiddlePic() {
+        return mType == Type.DETAIL;// && StateKeeper.isWifi;
+    }
 
 }
