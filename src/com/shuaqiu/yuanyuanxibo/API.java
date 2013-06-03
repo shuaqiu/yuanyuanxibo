@@ -56,7 +56,7 @@ public interface API {
          * </p>
          * 參數：
          * <ul>
-         * <li><b>access_token</b>：獲取的用戶授權token，必填，string</li>
+         * <li><b>access_token</b>：獲取的用戶授權token，<b>必填</b>，string</li>
          * <li><b>since_id</b>：若指定此參數，則返回ID 比since_id 大的評論（即比since_id
          * 晚的評論），默認爲0，可選，int64</li>
          * <li><b>max_id</b>：若指定此參數，則返回ID 小於或等於max_id 的評論，默認爲0，可選，int64</li>
@@ -65,6 +65,26 @@ public interface API {
          * </ul>
          */
         String TIMELINE = "2/comments/timeline.json";
+
+        /**
+         * 根據微博ID 返回微博的評論列表
+         * <p>
+         * HTTP請求：GET
+         * </p>
+         * 參數：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token，<b>必填</b>，string</li>
+         * <li><b>id</b>：需要查詢的微博ID，<b>必填</b>，int64</li>
+         * <li><b>since_id</b>：若指定此參數，則返回ID 比since_id 大的評論（即比since_id
+         * 晚的評論），默認爲0，可選，int64</li>
+         * <li><b>max_id</b>：若指定此參數，則返回ID 小於或等於max_id 的評論，默認爲0，可選，int64</li>
+         * <li><b>count</b>：單頁返回的記錄數，默認爲50，可選，int</li>
+         * <li><b>page</b>：返回結果的頁碼，默認爲1，可選，int</li>
+         * <li><b>filter_by_author</b>：作者的篩選類型，0: 全部, 1: 我關注的人, 2: 陌生人,
+         * 默認爲0，可選，int</li>
+         * </ul>
+         */
+        String SHOW = "2/comments/show.json";
     }
 
 }

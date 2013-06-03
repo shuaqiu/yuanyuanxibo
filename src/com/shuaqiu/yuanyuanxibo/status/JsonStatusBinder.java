@@ -21,6 +21,11 @@ public class JsonStatusBinder extends StatusBinder<JSONObject> {
     }
 
     @Override
+    protected long optStatusId(JSONObject status) {
+        return status.optLong(Column.id.name());
+    }
+
+    @Override
     protected JSONObject optRetweetedStatus(JSONObject status) {
         return status.optJSONObject(StatusHelper.RETWEETED_STATUS);
     }

@@ -7,6 +7,7 @@ import android.text.util.Linkify;
 import android.text.util.Linkify.TransformFilter;
 import android.util.Patterns;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -54,7 +55,7 @@ public class ViewUtil {
      */
     public static final int ALL = WEB_URLS | TREND | AT_USER;
 
-    public static void setViewImage(View v, String url) {
+    public static void setImage(View v, String url) {
         if (v == null) {
             return;
         }
@@ -65,7 +66,7 @@ public class ViewUtil {
         }
     }
 
-    public static void setViewImage(View v, String url, View progressView) {
+    public static void setImage(View v, String url, View progressView) {
         if (v == null) {
             return;
         }
@@ -77,7 +78,7 @@ public class ViewUtil {
         }
     }
 
-    public static void setViewText(View v, CharSequence text) {
+    public static void setText(View v, CharSequence text) {
         if (v == null) {
             return;
         }
@@ -87,7 +88,18 @@ public class ViewUtil {
         }
     }
 
-    public static void setViewText(View v, CharSequence text, int mask) {
+    public static void setText(View v, CharSequence text, OnClickListener l) {
+        if (v == null) {
+            return;
+        }
+        if (v instanceof TextView) {
+            TextView textView = (TextView) v;
+            textView.setText(text);
+            textView.setOnClickListener(l);
+        }
+    }
+
+    public static void setText(View v, CharSequence text, int mask) {
         if (v == null) {
             return;
         }

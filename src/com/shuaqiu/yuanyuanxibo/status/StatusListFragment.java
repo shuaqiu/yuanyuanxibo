@@ -13,10 +13,11 @@ import android.widget.ListView;
 
 import com.shuaqiu.common.function.Function;
 import com.shuaqiu.common.task.Promise;
+import com.shuaqiu.common.widget.SimpleCursorAdapter;
+import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.Defs;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.RefreshableListFragment;
-import com.shuaqiu.yuanyuanxibo.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.content.CursorLoaderCallbacks;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 
@@ -73,7 +74,7 @@ public class StatusListFragment extends RefreshableListFragment {
     private void receiveBroadcast() {
         NewStatusReceiver receiver = new NewStatusReceiver();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Defs.NEW_STATUS);
+        filter.addAction(Defs.Action.NEW_STATUS);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
                 receiver, filter);
     }

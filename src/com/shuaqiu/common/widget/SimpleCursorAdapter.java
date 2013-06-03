@@ -1,14 +1,12 @@
 /**
  * 
  */
-package com.shuaqiu.yuanyuanxibo.status;
+package com.shuaqiu.common.widget;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.view.View;
 
-import com.shuaqiu.common.widget.ResourceCursorAdapter;
-import com.shuaqiu.yuanyuanxibo.ViewBinder;
 
 /**
  * @author shuaqiu Apr 27, 2013

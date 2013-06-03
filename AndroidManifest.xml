@@ -28,7 +28,11 @@
         </activity>
         <activity
             android:name="com.shuaqiu.yuanyuanxibo.status.StatusActivity"
-            android:label="@string/title_activity_weibo_detail" >
+            android:label="@string/title_activity_status" >
+        </activity>
+        <activity
+            android:name="com.shuaqiu.yuanyuanxibo.comment.CommentActivity"
+            android:label="@string/title_activity_comment" >
         </activity>
         <activity
             android:name="com.shuaqiu.yuanyuanxibo.user.UserInfoActivity"

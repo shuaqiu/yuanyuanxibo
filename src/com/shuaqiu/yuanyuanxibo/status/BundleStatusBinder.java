@@ -24,6 +24,11 @@ public class BundleStatusBinder extends StatusBinder<Bundle> {
     }
 
     @Override
+    protected long optStatusId(Bundle status) {
+        return status.getLong(Column.id.name());
+    }
+
+    @Override
     protected Bundle optRetweetedStatus(Bundle status) {
         return status.getBundle(StatusHelper.RETWEETED_STATUS);
     }

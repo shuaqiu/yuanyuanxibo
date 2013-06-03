@@ -12,8 +12,8 @@ import android.view.View;
 
 import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.util.ViewUtil;
+import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.R;
-import com.shuaqiu.yuanyuanxibo.ViewBinder;
 
 /**
  * @author shuaqiu 2013-5-1
@@ -28,15 +28,15 @@ public class CommentBinder implements ViewBinder<JSONObject> {
     @Override
     public void bindView(View view, final JSONObject comment) {
         View usernameView = view.findViewById(R.id.user_name);
-        ViewUtil.setViewText(usernameView, optUsername(comment), ViewUtil.USER);
+        ViewUtil.setText(usernameView, optUsername(comment), ViewUtil.USER);
 
-        ViewUtil.setViewText(view.findViewById(R.id.created_at),
+        ViewUtil.setText(view.findViewById(R.id.created_at),
                 optCreateTime(comment));
 
-        ViewUtil.setViewText(view.findViewById(R.id.text),
+        ViewUtil.setText(view.findViewById(R.id.text),
                 comment.optString("text", ""), ViewUtil.ALL);
 
-        ViewUtil.setViewText(view.findViewById(R.id.source), optSource(comment));
+        ViewUtil.setText(view.findViewById(R.id.source), optSource(comment));
     }
 
     protected String optUsername(JSONObject status) {

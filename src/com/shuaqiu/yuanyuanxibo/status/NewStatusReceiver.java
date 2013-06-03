@@ -53,7 +53,7 @@ public class NewStatusReceiver extends BroadcastReceiver {
 
     private PendingIntent createPendingIntent(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.setAction(Defs.NEW_STATUS);
+        intent.setAction(Defs.Action.NEW_STATUS);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 

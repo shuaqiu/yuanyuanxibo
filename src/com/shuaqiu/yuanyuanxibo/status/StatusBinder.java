@@ -16,8 +16,8 @@ import android.widget.LinearLayout.LayoutParams;
 
 import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.util.ViewUtil;
+import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.R;
-import com.shuaqiu.yuanyuanxibo.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
 
 /**
@@ -60,7 +60,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         View v = view.findViewById(R.id.profile_image);
         String profileImage = optProfileImage(status);
         if (profileImage != null) {
-            ViewUtil.setViewImage(v, profileImage);
+            ViewUtil.setImage(v, profileImage);
         }
     }
 
@@ -69,23 +69,29 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      */
     protected void setStatusViews(View view, Data status) {
         View usernameView = view.findViewById(R.id.user_name);
-        ViewUtil.setViewText(usernameView, optUsername(status));
+        ViewUtil.setText(usernameView, optUsername(status));
         ViewUtil.addLinks(usernameView, ViewUtil.USER);
 
         View textView = view.findViewById(R.id.text);
-        ViewUtil.setViewText(textView, optText(status));
+        ViewUtil.setText(textView, optText(status));
         ViewUtil.addLinks(textView, ViewUtil.ALL);
 
-        ViewUtil.setViewText(view.findViewById(R.id.created_at),
+        ViewUtil.setText(view.findViewById(R.id.created_at),
                 optCreateTime(status));
 
-        ViewUtil.setViewText(view.findViewById(R.id.source), optSource(status));
-        ViewUtil.setViewText(view.findViewById(R.id.attitudes_count),
-                optCount(status, Column.attitudes_count));
-        ViewUtil.setViewText(view.findViewById(R.id.reposts_count),
-                optCount(status, Column.reposts_count));
-        ViewUtil.setViewText(view.findViewById(R.id.comments_count),
-                optCount(status, Column.comments_count));
+        ViewUtil.setText(view.findViewById(R.id.source), optSource(status));
+
+        long statusId = optStatusId(status);
+        StatusActionListener listener = new StatusActionListener(statusId);
+
+        ViewUtil.setText(view.findViewById(R.id.attitudes_count),
+                optCount(status, Column.attitudes_count), listener);
+
+        ViewUtil.setText(view.findViewById(R.id.reposts_count),
+                optCount(status, Column.reposts_count), listener);
+
+        ViewUtil.setText(view.findViewById(R.id.comments_count),
+                optCount(status, Column.comments_count), listener);
     }
 
     /**
@@ -108,23 +114,28 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      */
     protected void setRetweetedStatusViews(View view, Data retweetedStatus) {
         View usernameView = view.findViewById(R.id.retweeted_user_name);
-        ViewUtil.setViewText(usernameView, optUsername(retweetedStatus));
+        ViewUtil.setText(usernameView, optUsername(retweetedStatus));
         ViewUtil.addLinks(usernameView, ViewUtil.USER);
 
         View textView = view.findViewById(R.id.retweeted_text);
-        ViewUtil.setViewText(textView, optText(retweetedStatus));
+        ViewUtil.setText(textView, optText(retweetedStatus));
         ViewUtil.addLinks(textView, ViewUtil.ALL);
 
-        ViewUtil.setViewText(view.findViewById(R.id.retweeted_created_at),
+        ViewUtil.setText(view.findViewById(R.id.retweeted_created_at),
                 optCreateTime(retweetedStatus));
-        ViewUtil.setViewText(view.findViewById(R.id.retweeted_source),
+
+        ViewUtil.setText(view.findViewById(R.id.retweeted_source),
                 optSource(retweetedStatus));
-        ViewUtil.setViewText(view.findViewById(R.id.retweeted_attitudes_count),
-                optCount(retweetedStatus, Column.attitudes_count));
-        ViewUtil.setViewText(view.findViewById(R.id.retweeted_reposts_count),
-                optCount(retweetedStatus, Column.reposts_count));
-        ViewUtil.setViewText(view.findViewById(R.id.retweeted_comments_count),
-                optCount(retweetedStatus, Column.comments_count));
+
+        long statusId = optStatusId(retweetedStatus);
+        StatusActionListener listener = new StatusActionListener(statusId);
+
+        ViewUtil.setText(view.findViewById(R.id.retweeted_attitudes_count),
+                optCount(retweetedStatus, Column.attitudes_count), listener);
+        ViewUtil.setText(view.findViewById(R.id.retweeted_reposts_count),
+                optCount(retweetedStatus, Column.reposts_count), listener);
+        ViewUtil.setText(view.findViewById(R.id.retweeted_comments_count),
+                optCount(retweetedStatus, Column.comments_count), listener);
 
     }
 
@@ -142,7 +153,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
                 progress.setVisibility(View.GONE);
             }
         } else {
-            ViewUtil.setViewImage(v, thumbnailPic, progress);
+            ViewUtil.setImage(v, thumbnailPic, progress);
             if (mType == Type.DETAIL) {
                 setPics(view, status);
                 // v.setOnClickListener(l);
@@ -179,7 +190,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             v.setLayoutParams(params);
             content.addView(v);
 
-            ViewUtil.setViewImage(v, pic);
+            ViewUtil.setImage(v, pic);
         }
     }
 
@@ -200,7 +211,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 
      * @return
      */
-    private LayoutParams initLayoutParams() {
+    protected LayoutParams initLayoutParams() {
         LayoutParams params = new LayoutParams(
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -210,6 +221,14 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         params.setMargins(margin, margin, margin, margin);
         return params;
     }
+
+    /**
+     * 獲取微博的ID
+     * 
+     * @param status
+     * @return
+     */
+    protected abstract long optStatusId(Data status);
 
     /**
      * 獲取轉發的微博數據
@@ -326,7 +345,8 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * @return
      */
     protected boolean isOptMiddlePic() {
-        return mType == Type.DETAIL;// && StateKeeper.isWifi;
+        return false;
+        // return mType == Type.DETAIL;// && StateKeeper.isWifi;
     }
 
 }

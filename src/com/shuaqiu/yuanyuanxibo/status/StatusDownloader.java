@@ -117,7 +117,7 @@ class StatusDownloader implements Runnable {
      */
     private void sendBoardcast(int savedCount) {
         Log.d(TAG, "send boardcast");
-        Intent intent = new Intent(Defs.NEW_STATUS);
+        Intent intent = new Intent(Defs.Action.NEW_STATUS);
         intent.putExtra("count", savedCount);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }

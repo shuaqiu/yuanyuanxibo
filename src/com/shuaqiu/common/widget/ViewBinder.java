@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.shuaqiu.yuanyuanxibo;
+package com.shuaqiu.common.widget;
 
 import android.view.View;
 
