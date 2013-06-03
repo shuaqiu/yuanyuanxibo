@@ -31,10 +31,18 @@ public class StatusActionListener implements OnClickListener {
         Intent intent = new Intent();
 
         switch (v.getId()) {
+        case R.id.attitudes_count:
+        case R.id.retweeted_attitudes_count:
+            break;
+        case R.id.reposts_count:
+        case R.id.retweeted_reposts_count:
+            break;
         case R.id.comments_count:
+        case R.id.retweeted_comments_count:
             intent.setClass(context, CommentActivity.class);
             intent.setAction(Defs.Action.STATUS_COMMENT);
             intent.putExtra("id", mStatusId);
+            break;
         }
 
         context.startActivity(intent);
