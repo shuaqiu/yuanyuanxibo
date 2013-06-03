@@ -6,14 +6,16 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:padding="@dimen/five_dp" >
 
         <TextView
             android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:text="@string/empty" />
+            android:text="@string/empty"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/created_at"
@@ -22,18 +24,39 @@
             android:layout_alignParentRight="true"
             android:text="@string/empty"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-
     </RelativeLayout>
 
     <TextView
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/five_dp"
+        android:layout_marginRight="@dimen/five_dp"
+        android:padding="@dimen/five_dp"
         android:text="@string/empty" />
 
     <RelativeLayout
+        android:id="@+id/reply_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/five_dp"
+        android:layout_marginLeft="@dimen/sixteen_dp"
+        android:layout_marginRight="@dimen/ten_dp"
+        android:layout_marginTop="@dimen/five_dp"
+        android:background="@drawable/bg_round_retweeted"
+        android:padding="@dimen/five_dp" >
+
+        <TextView
+            android:id="@+id/reply_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/empty" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/five_dp" >
 
         <TextView
             android:id="@+id/from"
@@ -50,13 +73,12 @@
             android:text="@string/empty" />
 
         <ImageView
-            android:id="@+id/reply"
+            android:id="@+id/to_reply"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:contentDescription="@string/reply"
             android:src="@drawable/ic_reply" />
-
     </RelativeLayout>
 
 </LinearLayout>

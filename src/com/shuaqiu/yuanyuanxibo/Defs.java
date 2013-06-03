@@ -22,5 +22,7 @@ public interface Defs {
         String STATUS_COMMENT = "com.shuaqiu.yuanyuanxibo.comment.STATUS";
 
         String USER_COMMENT = "com.shuaqiu.yuanyuanxibo.comment.USER";
+
+        String COMMENT_REPLY = "com.shuaqiu.yuanyuanxibo.comment.REPLY";
     }
 }

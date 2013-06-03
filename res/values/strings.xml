@@ -40,6 +40,13 @@
     <string name="repost">repost</string>
     <string name="comment">comment</string>
     <string name="favorite">favorite</string>
+    <string name="action_trend">Trend</string>
+    <string name="action_at">\@</string>
+    <string name="action_emotion">emotion</string>
+    <string name="repost_weibo">Repost Weibo</string>
+    <string name="send">Send</string>
+    <string name="cancel">Cancel</string>
+    <string name="sent">Sent</string>
     
 
 </resources>

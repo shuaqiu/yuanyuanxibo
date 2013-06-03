@@ -294,6 +294,14 @@ public class HttpUtil {
         return httpPost(url, args, ToStringFunction.getInstance());
     }
 
+    public static String httpPost(String urlStr, Bundle args) {
+        URL url = parseUrl(urlStr);
+        if (url == null) {
+            return null;
+        }
+        return httpPost(url, args, ToStringFunction.getInstance());
+    }
+
     /**
      * @author shuaqiu May 3, 2013
      */

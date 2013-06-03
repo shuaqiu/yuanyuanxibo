@@ -6,23 +6,32 @@ package com.shuaqiu.yuanyuanxibo.comment;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.text.Html;
-import android.text.Spanned;
+import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 
 import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.StartActivityClickListener;
 
 /**
  * @author shuaqiu 2013-5-1
  */
 public class CommentBinder implements ViewBinder<JSONObject> {
-    private TimeHelper mTimeHelper;
+    public enum Type {
+        USER, STATUS
+    }
 
-    public CommentBinder(Context context) {
+    private Context mContext;
+    private TimeHelper mTimeHelper;
+    private Type mType;
+
+    public CommentBinder(Context context, Type type) {
+        mContext = context;
         mTimeHelper = new TimeHelper(context);
+        mType = type;
     }
 
     @Override
@@ -37,6 +46,50 @@ public class CommentBinder implements ViewBinder<JSONObject> {
                 comment.optString("text", ""), ViewUtil.ALL);
 
         ViewUtil.setText(view.findViewById(R.id.source), optSource(comment));
+
+        setReplyFor(view, comment);
+
+        setReplyAction(view, comment);
+    }
+
+    /**
+     * @param view
+     * @param comment
+     */
+    protected void setReplyFor(View view, JSONObject comment) {
+        String type = null;
+        String content = null;
+    
+        JSONObject target = comment.optJSONObject("reply_comment");
+        if (target == null) {
+            // 這個評論是直接對微博的
+            if (mType == Type.STATUS) {
+                // 如果是顯示微博的評論列表, 則不需要顯示原來的微博信息了
+                view.findViewById(R.id.reply_container)
+                        .setVisibility(View.GONE);
+                return;
+            }
+    
+            // 改爲顯示評論的微博內容
+            target = comment.optJSONObject("status");
+        }
+        content = target.optString("text", "");
+    
+        ViewUtil.setText(view.findViewById(R.id.reply_content), content);
+    }
+
+    /**
+     * @param view
+     * @param comment
+     */
+    protected void setReplyAction(View view, final JSONObject comment) {
+        Bundle args = new Bundle(2);
+        JSONObject status = comment.optJSONObject("status");
+        long statusId = status.optLong("id");
+        args.putLong("id", statusId);
+        args.putLong("cid", comment.optLong("id"));
+        OnClickListener l = new StartActivityClickListener(args);
+        view.findViewById(R.id.to_reply).setOnClickListener(l);
     }
 
     protected String optUsername(JSONObject status) {
@@ -53,9 +106,9 @@ public class CommentBinder implements ViewBinder<JSONObject> {
         return mTimeHelper.beautyTime(createdAt);
     }
 
-    protected Spanned optSource(JSONObject status) {
+    protected String optSource(JSONObject status) {
         String source = status.optString("source");
-        return Html.fromHtml(source);
-        // return source.replaceAll("<a.*?>(.*?)</a>", "$1");
+        // return Html.fromHtml(source);
+        return source.replaceAll("<a.*?>(.*?)</a>", "$1");
     }
 }

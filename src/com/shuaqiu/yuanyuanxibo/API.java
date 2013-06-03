@@ -85,6 +85,8 @@ public interface API {
          * </ul>
          */
         String SHOW = "2/comments/show.json";
+
+        String REPLY = "2/comments/reply.json";
     }
 
 }

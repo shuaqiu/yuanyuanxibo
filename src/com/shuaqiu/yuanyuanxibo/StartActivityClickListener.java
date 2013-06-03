@@ -1,27 +1,26 @@
 /**
  * 
  */
-package com.shuaqiu.yuanyuanxibo.status;
+package com.shuaqiu.yuanyuanxibo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import com.shuaqiu.yuanyuanxibo.Defs;
-import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.comment.CommentActivity;
+import com.shuaqiu.yuanyuanxibo.comment.SendCommentActivity;
 
 /**
  * @author shuaqiu 2013-6-3
- * 
  */
-public class StatusActionListener implements OnClickListener {
+public class StartActivityClickListener implements OnClickListener {
 
-    private long mStatusId;
+    private Bundle mArgs;
 
-    public StatusActionListener(long statusId) {
-        mStatusId = statusId;
+    public StartActivityClickListener(Bundle args) {
+        mArgs = args;
 
     }
 
@@ -29,6 +28,7 @@ public class StatusActionListener implements OnClickListener {
     public void onClick(View v) {
         Context context = v.getContext();
         Intent intent = new Intent();
+        intent.putExtras(mArgs);
 
         switch (v.getId()) {
         case R.id.attitudes_count:
@@ -41,7 +41,11 @@ public class StatusActionListener implements OnClickListener {
         case R.id.retweeted_comments_count:
             intent.setClass(context, CommentActivity.class);
             intent.setAction(Defs.Action.STATUS_COMMENT);
-            intent.putExtra("id", mStatusId);
+            intent.putExtras(mArgs);
+            break;
+        case R.id.to_reply:
+            intent.setClass(context, SendCommentActivity.class);
+            intent.setAction(Defs.Action.COMMENT_REPLY);
             break;
         }
 

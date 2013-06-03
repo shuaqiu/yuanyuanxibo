@@ -46,8 +46,9 @@ public class CommentListFragment extends ListFragment implements
         if (action == null || action.equals(Defs.Action.USER_COMMENT)) {
             new AsyncHttpGetTask(params, this).execute(API.Comment.TIMELINE);
         } else if (action.equals(Defs.Action.STATUS_COMMENT)) {
-            long statusId = intent.getLongExtra("id", 0);
-            params.putLong("id", statusId);
+            // long statusId = intent.getLongExtra("id", 0);
+            // params.putLong("id", statusId);
+            params.putAll(intent.getExtras());
             new AsyncHttpGetTask(params, this).execute(API.Comment.SHOW);
         }
 
@@ -63,7 +64,8 @@ public class CommentListFragment extends ListFragment implements
 
         FragmentActivity context = getActivity();
 
-        CommentBinder binder = new CommentBinder(context);
+        CommentBinder binder = new CommentBinder(context,
+                CommentBinder.Type.STATUS);
         ListAdapter adapter = new SimpleBindAdapter<JSONObject>(context,
                 toList(comments), R.layout.listview_comment, binder);
 

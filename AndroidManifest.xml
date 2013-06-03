@@ -35,6 +35,10 @@
             android:label="@string/title_activity_comment" >
         </activity>
         <activity
+            android:name="com.shuaqiu.yuanyuanxibo.comment.SendCommentActivity"
+            android:label="@string/title_activity_comment" >
+        </activity>
+        <activity
             android:name="com.shuaqiu.yuanyuanxibo.user.UserInfoActivity"
             android:label="@string/title_activity_user_info" >
             <intent-filter>
