@@ -51,6 +51,7 @@ public class SendCommentActivity extends Activity implements OnClickListener,
             break;
         case R.id.cancel:
             finish();
+            break;
         }
     }
 

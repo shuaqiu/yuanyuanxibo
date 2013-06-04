@@ -93,7 +93,7 @@ public class BundleStatusBinder extends StatusBinder<Bundle> {
     }
 
     @Override
-    protected String[] optPics(Bundle status) {
+    protected String[] optPics(Bundle status, String type) {
         String name = Column.pic_urls.name();
 
         String thumbnailPic = status.getString(name);
@@ -108,13 +108,13 @@ public class BundleStatusBinder extends StatusBinder<Bundle> {
             }
         }
 
-        return optPics(thumbnailPic);
+        return optPics(thumbnailPic, type);
     }
 
-    private String[] optPics(String jsonStr) {
+    private String[] optPics(String jsonStr, String type) {
         try {
             JSONArray arr = new JSONArray(jsonStr);
-            return optPics(arr);
+            return optPics(arr, type);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

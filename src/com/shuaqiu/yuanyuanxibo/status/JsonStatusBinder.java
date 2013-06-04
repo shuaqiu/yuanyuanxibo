@@ -86,7 +86,7 @@ public class JsonStatusBinder extends StatusBinder<JSONObject> {
     }
 
     @Override
-    protected String[] optPics(JSONObject status) {
+    protected String[] optPics(JSONObject status, String type) {
         String name = Column.pic_urls.name();
 
         JSONArray picUrls = status.optJSONArray(name);
@@ -101,7 +101,7 @@ public class JsonStatusBinder extends StatusBinder<JSONObject> {
             }
         }
 
-        return optPics(picUrls);
+        return optPics(picUrls, type);
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -161,8 +162,13 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         } else {
             ViewUtil.setImage(v, thumbnailPic, progress);
             if (mType == Type.DETAIL) {
-                setPics(view, status);
-                // v.setOnClickListener(l);
+                v.setTag(0);
+
+                String[] pics = optPics(status, "original");
+                OnClickListener l = new ViewImageClickListener(mContext, pics);
+                v.setOnClickListener(l);
+
+                setPics(view, status, l);
             }
         }
     }
@@ -172,16 +178,19 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 
      * @param view
      * @param status
+     * @param listener
+     *            TODO
      */
-    protected void setPics(View view, Data status) {
-        String[] pics = optPics(status);
-        if (pics == null || pics.length == 0) {
+    protected void setPics(View view, Data status, OnClickListener listener) {
+        String[] pics = optPics(status, "bmiddle");
+        if (pics == null || pics.length < 2) {
             return;
         }
         LinearLayout content = (LinearLayout) view
                 .findViewById(R.id.status_content);
         LayoutParams params = getLayoutParams();
-        for (String pic : pics) {
+        for (int i = 1; i < pics.length; i++) {
+            String pic = pics[i];
             // <ImageView
             // android:id="@+id/thumbnail_pic"
             // android:layout_width="wrap_content"
@@ -194,6 +203,8 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             ImageView v = new ImageView(mContext);
             v.setVisibility(View.GONE);
             v.setLayoutParams(params);
+            v.setTag(i);
+            v.setOnClickListener(listener);
             content.addView(v);
 
             ViewUtil.setImage(v, pic);
@@ -298,9 +309,11 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 獲取微博的圖片內容
      * 
      * @param status
+     * @param type
+     *            TODO
      * @return
      */
-    protected abstract String[] optPics(Data status);
+    protected abstract String[] optPics(Data status, String type);
 
     /**
      * 獲取圖片列表
@@ -317,21 +330,22 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * </pre>
      * 
      * @param arr
+     * @param type
      * @return
      */
-    protected String[] optPics(JSONArray arr) {
-        if (arr.length() < 2) {
+    protected String[] optPics(JSONArray arr, String type) {
+        if (arr.length() == 0) {
             return null;
         }
         // 第一張圖片不需要再處理了, 直接通過外層的數據可以獲取到
-        String[] pics = new String[arr.length() - 1];
-        for (int i = 1; i < arr.length(); i++) {
+        String[] pics = new String[arr.length()];
+        for (int i = 0; i < arr.length(); i++) {
             JSONObject json = arr.optJSONObject(i);
             String pic = json.optString(Column.thumbnail_pic.name(), null);
             if (isOptMiddlePic()) {
-                pic = pic.replace("thumbnail", "bmiddle");
+                pic = pic.replace("thumbnail", type);
             }
-            pics[i - 1] = pic;
+            pics[i] = pic;
         }
         return pics;
     }
@@ -353,6 +367,31 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     protected boolean isOptMiddlePic() {
         // return false;
         return mType == Type.DETAIL;// && StateKeeper.isWifi;
+    }
+
+    private class ViewImageClickListener implements OnClickListener {
+        private Context mContext;
+        private String[] mPics;
+
+        /**
+         * @param mContext
+         * @param status
+         */
+        public ViewImageClickListener(Context context, String[] pics) {
+            mContext = context;
+            mPics = pics;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Integer position = (Integer) v.getTag();
+
+            Intent intent = new Intent(mContext,
+                    StatusPictureViewerActivity.class);
+            intent.putExtra("pics", mPics);
+            intent.putExtra("position", position);
+            mContext.startActivity(intent);
+        }
     }
 
 }
