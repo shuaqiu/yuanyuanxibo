@@ -20,7 +20,7 @@ import com.shuaqiu.common.task.AsyncHttpGetTask;
 import com.shuaqiu.common.task.AsyncTaskListener;
 import com.shuaqiu.common.widget.SimpleBindAdapter;
 import com.shuaqiu.yuanyuanxibo.API;
-import com.shuaqiu.yuanyuanxibo.Defs;
+import com.shuaqiu.yuanyuanxibo.Actions;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
 
@@ -43,9 +43,9 @@ public class CommentListFragment extends ListFragment implements
         String accessToken = StateKeeper.accessToken.getAccessToken();
         params.putString("access_token", accessToken);
 
-        if (action == null || action.equals(Defs.Action.USER_COMMENT)) {
+        if (action == null || action.equals(Actions.USER_COMMENT)) {
             new AsyncHttpGetTask(params, this).execute(API.Comment.TIMELINE);
-        } else if (action.equals(Defs.Action.STATUS_COMMENT)) {
+        } else if (action.equals(Actions.STATUS_COMMENT)) {
             // long statusId = intent.getLongExtra("id", 0);
             // params.putLong("id", statusId);
             params.putAll(intent.getExtras());

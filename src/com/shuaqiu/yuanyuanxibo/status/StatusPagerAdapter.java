@@ -55,7 +55,7 @@ public class StatusPagerAdapter extends FragmentStatePagerAdapter {
         return mCount;
     }
 
-    private Bundle getStatusBundle(int position) {
+    Bundle getStatusBundle(int position) {
         if (mCursor == null || mCursor.isClosed()) {
             // ? need to query data?
             return null;

@@ -15,14 +15,4 @@ public interface Defs {
 
     String TREND_SCHEME = "yyxibo://trend_info";
     String TREND_NAME = "name";
-
-    public interface Action {
-        String NEW_STATUS = "com.shuaqiu.yuanyuanxibo.status.NEW";
-
-        String STATUS_COMMENT = "com.shuaqiu.yuanyuanxibo.comment.STATUS";
-
-        String USER_COMMENT = "com.shuaqiu.yuanyuanxibo.comment.USER";
-
-        String COMMENT_REPLY = "com.shuaqiu.yuanyuanxibo.comment.REPLY";
-    }
 }

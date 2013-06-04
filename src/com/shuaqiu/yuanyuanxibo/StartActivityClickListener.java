@@ -29,6 +29,8 @@ public class StartActivityClickListener implements OnClickListener {
         Context context = v.getContext();
         Intent intent = new Intent();
         intent.putExtras(mArgs);
+        intent.putExtra("access_token",
+                StateKeeper.accessToken.getAccessToken());
 
         switch (v.getId()) {
         case R.id.attitudes_count:
@@ -40,12 +42,12 @@ public class StartActivityClickListener implements OnClickListener {
         case R.id.comments_count:
         case R.id.retweeted_comments_count:
             intent.setClass(context, CommentActivity.class);
-            intent.setAction(Defs.Action.STATUS_COMMENT);
+            intent.setAction(Actions.STATUS_COMMENT);
             intent.putExtras(mArgs);
             break;
         case R.id.to_reply:
             intent.setClass(context, SendCommentActivity.class);
-            intent.setAction(Defs.Action.COMMENT_REPLY);
+            intent.setAction(Actions.COMMENT_REPLY);
             break;
         }
 

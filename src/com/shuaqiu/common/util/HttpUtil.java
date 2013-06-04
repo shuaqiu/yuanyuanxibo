@@ -169,7 +169,7 @@ public class HttpUtil {
         try {
             out = conn.getOutputStream();
             String param = param(args);
-            out.write(param.getBytes());
+            out.write(param.getBytes("UTF-8"));
             out.flush();
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -198,6 +198,16 @@ public class HttpUtil {
 
                 Map<String, List<String>> headerFields = conn.getHeaderFields();
                 Log.d(TAG, headerFields.toString());
+
+                in = conn.getInputStream();
+
+                String contentEncoding = conn.getContentEncoding();
+                if (contentEncoding != null
+                        && contentEncoding.indexOf("gzip") > -1) {
+                    in = new GZIPInputStream(in);
+                }
+                Result result = function.apply(in);
+                Log.e(TAG, result.toString());
                 return null;
             }
 
@@ -277,6 +287,7 @@ public class HttpUtil {
 
             conn.connect();
 
+            Log.d(TAG, args.toString());
             writeRequestParam(conn, args);
 
             return readResponse(conn, function);

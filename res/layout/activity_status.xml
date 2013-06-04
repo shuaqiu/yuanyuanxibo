@@ -28,7 +28,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:clickable="true"
             android:drawableTop="@drawable/ic_action_attitude"
+            android:focusable="true"
             android:gravity="center"
             android:text="@string/attitude" />
 
@@ -37,7 +39,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:clickable="true"
             android:drawableTop="@drawable/ic_action_repost"
+            android:focusable="true"
             android:gravity="center"
             android:text="@string/repost" />
 
@@ -46,7 +50,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:clickable="true"
             android:drawableTop="@drawable/ic_action_comment"
+            android:focusable="true"
             android:gravity="center"
             android:text="@string/comment" />
 
@@ -55,9 +61,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:clickable="true"
             android:drawableTop="@drawable/ic_action_favorite"
+            android:focusable="true"
             android:gravity="center"
             android:text="@string/favorite" />
+
     </LinearLayout>
 
 </RelativeLayout>

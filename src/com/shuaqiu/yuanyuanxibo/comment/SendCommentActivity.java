@@ -3,16 +3,12 @@
  */
 package com.shuaqiu.yuanyuanxibo.comment;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -22,6 +18,7 @@ import android.widget.Toast;
 import com.shuaqiu.common.task.AsyncHttpPostTask;
 import com.shuaqiu.common.task.AsyncTaskListener;
 import com.shuaqiu.yuanyuanxibo.API;
+import com.shuaqiu.yuanyuanxibo.Actions;
 import com.shuaqiu.yuanyuanxibo.R;
 
 /**
@@ -43,10 +40,24 @@ public class SendCommentActivity extends Activity implements OnClickListener,
 
         mCommentView = (EditText) findViewById(R.id.comment);
         findViewById(R.id.send).setOnClickListener(this);
+        findViewById(R.id.cancel).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
+        case R.id.send:
+            sendComment();
+            break;
+        case R.id.cancel:
+            finish();
+        }
+    }
+
+    /**
+     * 
+     */
+    protected void sendComment() {
         Editable comment = mCommentView.getText();
         if (comment.length() == 0) {
             return;
@@ -54,15 +65,16 @@ public class SendCommentActivity extends Activity implements OnClickListener,
 
         Intent intent = getIntent();
         Bundle params = intent.getExtras();
-        try {
-            params.putString("comment",
-                    URLEncoder.encode(comment.toString(), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, e.getMessage(), e);
-            return;
-        }
+        params.putString("comment", comment.toString());
 
-        new AsyncHttpPostTask(params, this).execute(API.Comment.REPLY);
+        AsyncHttpPostTask task = new AsyncHttpPostTask(params, this);
+
+        String action = intent.getAction();
+        if (action == null || action.equals(Actions.COMMENT_CREATE)) {
+            task.execute(API.Comment.CREATE);
+        } else if (action.equals(Actions.COMMENT_REPLY)) {
+            task.execute(API.Comment.REPLY);
+        }
     }
 
     @Override

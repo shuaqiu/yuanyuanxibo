@@ -7,12 +7,17 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 
+import com.shuaqiu.yuanyuanxibo.Actions;
 import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.StateKeeper;
+import com.shuaqiu.yuanyuanxibo.comment.SendCommentActivity;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 
-public class StatusActivity extends FragmentActivity {
+public class StatusActivity extends FragmentActivity implements OnClickListener {
 
     private static final String TAG = "statusactivity";
 
@@ -23,7 +28,7 @@ public class StatusActivity extends FragmentActivity {
 
     private ViewPager mViewPager;
 
-    private StatusPagerAdapter mAdpater;
+    private StatusPagerAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +45,8 @@ public class StatusActivity extends FragmentActivity {
         Intent intent = getIntent();
         mPosition = intent.getIntExtra("position", 0);
         mMaxId = intent.getLongExtra("maxId", -1);
+
+        findViewById(R.id.comment).setOnClickListener(this);
     }
 
     @Override
@@ -53,12 +60,12 @@ public class StatusActivity extends FragmentActivity {
     }
 
     private void initViewPager() {
-        mAdpater = new StatusPagerAdapter(getSupportFragmentManager());
-        mAdpater.changeCursor(mCursor);
+        mAdapter = new StatusPagerAdapter(getSupportFragmentManager());
+        mAdapter.changeCursor(mCursor);
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mAdpater);
+        mViewPager.setAdapter(mAdapter);
         mViewPager.setCurrentItem(mPosition);
     }
 
@@ -83,5 +90,26 @@ public class StatusActivity extends FragmentActivity {
             Log.d(TAG, "loaded status, begin to show");
             initViewPager();
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent();
+
+        int currentItem = mViewPager.getCurrentItem();
+        Bundle status = mAdapter.getStatusBundle(currentItem);
+
+        intent.putExtra("access_token",
+                StateKeeper.accessToken.getAccessToken());
+        intent.putExtra("id", status.getLong(StatusHelper.Column.id.name()));
+
+        switch (v.getId()) {
+        case R.id.comment:
+            intent.setAction(Actions.COMMENT_CREATE);
+            intent.setClass(this, SendCommentActivity.class);
+            break;
+        }
+
+        startActivityForResult(intent, 0);
     }
 }
