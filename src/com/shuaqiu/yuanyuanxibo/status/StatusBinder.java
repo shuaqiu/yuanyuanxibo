@@ -8,8 +8,10 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -22,6 +24,7 @@ import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StartActivityClickListener;
+import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
 
 /**
@@ -168,24 +171,87 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         View progress = view.findViewById(R.id.progress);
 
         v.setVisibility(View.GONE);
-        String thumbnailPic = optThumbnailPic(status);
+        ImageQuality imgQuality = getImageQuality(mType);
+
+        if (imgQuality == ImageQuality.NONE) {
+            // 無圖, 直接返回即可
+            hideProgress(progress);
+            return;
+        }
+
+        String thumbnailPic = optThumbnailPic(status, imgQuality);
         if (thumbnailPic == null) {
-            if (progress != null) {
-                progress.setVisibility(View.GONE);
-            }
+            hideProgress(progress);
         } else {
             ViewUtil.setImage(v, thumbnailPic, progress);
-            if (mType == Type.DETAIL) {
-                v.setTag(0);
 
-                String[] pics = optPics(status, PIC_BMIDDLE);
-                // String[] pics = optPics(status, PIC_LARGE);
+            if (mType == Type.DETAIL) {
+                ImageQuality picViewerQuality = getImageQuality(Type.PIC_VIEWER);
+                if (picViewerQuality == ImageQuality.NONE) {
+                    // 圖片查看設置爲無圖, 那麼直接就不用打開這個activity 了
+                    // 顯示其他的圖片
+                    setPics(view, status, imgQuality, null);
+                    return;
+                }
+
+                String[] pics = optPics(status, picViewerQuality);
                 OnClickListener l = new ViewImageClickListener(mContext, pics);
+
+                v.setTag(0);
                 v.setOnClickListener(l);
 
-                setPics(view, status, l);
+                // 顯示其他的圖片
+                setPics(view, status, imgQuality, l);
             }
         }
+    }
+
+    /**
+     * 隱藏進度條
+     * 
+     * @param progress
+     */
+    protected void hideProgress(View progress) {
+        if (progress != null) {
+            progress.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * 根據設置值, 獲取要使用的圖片質量
+     * 
+     * @return
+     */
+    protected ImageQuality getImageQuality(Type type) {
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
+
+        ImageQuality defQuality = getDefaultImageQuality(type);
+        String key = type.imgQualityKey;
+        if (StateKeeper.isWifi) {
+            // 如果是WIFI, 則使用WIFI 對於的設置
+            key += "_wifi";
+        }
+        String qualityStr = pref.getString(key, defQuality.name());
+        return ImageQuality.valueOf(qualityStr);
+    }
+
+    /**
+     * 獲取默認的圖片質量
+     * 
+     * @return
+     */
+    protected ImageQuality getDefaultImageQuality(Type type) {
+        if (type == Type.LIST) {
+            return ImageQuality.THUMBNAIL;
+        }
+        if (type == Type.DETAIL) {
+            return ImageQuality.LARGE;
+        }
+        if (type == Type.PIC_VIEWER) {
+            return ImageQuality.ORIGINAL;
+        }
+        return ImageQuality.THUMBNAIL;
     }
 
     /**
@@ -193,12 +259,14 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 
      * @param view
      * @param status
+     * @param imgQuality
      * @param listener
-     * 
      */
-    protected void setPics(View view, Data status, OnClickListener listener) {
-        String[] pics = optPics(status, PIC_BMIDDLE);
+    protected void setPics(View view, Data status, ImageQuality imgQuality,
+            OnClickListener listener) {
+        String[] pics = optPics(status, imgQuality);
         if (pics == null || pics.length < 2) {
+            // 第一張圖片已經在前面顯示了
             return;
         }
         LinearLayout content = (LinearLayout) view
@@ -218,8 +286,10 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             ImageView v = new ImageView(mContext);
             v.setVisibility(View.GONE);
             v.setLayoutParams(params);
-            v.setTag(i);
-            v.setOnClickListener(listener);
+            if (listener != null) {
+                v.setTag(i);
+                v.setOnClickListener(listener);
+            }
             content.addView(v);
 
             ViewUtil.setImage(v, pic);
@@ -316,19 +386,20 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 獲取微博的圖片內容
      * 
      * @param status
+     * @param imgQuality
      * @return
      */
-    protected abstract String optThumbnailPic(Data status);
+    protected abstract String optThumbnailPic(Data status,
+            ImageQuality imgQuality);
 
     /**
      * 獲取微博的圖片內容
      * 
      * @param status
-     * @param type
-     *            TODO
+     * @param quality
      * @return
      */
-    protected abstract String[] optPics(Data status, String type);
+    protected abstract String[] optPics(Data status, ImageQuality quality);
 
     /**
      * 獲取圖片列表
@@ -345,10 +416,10 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * </pre>
      * 
      * @param arr
-     * @param type
+     * @param quality
      * @return
      */
-    protected String[] optPics(JSONArray arr, String type) {
+    protected String[] optPics(JSONArray arr, ImageQuality quality) {
         if (arr.length() == 0) {
             return null;
         }
@@ -357,8 +428,10 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject json = arr.optJSONObject(i);
             String pic = json.optString(Column.thumbnail_pic.name(), null);
-            if (isOptMiddlePic()) {
-                pic = pic.replace(PIC_THUMBNAIL, type);
+            if (quality != ImageQuality.THUMBNAIL) {
+                // pic_urls 只有縮略圖的url, 如果要獲取其他的url, 只能進行關鍵詞替換操作
+                pic = pic.replace(ImageQuality.THUMBNAIL.keywork,
+                        quality.keywork);
             }
             pics[i] = pic;
         }
@@ -385,7 +458,33 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     }
 
     public enum Type {
-        LIST, DETAIL
+        LIST("image_quality_list"), DETAIL("image_quality_detail"), PIC_VIEWER(
+                "image_quality_original");
+
+        private String imgQualityKey = null;
+
+        private Type(String imgQualityPrefKey) {
+            this.imgQualityKey = imgQualityPrefKey;
+        }
+    }
+
+    public enum ImageQuality {
+        /** 無圖 */
+        NONE("", null),
+        /** 縮略圖 */
+        THUMBNAIL("thumbnail", Column.thumbnail_pic),
+        /** 大圖 */
+        LARGE("bmiddle", Column.bmiddle_pic),
+        /** 原圖 */
+        ORIGINAL("large", Column.original_pic);
+
+        String keywork = null;
+        Column column = null;
+
+        private ImageQuality(String keywork, Column column) {
+            this.keywork = keywork;
+            this.column = column;
+        }
     }
 
     private class ViewImageClickListener implements OnClickListener {

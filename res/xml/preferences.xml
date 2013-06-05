@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceScreen android:title="@string/image_quality" >
+        <ListPreference
+            android:defaultValue="@string/thumbnail_value"
+            android:dialogTitle="@string/image_quality_weibo_list"
+            android:entries="@array/image_quality"
+            android:entryValues="@array/image_quality_value"
+            android:key="image_quality_list"
+            android:title="@string/image_quality_weibo_list" />
+        <ListPreference
+            android:defaultValue="@string/large_image_value"
+            android:dialogTitle="@string/image_quality_weibo_detail"
+            android:entries="@array/image_quality"
+            android:entryValues="@array/image_quality_value"
+            android:key="image_quality_detail"
+            android:title="@string/image_quality_weibo_detail" />
+        <ListPreference
+            android:defaultValue="@string/original_image_value"
+            android:dialogTitle="@string/image_quality_weibo_detail"
+            android:entries="@array/image_quality"
+            android:entryValues="@array/image_quality_value"
+            android:key="image_quality_original"
+            android:title="@string/image_quality_weibo_original" />
+    </PreferenceScreen>
+    <PreferenceScreen android:title="@string/image_quality_wifi" >
+        <ListPreference
+            android:defaultValue="@string/thumbnail_value"
+            android:dialogTitle="@string/image_quality_weibo_list"
+            android:entries="@array/image_quality"
+            android:entryValues="@array/image_quality_value"
+            android:key="image_quality_list_wifi"
+            android:title="@string/image_quality_weibo_list" />
+        <ListPreference
+            android:defaultValue="@string/large_image_value"
+            android:dialogTitle="@string/image_quality_weibo_detail"
+            android:entries="@array/image_quality"
+            android:entryValues="@array/image_quality_value"
+            android:key="image_quality_detail_wifi"
+            android:title="@string/image_quality_weibo_detail" />
+        <ListPreference
+            android:defaultValue="@string/original_image_value"
+            android:dialogTitle="@string/image_quality_weibo_detail"
+            android:entries="@array/image_quality"
+            android:entryValues="@array/image_quality_value"
+            android:key="image_quality_original_wifi"
+            android:title="@string/image_quality_weibo_original" />
+    </PreferenceScreen>
+
+</PreferenceScreen>

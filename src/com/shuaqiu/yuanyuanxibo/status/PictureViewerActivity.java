@@ -64,9 +64,9 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         mImageSwitcherView.setFactory(this);
 
         mImageSwitcherView.setInAnimation(AnimationUtils.loadAnimation(this,
-                android.R.anim.slide_in_left));
+                android.R.anim.fade_in));
         mImageSwitcherView.setOutAnimation(AnimationUtils.loadAnimation(this,
-                android.R.anim.slide_out_right));
+                android.R.anim.fade_out));
 
         setSwitcherSelection(position);
 

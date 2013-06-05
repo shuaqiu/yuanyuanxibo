@@ -68,11 +68,12 @@ public class JsonStatusBinder extends StatusBinder<JSONObject> {
     }
 
     @Override
-    protected String optThumbnailPic(JSONObject status) {
-        String name = Column.thumbnail_pic.name();
-        if (isOptMiddlePic()) {
-            name = Column.bmiddle_pic.name();
+    protected String optThumbnailPic(JSONObject status, ImageQuality imgQuality) {
+        if (imgQuality == ImageQuality.NONE) {
+            return null;
         }
+
+        String name = imgQuality.column.name();
 
         String thumbnailPic = status.optString(name, null);
         if (thumbnailPic != null) {
@@ -86,7 +87,7 @@ public class JsonStatusBinder extends StatusBinder<JSONObject> {
     }
 
     @Override
-    protected String[] optPics(JSONObject status, String type) {
+    protected String[] optPics(JSONObject status, ImageQuality quality) {
         String name = Column.pic_urls.name();
 
         JSONArray picUrls = status.optJSONArray(name);
@@ -101,7 +102,7 @@ public class JsonStatusBinder extends StatusBinder<JSONObject> {
             }
         }
 
-        return optPics(picUrls, type);
+        return optPics(picUrls, quality);
     }
 
     @Override

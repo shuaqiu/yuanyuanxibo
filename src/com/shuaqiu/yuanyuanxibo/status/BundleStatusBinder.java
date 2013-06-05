@@ -71,11 +71,12 @@ public class BundleStatusBinder extends StatusBinder<Bundle> {
     }
 
     @Override
-    protected String optThumbnailPic(Bundle status) {
-        String name = Column.thumbnail_pic.name();
-        if (isOptMiddlePic()) {
-            name = Column.bmiddle_pic.name();
+    protected String optThumbnailPic(Bundle status, ImageQuality imgQuality) {
+        if (imgQuality == ImageQuality.NONE) {
+            return null;
         }
+
+        String name = imgQuality.column.name();
 
         String thumbnailPic = status.getString(name);
         if (thumbnailPic == null || thumbnailPic.equals("")) {
@@ -93,28 +94,28 @@ public class BundleStatusBinder extends StatusBinder<Bundle> {
     }
 
     @Override
-    protected String[] optPics(Bundle status, String type) {
+    protected String[] optPics(Bundle status, ImageQuality quality) {
         String name = Column.pic_urls.name();
 
-        String thumbnailPic = status.getString(name);
-        if (thumbnailPic == null || thumbnailPic.equals("[]")) {
+        String picUrls = status.getString(name);
+        if (picUrls == null || picUrls.equals("[]")) {
             Bundle retweetedStatus = optRetweetedStatus(status);
             if (retweetedStatus == null) {
                 return null;
             }
-            thumbnailPic = retweetedStatus.getString(name);
-            if (thumbnailPic == null || thumbnailPic.equals("[]")) {
+            picUrls = retweetedStatus.getString(name);
+            if (picUrls == null || picUrls.equals("[]")) {
                 return null;
             }
         }
 
-        return optPics(thumbnailPic, type);
+        return optPics(picUrls, quality);
     }
 
-    private String[] optPics(String jsonStr, String type) {
+    private String[] optPics(String jsonStr, ImageQuality quality) {
         try {
             JSONArray arr = new JSONArray(jsonStr);
-            return optPics(arr, type);
+            return optPics(arr, quality);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

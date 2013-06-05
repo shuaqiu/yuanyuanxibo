@@ -27,6 +27,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="com.shuaqiu.yuanyuanxibo.SettingsActivity"
+            android:label="@string/settings" >
+        </activity>
+        <activity
             android:name="com.shuaqiu.yuanyuanxibo.status.StatusActivity"
             android:label="@string/title_activity_status" >
         </activity>

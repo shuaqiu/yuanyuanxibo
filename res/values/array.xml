@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="image_quality">
+        <item>@string/no_image</item>
+        <item>@string/thumbnail</item>
+        <item>@string/large_image</item>
+        <item>@string/original_image</item>
+    </string-array>
+    <string-array name="image_quality_value">
+        <item>@string/no_image_value</item>
+        <item>@string/thumbnail_value</item>
+        <item>@string/large_image_value</item>
+        <item>@string/original_image_value</item>
+    </string-array>
+
+</resources>
