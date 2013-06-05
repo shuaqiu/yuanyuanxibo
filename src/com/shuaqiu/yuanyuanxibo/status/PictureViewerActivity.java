@@ -3,12 +3,13 @@
  */
 package com.shuaqiu.yuanyuanxibo.status;
 
-import org.json.JSONObject;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -22,21 +23,21 @@ import android.widget.FrameLayout.LayoutParams;
 import android.widget.Gallery;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher.ViewFactory;
 
-import com.shuaqiu.common.task.AsyncImageViewTask;
-import com.shuaqiu.common.task.AsyncTaskListener;
+import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.yuanyuanxibo.R;
 
 /**
  * @author shuaqiu Jun 3, 2013
  */
-public class StatusPictureViewerActivity extends Activity implements
-        OnClickListener, AsyncTaskListener<JSONObject>, ViewFactory,
-        OnItemClickListener {
+public class PictureViewerActivity extends Activity implements OnClickListener,
+        ViewFactory, OnItemClickListener {
 
-    private static final String TAG = "SendCommentActivity";
+    private static final String TAG = "PictureViewerActivity";
+
+    private static final String BIT_PIC_REG = String.format("(%s)|(%s)",
+            StatusBinder.PIC_LARGE, StatusBinder.PIC_BMIDDLE);
 
     private Gallery mGalleryView;
     private ImageSwitcher mImageSwitcherView;
@@ -50,11 +51,14 @@ public class StatusPictureViewerActivity extends Activity implements
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_status_pics);
+        setContentView(R.layout.activity_picture_viewer);
 
         Intent intent = getIntent();
         mPicUrls = intent.getStringArrayExtra("pics");
         int position = intent.getIntExtra("position", 0);
+
+        Log.d(TAG, Arrays.deepToString(mPicUrls));
+        Log.d(TAG, "selected -> " + position);
 
         mImageSwitcherView = (ImageSwitcher) findViewById(R.id.image_switcher);
         mImageSwitcherView.setFactory(this);
@@ -64,8 +68,10 @@ public class StatusPictureViewerActivity extends Activity implements
         mImageSwitcherView.setOutAnimation(AnimationUtils.loadAnimation(this,
                 android.R.anim.slide_out_right));
 
+        setSwitcherSelection(position);
+
         mGalleryView = (Gallery) findViewById(R.id.gallery);
-        mGalleryView.setAdapter(new ImageAdapter(this, mPicUrls));
+        mGalleryView.setAdapter(new ImageAdapter(this, toThumbnail(mPicUrls)));
         mGalleryView.setOnItemClickListener(this);
         mGalleryView.setSelection(position);
 
@@ -87,25 +93,18 @@ public class StatusPictureViewerActivity extends Activity implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position,
             long id) {
-        new AsyncImageViewTask(mImageSwitcherView).execute(mPicUrls[position]);
+        setSwitcherSelection(position);
     }
 
-    @Override
-    public void onPostExecute(JSONObject result) {
-        Toast.makeText(this, R.string.sent, Toast.LENGTH_SHORT).show();
-        finish();
+    private void setSwitcherSelection(int position) {
+        ViewUtil.setImage(mImageSwitcherView, mPicUrls[position]);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.ViewSwitcher.ViewFactory#makeView()
-     */
     @Override
     public View makeView() {
         ImageView v = new ImageView(this);
         v.setLayoutParams(getLayoutParams());
-        // v.setVisibility(View.GONE);
-        // content.addView(v);
+        v.setImageResource(R.drawable.ic_launcher);
 
         return v;
     }
@@ -122,51 +121,66 @@ public class StatusPictureViewerActivity extends Activity implements
         return mLayoutParams;
     }
 
+    private String[] toThumbnail(String[] picUrls) {
+        String[] thumbnailUrls = new String[picUrls.length];
+        int i = 0;
+        for (String picUrl : picUrls) {
+            String url = picUrl.replaceFirst(BIT_PIC_REG,
+                    StatusBinder.PIC_THUMBNAIL);
+            thumbnailUrls[i++] = url;
+        }
+        return thumbnailUrls;
+    }
+
     /**
      * @author shuaqiu Jun 4, 2013
      */
     public static class ImageAdapter extends BaseAdapter {
+
         private Context mContext;
-        private String[] mPicUrls;
+        private String[] mThumbnailUrls;
 
-        public ImageAdapter(Context context, String[] picUrls) {
+        private Gallery.LayoutParams mLayoutParams;
+
+        public ImageAdapter(Context context, String[] thumbnailUrls) {
             mContext = context;
-
-            mPicUrls = new String[picUrls.length];
-            int i = 0;
-            for (String picUrl : picUrls) {
-                mPicUrls[i++] = picUrl.replace("original", "thumbnail");
-            }
+            mThumbnailUrls = thumbnailUrls;
         }
 
         @Override
         public int getCount() {
-            return mPicUrls.length;
+            return mThumbnailUrls.length;
         }
 
         @Override
         public Object getItem(int position) {
-            return mPicUrls[position];
+            return mThumbnailUrls[position];
         }
 
         @Override
         public long getItemId(int position) {
-            return mPicUrls[position].hashCode();
+            return mThumbnailUrls[position].hashCode();
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ImageView imageView = new ImageView(mContext);
-
             // imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            imageView.setLayoutParams(new Gallery.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
             // imageView.setBackgroundResource(itemBackground);
+            imageView.setLayoutParams(getLayoutParams());
+            imageView.setImageResource(R.drawable.ic_launcher);
 
-            new AsyncImageViewTask(imageView).execute(mPicUrls[position]);
-
+            ViewUtil.setImage(imageView, mThumbnailUrls[position]);
             return imageView;
+        }
+
+        public Gallery.LayoutParams getLayoutParams() {
+            if (mLayoutParams == null) {
+                mLayoutParams = new Gallery.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+            }
+            return mLayoutParams;
         }
     }
 

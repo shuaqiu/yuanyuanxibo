@@ -8,6 +8,7 @@ import android.text.util.Linkify.TransformFilter;
 import android.util.Patterns;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -56,24 +57,15 @@ public class ViewUtil {
     public static final int ALL = WEB_URLS | TREND | AT_USER;
 
     public static void setImage(View v, String url) {
-        if (v == null) {
-            return;
-        }
-        if (v instanceof ImageView) {
-            ImageView imageView = (ImageView) v;
-            AsyncImageViewTask task = new AsyncImageViewTask(imageView);
-            task.execute(url);
-        }
+        setImage(v, url, null);
     }
 
     public static void setImage(View v, String url, View progressView) {
         if (v == null) {
             return;
         }
-        if (v instanceof ImageView) {
-            ImageView imageView = (ImageView) v;
-            AsyncImageViewTask task = new AsyncImageViewTask(imageView,
-                    progressView);
+        if (v instanceof ImageView || v instanceof ImageSwitcher) {
+            AsyncImageViewTask task = new AsyncImageViewTask(v, progressView);
             task.execute(url);
         }
     }

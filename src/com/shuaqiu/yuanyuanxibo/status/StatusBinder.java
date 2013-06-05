@@ -29,9 +29,23 @@ import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
  */
 public abstract class StatusBinder<Data> implements ViewBinder<Data> {
 
-    public enum Type {
-        LIST, DETAIL
-    }
+    /**
+     * 微博圖片: 縮略圖的關鍵字, 比如:<br/>
+     * http://ww2.sinaimg.cn/thumbnail/5259a295jw1e5a6fael8mj20m80gpaeb.jpg
+     */
+    static final String PIC_THUMBNAIL = "thumbnail";
+
+    /**
+     * 微博圖片: 中等大小圖片的關鍵字, 比如:<br/>
+     * http://ww2.sinaimg.cn/bmiddle/5259a295jw1e5a6fael8mj20m80gpaeb.jpg
+     */
+    static final String PIC_BMIDDLE = "bmiddle";
+
+    /**
+     * 微博圖片: 原圖的關鍵字, 比如:<br/>
+     * http://ww2.sinaimg.cn/large/5259a295jw1e5a6fael8mj20m80gpaeb.jpg
+     */
+    static final String PIC_LARGE = "large";
 
     protected Context mContext;
     protected TimeHelper mTimeHelper;
@@ -164,7 +178,8 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             if (mType == Type.DETAIL) {
                 v.setTag(0);
 
-                String[] pics = optPics(status, "original");
+                String[] pics = optPics(status, PIC_BMIDDLE);
+                // String[] pics = optPics(status, PIC_LARGE);
                 OnClickListener l = new ViewImageClickListener(mContext, pics);
                 v.setOnClickListener(l);
 
@@ -179,10 +194,10 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * @param view
      * @param status
      * @param listener
-     *            TODO
+     * 
      */
     protected void setPics(View view, Data status, OnClickListener listener) {
-        String[] pics = optPics(status, "bmiddle");
+        String[] pics = optPics(status, PIC_BMIDDLE);
         if (pics == null || pics.length < 2) {
             return;
         }
@@ -343,7 +358,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             JSONObject json = arr.optJSONObject(i);
             String pic = json.optString(Column.thumbnail_pic.name(), null);
             if (isOptMiddlePic()) {
-                pic = pic.replace("thumbnail", type);
+                pic = pic.replace(PIC_THUMBNAIL, type);
             }
             pics[i] = pic;
         }
@@ -369,6 +384,10 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         return mType == Type.DETAIL;// && StateKeeper.isWifi;
     }
 
+    public enum Type {
+        LIST, DETAIL
+    }
+
     private class ViewImageClickListener implements OnClickListener {
         private Context mContext;
         private String[] mPics;
@@ -386,8 +405,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         public void onClick(View v) {
             Integer position = (Integer) v.getTag();
 
-            Intent intent = new Intent(mContext,
-                    StatusPictureViewerActivity.class);
+            Intent intent = new Intent(mContext, PictureViewerActivity.class);
             intent.putExtra("pics", mPics);
             intent.putExtra("position", position);
             mContext.startActivity(intent);
