@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.shuaqiu.common.widget.ViewBinder;
@@ -16,7 +17,7 @@ import com.shuaqiu.yuanyuanxibo.R;
 /**
  * @author shuaqiu 2013-5-29
  */
-public class StatusFragment extends Fragment {
+public class StatusFragment extends Fragment implements OnClickListener {
     public static final String STATUS = "STATUS_CONTENT";
 
     private static final String TAG = "status";
@@ -31,6 +32,9 @@ public class StatusFragment extends Fragment {
         View view = inflater
                 .inflate(R.layout.fragment_status, container, false);
         bindView(view);
+
+        view.findViewById(R.id.back).setOnClickListener(this);
+
         return view;
     }
 
@@ -57,6 +61,15 @@ public class StatusFragment extends Fragment {
                     StatusBinder.Type.DETAIL);
         }
         return sBinder;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+        case R.id.back:
+            getActivity().finish();
+            break;
+        }
     }
 
 }

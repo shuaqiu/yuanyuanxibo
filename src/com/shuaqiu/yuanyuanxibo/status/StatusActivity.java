@@ -37,14 +37,14 @@ public class StatusActivity extends FragmentActivity implements OnClickListener 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_status);
 
+        Intent intent = getIntent();
+        mPosition = intent.getIntExtra("position", 0);
+        mMaxId = intent.getLongExtra("maxId", -1);
+
         mStatusHelper = new StatusHelper(this);
         mStatusHelper.openForRead();
 
         new AsyncDatabaseTask().execute();
-
-        Intent intent = getIntent();
-        mPosition = intent.getIntExtra("position", 0);
-        mMaxId = intent.getLongExtra("maxId", -1);
 
         findViewById(R.id.comment).setOnClickListener(this);
     }
@@ -110,6 +110,6 @@ public class StatusActivity extends FragmentActivity implements OnClickListener 
             break;
         }
 
-        startActivityForResult(intent, 0);
+        startActivity(intent);
     }
 }

@@ -39,16 +39,17 @@ public class CommentListFragment extends ListFragment implements
         Intent intent = context.getIntent();
         String action = intent.getAction();
 
-        Bundle params = new Bundle();
+        Bundle params = new Bundle(2);
         String accessToken = StateKeeper.accessToken.getAccessToken();
         params.putString("access_token", accessToken);
 
         if (action == null || action.equals(Actions.USER_COMMENT)) {
             new AsyncHttpGetTask(params, this).execute(API.Comment.TIMELINE);
         } else if (action.equals(Actions.STATUS_COMMENT)) {
-            // long statusId = intent.getLongExtra("id", 0);
-            // params.putLong("id", statusId);
-            params.putAll(intent.getExtras());
+            // intent 中包含微博的id 值
+            long statusId = intent.getLongExtra("id", 0);
+            params.putLong("id", statusId);
+            // params.putAll(intent.getExtras());
             new AsyncHttpGetTask(params, this).execute(API.Comment.SHOW);
         }
 

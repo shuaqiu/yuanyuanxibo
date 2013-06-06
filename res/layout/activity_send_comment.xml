@@ -12,12 +12,23 @@
         android:layout_alignParentTop="true"
         android:background="@drawable/bg_round_title" >
 
-        <Button
-            android:id="@+id/cancel"
+        <ImageView
+            android:id="@+id/back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:text="@string/cancel" />
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/back"
+            android:padding="@dimen/eight_dp"
+            android:src="@drawable/ic_action_back"
+            android:text="@string/back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/back"
+            android:text="@string/send_comment" />
 
         <Button
             android:id="@+id/send"
@@ -25,13 +36,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:text="@string/send" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/comment" />
-
     </RelativeLayout>
 
     <EditText
@@ -68,27 +72,24 @@
             android:id="@+id/action_trend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/five_dp"
-            android:layout_marginRight="@dimen/five_dp"
             android:contentDescription="@string/action_trend"
+            android:padding="@dimen/five_dp"
             android:src="@drawable/ic_action_trend" />
 
         <ImageView
             android:id="@+id/action_at"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/five_dp"
-            android:layout_marginRight="@dimen/five_dp"
             android:contentDescription="@string/action_at"
+            android:padding="@dimen/five_dp"
             android:src="@drawable/ic_action_at" />
 
         <ImageView
             android:id="@+id/action_emotion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/five_dp"
-            android:layout_marginRight="@dimen/five_dp"
             android:contentDescription="@string/action_emotion"
+            android:padding="@dimen/five_dp"
             android:src="@drawable/ic_action_emotion" />
 
     </LinearLayout>

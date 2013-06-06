@@ -63,6 +63,9 @@
     <string name="thumbnail_value">THUMBNAIL</string>
     <string name="large_image_value">LARGE</string>
     <string name="original_image_value">ORIGINAL</string>
+    <string name="save">Save</string>
+    <string name="back">Back</string>
+    <string name="send_comment">Send Comment</string>
     
 
     

@@ -27,7 +27,7 @@ import com.shuaqiu.yuanyuanxibo.R;
 public class SendCommentActivity extends Activity implements OnClickListener,
         AsyncTaskListener<JSONObject> {
 
-    private static final String TAG = "SendCommentActivity";
+    // private static final String TAG = "SendCommentActivity";
 
     private EditText mCommentView;
 
@@ -40,7 +40,7 @@ public class SendCommentActivity extends Activity implements OnClickListener,
 
         mCommentView = (EditText) findViewById(R.id.comment);
         findViewById(R.id.send).setOnClickListener(this);
-        findViewById(R.id.cancel).setOnClickListener(this);
+        findViewById(R.id.back).setOnClickListener(this);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class SendCommentActivity extends Activity implements OnClickListener,
         case R.id.send:
             sendComment();
             break;
-        case R.id.cancel:
+        case R.id.back:
             finish();
             break;
         }

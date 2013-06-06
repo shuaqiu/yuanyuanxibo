@@ -8,6 +8,9 @@ import java.util.Arrays;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +27,9 @@ import android.widget.Gallery;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.ViewSwitcher.ViewFactory;
+import android.widget.ZoomControls;
 
+import com.shuaqiu.common.UpdatableTuple;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.yuanyuanxibo.R;
 
@@ -41,6 +46,7 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
 
     private Gallery mGalleryView;
     private ImageSwitcher mImageSwitcherView;
+    private ZoomControls mZoomControls;
 
     private FrameLayout.LayoutParams mLayoutParams;
 
@@ -75,19 +81,27 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         mGalleryView.setOnItemClickListener(this);
         mGalleryView.setSelection(position);
 
-        // findViewById(R.id.send).setOnClickListener(this);
-        // findViewById(R.id.cancel).setOnClickListener(this);
+        mZoomControls = (ZoomControls) findViewById(R.id.zoom_controller);
+        mZoomControls.setOnZoomInClickListener(new ZoomInClickListener(
+                mImageSwitcherView, 1.25));
+        mZoomControls.setOnZoomOutClickListener(new ZoomInClickListener(
+                mImageSwitcherView, 0.8));
+
+        findViewById(R.id.save).setOnClickListener(this);
+        findViewById(R.id.back).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-        case R.id.send:
+        case R.id.save:
+            // TODO save image
             break;
-        case R.id.cancel:
+        case R.id.back:
             finish();
             break;
         }
+        Log.d(TAG, "" + v.getId());
     }
 
     @Override
@@ -97,6 +111,9 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
     }
 
     private void setSwitcherSelection(int position) {
+        View nextView = mImageSwitcherView.getNextView();
+        nextView.setTag(null);
+        nextView.setTag(ZoomInClickListener.SCALE_SIZE_KEY, null);
         ViewUtil.setImage(mImageSwitcherView, mPicUrls[position]);
     }
 
@@ -184,4 +201,52 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         }
     }
 
+    private static class ZoomInClickListener implements OnClickListener {
+
+        private static final int SCALE_SIZE_KEY = R.id.thumbnail_pic;
+
+        private ImageSwitcher target;
+        private double scale;
+
+        private ZoomInClickListener(ImageSwitcher target, double scale) {
+            this.target = target;
+            // 设置图片放大比例
+            this.scale = scale;
+        }
+
+        @Override
+        public void onClick(View v) {
+            ImageView imageView = (ImageView) target.getCurrentView();
+
+            UpdatableTuple<Bitmap, Float> scaleInfo = getScaleInfo(imageView);
+            Bitmap bitmap = scaleInfo.getValue1();
+
+            int bmpWidth = bitmap.getWidth();
+            int bmpHeight = bitmap.getHeight();
+
+            float scaleSize = scaleInfo.getValue2();
+            // 产生新的大小但Bitmap对象
+            Matrix matrix = new Matrix();
+            matrix.postScale(scaleSize, scaleSize);
+
+            Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bmpWidth,
+                    bmpHeight, matrix, true);
+
+            imageView.setImageBitmap(resizeBmp);
+        }
+
+        @SuppressWarnings("unchecked")
+        private UpdatableTuple<Bitmap, Float> getScaleInfo(ImageView imageView) {
+            Object tag = imageView.getTag();
+            if (tag != null) {
+                UpdatableTuple<Bitmap, Float> tuple = (UpdatableTuple<Bitmap, Float>) tag;
+                float scaleSize = (float) (tuple.getValue2() * scale);
+                return tuple.update(tuple.getValue1(), scaleSize);
+            }
+
+            BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+            Bitmap bitmap = drawable.getBitmap();
+            return new UpdatableTuple<Bitmap, Float>(bitmap, (float) scale);
+        }
+    }
 }

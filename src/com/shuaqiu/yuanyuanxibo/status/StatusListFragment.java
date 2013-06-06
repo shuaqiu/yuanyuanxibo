@@ -35,9 +35,6 @@ public class StatusListFragment extends RefreshableListFragment {
         Context context = getActivity();
         StatusBinder<Bundle> statusBinder = new BundleStatusBinder(context,
                 StatusBinder.Type.LIST);
-        // CursorBinderAdpater adapter = new CursorBinderAdpater(context,
-        // R.layout.listview_status, statusBinder,
-        // CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         SimpleCursorAdapter<Bundle> adapter = new StatusCursorAdapter(context,
                 R.layout.listview_status, statusBinder);
         setListAdapter(adapter);
@@ -58,6 +55,14 @@ public class StatusListFragment extends RefreshableListFragment {
 
         Intent intent = new Intent(getActivity(), StatusActivity.class);
         intent.putExtra("position", position);
+
+        long maxId = getListAdapter().getItemId(0);
+        Log.d(TAG, "maxId " + maxId);
+        if (maxId == 0) {
+            maxId = -1;
+        }
+        intent.putExtra("maxId", maxId);
+
         startActivity(intent);
     }
 

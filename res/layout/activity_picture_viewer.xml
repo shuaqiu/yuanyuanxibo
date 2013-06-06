@@ -3,14 +3,51 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    <RelativeLayout
+        android:id="@+id/title_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/bg_round_title" >
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/back"
+            android:padding="@dimen/eight_dp"
+            android:src="@drawable/ic_action_back"
+            android:text="@string/back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/back"
+            android:text="@string/original_image" />
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="@string/save" />
+    </RelativeLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/gallery" >
+        android:layout_above="@+id/gallery"
+        android:layout_below="@+id/title_bar"
+        android:scrollbars="horizontal|vertical" >
 
         <ImageSwitcher
             android:id="@+id/image_switcher"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
         </ImageSwitcher>
     </ScrollView>
@@ -24,5 +61,14 @@
         android:layout_alignParentRight="true"
         android:background="@drawable/bg_round_retweeted"
         android:spacing="@dimen/sixteen_dp" />
+
+    <ZoomControls
+        android:id="@+id/zoom_controller"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/gallery"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="@dimen/sixteen_dp"
+        android:layout_marginRight="@dimen/sixteen_dp" />
 
 </RelativeLayout>

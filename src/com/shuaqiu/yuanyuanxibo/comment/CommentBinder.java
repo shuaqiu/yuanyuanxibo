@@ -24,12 +24,12 @@ public class CommentBinder implements ViewBinder<JSONObject> {
         USER, STATUS
     }
 
-    private Context mContext;
+    // private Context mContext;
     private TimeHelper mTimeHelper;
     private Type mType;
 
     public CommentBinder(Context context, Type type) {
-        mContext = context;
+        // mContext = context;
         mTimeHelper = new TimeHelper(context);
         mType = type;
     }
@@ -57,9 +57,8 @@ public class CommentBinder implements ViewBinder<JSONObject> {
      * @param comment
      */
     protected void setReplyFor(View view, JSONObject comment) {
-        String type = null;
         String content = null;
-    
+
         JSONObject target = comment.optJSONObject("reply_comment");
         if (target == null) {
             // 這個評論是直接對微博的
@@ -69,12 +68,12 @@ public class CommentBinder implements ViewBinder<JSONObject> {
                         .setVisibility(View.GONE);
                 return;
             }
-    
+
             // 改爲顯示評論的微博內容
             target = comment.optJSONObject("status");
         }
         content = target.optString("text", "");
-    
+
         ViewUtil.setText(view.findViewById(R.id.reply_content), content);
     }
 

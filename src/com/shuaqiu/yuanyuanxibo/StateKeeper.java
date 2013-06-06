@@ -22,19 +22,17 @@ public final class StateKeeper {
     public static boolean isWifi;
 
     public static boolean isWifi(Context context) {
-        NetworkInfo info = getActiveNetworkInfo(context);
-        if (info == null || info.isConnected()) {
-            return false;
-        }
-
-        int type = info.getType();
-        Log.d(TAG, "type : " + type);
-        return type == ConnectivityManager.TYPE_WIFI;
-    }
-
-    private static NetworkInfo getActiveNetworkInfo(Context context) {
         ConnectivityManager manager = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
-        return manager.getActiveNetworkInfo();
+
+        NetworkInfo wifiInfo = manager
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        Log.d(TAG, "" + wifiInfo);
+        Log.d(TAG, "" + wifiInfo.isConnected());
+
+        // Log.d(TAG, "" +
+        // manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE));
+
+        return wifiInfo.isConnected();
     }
 }

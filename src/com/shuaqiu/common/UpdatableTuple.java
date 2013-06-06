@@ -3,6 +3,7 @@
  */
 package com.shuaqiu.common;
 
+
 /**
  * @author shuaqiu 2013-6-1
  */
@@ -18,9 +19,10 @@ public final class UpdatableTuple<M, N> {
         update(m, n);
     }
 
-    public void update(M m, N n) {
+    public UpdatableTuple<M, N> update(M m, N n) {
         this.m = m;
         this.n = n;
+        return this;
     }
 
     public M getValue1() {
