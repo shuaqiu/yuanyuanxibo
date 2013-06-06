@@ -6,15 +6,19 @@ package com.shuaqiu.common;
 /**
  * @author shuaqiu 2013-6-1
  */
-public final class Tuple<M, N> {
-    private final M m;
-    private final N n;
+public final class UpdatableTuple<M, N> {
+    private M m;
+    private N n;
 
     /**
      * @param m
      * @param n
      */
-    public Tuple(M m, N n) {
+    public UpdatableTuple(M m, N n) {
+        update(m, n);
+    }
+
+    public void update(M m, N n) {
         this.m = m;
         this.n = n;
     }
