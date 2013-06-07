@@ -45,7 +45,7 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
             StatusBinder.ImageQuality.LARGE.keywork);
 
     private Gallery mGalleryView;
-    private ImageSwitcher mImageSwitcherView;
+    private ImageSwitcher mSwitcherView;
     private ZoomControls mZoomControls;
 
     private FrameLayout.LayoutParams mLayoutParams;
@@ -67,9 +67,7 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         Log.d(TAG, "selected -> " + position);
 
         initImageSwitcher(position);
-
         initGallery(position);
-
         initZoomControls();
 
         findViewById(R.id.save).setOnClickListener(this);
@@ -77,12 +75,12 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
     }
 
     private void initImageSwitcher(int position) {
-        mImageSwitcherView = (ImageSwitcher) findViewById(R.id.image_switcher);
-        mImageSwitcherView.setFactory(this);
+        mSwitcherView = (ImageSwitcher) findViewById(R.id.image_switcher);
+        mSwitcherView.setFactory(this);
 
-        mImageSwitcherView.setInAnimation(AnimationUtils.loadAnimation(this,
+        mSwitcherView.setInAnimation(AnimationUtils.loadAnimation(this,
                 android.R.anim.fade_in));
-        mImageSwitcherView.setOutAnimation(AnimationUtils.loadAnimation(this,
+        mSwitcherView.setOutAnimation(AnimationUtils.loadAnimation(this,
                 android.R.anim.fade_out));
 
         setSwitcherSelection(position);
@@ -97,10 +95,10 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
 
     private void initZoomControls() {
         mZoomControls = (ZoomControls) findViewById(R.id.zoom_controller);
-        mZoomControls.setOnZoomInClickListener(new ZoomInClickListener(
-                mImageSwitcherView, 1.25));
-        mZoomControls.setOnZoomOutClickListener(new ZoomInClickListener(
-                mImageSwitcherView, 0.8));
+        mZoomControls.setOnZoomInClickListener(new ZoomClickListener(
+                mZoomControls, mSwitcherView, ZoomClickListener.IN_SCALE));
+        mZoomControls.setOnZoomOutClickListener(new ZoomClickListener(
+                mZoomControls, mSwitcherView, ZoomClickListener.OUT_SCALE));
     }
 
     @Override
@@ -123,12 +121,17 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
 
     private void setSwitcherSelection(int position) {
         // 為了圖片的縮放進行的設置, 在切換圖片前, 清除之前的設置狀態
-        View nextView = mImageSwitcherView.getNextView();
+        View nextView = mSwitcherView.getNextView();
         nextView.setTag(null);
-        nextView.setTag(ZoomInClickListener.SCALE_SIZE_KEY, null);
+        nextView.setTag(ZoomClickListener.SCALE_SIZE_KEY, null);
 
         // 設置圖片
-        ViewUtil.setImage(mImageSwitcherView, mPicUrls[position]);
+        ViewUtil.setImage(mSwitcherView, mPicUrls[position]);
+
+        if (mZoomControls != null) {
+            mZoomControls.setIsZoomInEnabled(true);
+            mZoomControls.setIsZoomOutEnabled(true);
+        }
     }
 
     @Override
@@ -221,14 +224,23 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         }
     }
 
-    private static class ZoomInClickListener implements OnClickListener {
+    private static class ZoomClickListener implements OnClickListener {
 
-        private static final int SCALE_SIZE_KEY = R.id.tag_scale_size;
+        static final int SCALE_SIZE_KEY = R.id.tag_scale_size;
 
+        static final double OUT_SCALE = 0.8;
+        static final double IN_SCALE = 1.25;
+
+        static final double MAX_SCALE = 2;
+        static final double MIN_SCALE = 0.5;
+
+        private ZoomControls zoomControls;
         private ImageSwitcher target;
         private double scale;
 
-        private ZoomInClickListener(ImageSwitcher target, double scale) {
+        private ZoomClickListener(ZoomControls zoomControls,
+                ImageSwitcher target, double scale) {
+            this.zoomControls = zoomControls;
             this.target = target;
             // 设置图片放大比例
             this.scale = scale;
@@ -243,20 +255,29 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
             int bmpWidth = bitmap.getWidth();
             int bmpHeight = bitmap.getHeight();
 
-            Matrix matrix = getMatrix(imageView);
+            float scaleSize = getScaleSize(imageView);
+            Log.d(TAG, "scale size --> " + scaleSize);
+
+            // 产生新的大小Bitmap对象
+            Matrix matrix = new Matrix();
+            matrix.postScale(scaleSize, scaleSize);
 
             Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bmpWidth,
                     bmpHeight, matrix, true);
 
             imageView.setImageBitmap(resizeBmp);
-        }
 
-        private Matrix getMatrix(ImageView imageView) {
-            float scaleSize = getScaleSize(imageView);
-            // 产生新的大小Bitmap对象
-            Matrix matrix = new Matrix();
-            matrix.postScale(scaleSize, scaleSize);
-            return matrix;
+            if (scale < 1) {
+                zoomControls.setIsZoomInEnabled(true);
+                if (scale * scaleSize < MIN_SCALE) {
+                    zoomControls.setIsZoomOutEnabled(false);
+                }
+            } else {
+                zoomControls.setIsZoomOutEnabled(true);
+                if (scale * scaleSize > MAX_SCALE) {
+                    zoomControls.setIsZoomInEnabled(false);
+                }
+            }
         }
 
         private Bitmap getOriginalBitmap(ImageView v) {
@@ -272,7 +293,7 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
 
         private float getScaleSize(ImageView v) {
             Object tag = v.getTag(SCALE_SIZE_KEY);
-            float scaleSize = (float) scale;
+            float scaleSize = 1F; // 默認是原始大小
             if (tag != null) {
                 scaleSize = (Float) tag;
             }
