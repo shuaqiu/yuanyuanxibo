@@ -32,24 +32,6 @@ import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
  */
 public abstract class StatusBinder<Data> implements ViewBinder<Data> {
 
-    /**
-     * 微博圖片: 縮略圖的關鍵字, 比如:<br/>
-     * http://ww2.sinaimg.cn/thumbnail/5259a295jw1e5a6fael8mj20m80gpaeb.jpg
-     */
-    static final String PIC_THUMBNAIL = "thumbnail";
-
-    /**
-     * 微博圖片: 中等大小圖片的關鍵字, 比如:<br/>
-     * http://ww2.sinaimg.cn/bmiddle/5259a295jw1e5a6fael8mj20m80gpaeb.jpg
-     */
-    static final String PIC_BMIDDLE = "bmiddle";
-
-    /**
-     * 微博圖片: 原圖的關鍵字, 比如:<br/>
-     * http://ww2.sinaimg.cn/large/5259a295jw1e5a6fael8mj20m80gpaeb.jpg
-     */
-    static final String PIC_LARGE = "large";
-
     protected Context mContext;
     protected TimeHelper mTimeHelper;
     protected Type mType;
@@ -164,6 +146,8 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     }
 
     /**
+     * 顯示微博圖片
+     * 
      * @param status
      */
     protected void setThumbnailPic(View view, Data status) {
@@ -186,6 +170,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             ViewUtil.setImage(v, thumbnailPic, progress);
 
             if (mType == Type.DETAIL) {
+                // 對於微博詳細界面, 要顯示微博的所有圖片
                 ImageQuality picViewerQuality = getImageQuality(Type.PIC_VIEWER);
                 if (picViewerQuality == ImageQuality.NONE) {
                     // 圖片查看設置爲無圖, 那麼直接就不用打開這個activity 了
@@ -259,12 +244,12 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 
      * @param view
      * @param status
-     * @param imgQuality
+     * @param quality
      * @param listener
      */
-    protected void setPics(View view, Data status, ImageQuality imgQuality,
+    protected void setPics(View view, Data status, ImageQuality quality,
             OnClickListener listener) {
-        String[] pics = optPics(status, imgQuality);
+        String[] pics = optPics(status, quality);
         if (pics == null || pics.length < 2) {
             // 第一張圖片已經在前面顯示了
             return;
@@ -369,7 +354,8 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 即: EEE MMM dd HH:mm:ss zzz yyyy
      * 
      * @param status
-     * @return
+     *            微博信息
+     * @return 要顯示的時間
      * @see TimeHelper#beautyTime(String)
      */
     protected abstract String optCreateTime(Data status);
@@ -383,21 +369,24 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     protected abstract String optSource(Data status);
 
     /**
-     * 獲取微博的圖片內容
+     * 獲取微博的第一張圖片URL
      * 
      * @param status
-     * @param imgQuality
-     * @return
+     *            微博信息
+     * @param quality
+     *            要獲取的圖片質量
+     * @return 第一張圖片的URL
      */
-    protected abstract String optThumbnailPic(Data status,
-            ImageQuality imgQuality);
+    protected abstract String optThumbnailPic(Data status, ImageQuality quality);
 
     /**
-     * 獲取微博的圖片內容
+     * 獲取微博的所有圖片的URL
      * 
      * @param status
+     *            微博信息
      * @param quality
-     * @return
+     *            要獲取的圖片質量
+     * @return 所有圖片的URL 數組
      */
     protected abstract String[] optPics(Data status, ImageQuality quality);
 
@@ -447,20 +436,20 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      */
     protected abstract String optCount(Data status, Column c);
 
-    /**
-     * 是否獲取大圖
-     * 
-     * @return
-     */
-    protected boolean isOptMiddlePic() {
-        // return false;
-        return mType == Type.DETAIL;// && StateKeeper.isWifi;
-    }
-
     public enum Type {
-        LIST("image_quality_list"), DETAIL("image_quality_detail"), PIC_VIEWER(
-                "image_quality_original");
+        /** 微博列表界面 */
+        LIST("image_quality_list"),
+        /** 微博詳細界面 */
+        DETAIL("image_quality_detail"),
+        /** 微博原圖查看界面 */
+        PIC_VIEWER("image_quality_original");
 
+        /**
+         * 對應的圖片質量屬性key, 用於獲取系統設置的圖片質量.<br/>
+         * 如果是WIFI 網絡下, 則該key 還需要加上"_wifi"
+         * 
+         * @see res/xml/preferences.xml
+         */
         private String imgQualityKey = null;
 
         private Type(String imgQualityPrefKey) {
@@ -468,6 +457,12 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         }
     }
 
+    /**
+     * 要顯示的圖片質量
+     * 
+     * @author shuaqiu 2013-6-5
+     * 
+     */
     public enum ImageQuality {
         /** 無圖 */
         NONE("", null),
@@ -478,7 +473,24 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         /** 原圖 */
         ORIGINAL("large", Column.original_pic);
 
+        /**
+         * 圖片URL 中的的關鍵字, 比如:
+         * <ul>
+         * <li>
+         * http://ww2.sinaimg.cn/thumbnail/5259a295jw1e5a6fael8mj20m80gpaeb.jpg
+         * 中的thumbnail</li>
+         * <li>
+         * http://ww2.sinaimg.cn/bmiddle/5259a295jw1e5a6fael8mj20m80gpaeb.jpg
+         * 中的bmiddle</li>
+         * <li>http://ww2.sinaimg.cn/large/5259a295jw1e5a6fael8mj20m80gpaeb.jpg
+         * 中的large</li>
+         * </ul>
+         */
         String keywork = null;
+
+        /**
+         * 對於的微博字段名稱
+         */
         Column column = null;
 
         private ImageQuality(String keywork, Column column) {
@@ -487,13 +499,20 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         }
     }
 
+    /**
+     * 當點擊圖片時, 打開原圖顯示
+     * 
+     * @author shuaqiu 2013-6-5
+     * 
+     */
     private class ViewImageClickListener implements OnClickListener {
         private Context mContext;
         private String[] mPics;
 
         /**
          * @param mContext
-         * @param status
+         * @param pics
+         *            圖片的URL 路徑列表
          */
         public ViewImageClickListener(Context context, String[] pics) {
             mContext = context;
@@ -502,6 +521,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
 
         @Override
         public void onClick(View v) {
+            // 在顯示圖片時, 將圖片的順序放到ImageView 中保存起來了
             Integer position = (Integer) v.getTag();
 
             Intent intent = new Intent(mContext, PictureViewerActivity.class);

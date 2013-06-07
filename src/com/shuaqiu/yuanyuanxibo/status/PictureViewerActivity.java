@@ -29,7 +29,6 @@ import android.widget.ImageView;
 import android.widget.ViewSwitcher.ViewFactory;
 import android.widget.ZoomControls;
 
-import com.shuaqiu.common.UpdatableTuple;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.yuanyuanxibo.R;
 
@@ -42,7 +41,8 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
     private static final String TAG = "PictureViewerActivity";
 
     private static final String BIT_PIC_REG = String.format("(%s)|(%s)",
-            StatusBinder.PIC_LARGE, StatusBinder.PIC_BMIDDLE);
+            StatusBinder.ImageQuality.ORIGINAL.keywork,
+            StatusBinder.ImageQuality.LARGE.keywork);
 
     private Gallery mGalleryView;
     private ImageSwitcher mImageSwitcherView;
@@ -66,6 +66,17 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         Log.d(TAG, Arrays.deepToString(mPicUrls));
         Log.d(TAG, "selected -> " + position);
 
+        initImageSwitcher(position);
+
+        initGallery(position);
+
+        initZoomControls();
+
+        findViewById(R.id.save).setOnClickListener(this);
+        findViewById(R.id.back).setOnClickListener(this);
+    }
+
+    private void initImageSwitcher(int position) {
         mImageSwitcherView = (ImageSwitcher) findViewById(R.id.image_switcher);
         mImageSwitcherView.setFactory(this);
 
@@ -75,20 +86,21 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
                 android.R.anim.fade_out));
 
         setSwitcherSelection(position);
+    }
 
+    private void initGallery(int position) {
         mGalleryView = (Gallery) findViewById(R.id.gallery);
         mGalleryView.setAdapter(new ImageAdapter(this, toThumbnail(mPicUrls)));
         mGalleryView.setOnItemClickListener(this);
         mGalleryView.setSelection(position);
+    }
 
+    private void initZoomControls() {
         mZoomControls = (ZoomControls) findViewById(R.id.zoom_controller);
         mZoomControls.setOnZoomInClickListener(new ZoomInClickListener(
                 mImageSwitcherView, 1.25));
         mZoomControls.setOnZoomOutClickListener(new ZoomInClickListener(
                 mImageSwitcherView, 0.8));
-
-        findViewById(R.id.save).setOnClickListener(this);
-        findViewById(R.id.back).setOnClickListener(this);
     }
 
     @Override
@@ -101,7 +113,6 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
             finish();
             break;
         }
-        Log.d(TAG, "" + v.getId());
     }
 
     @Override
@@ -111,9 +122,12 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
     }
 
     private void setSwitcherSelection(int position) {
+        // 為了圖片的縮放進行的設置, 在切換圖片前, 清除之前的設置狀態
         View nextView = mImageSwitcherView.getNextView();
         nextView.setTag(null);
         nextView.setTag(ZoomInClickListener.SCALE_SIZE_KEY, null);
+
+        // 設置圖片
         ViewUtil.setImage(mImageSwitcherView, mPicUrls[position]);
     }
 
@@ -138,12 +152,18 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         return mLayoutParams;
     }
 
+    /**
+     * 獲取縮略圖的URL, 用於在Gallery 裡面進行顯示
+     * 
+     * @param picUrls
+     * @return
+     */
     private String[] toThumbnail(String[] picUrls) {
         String[] thumbnailUrls = new String[picUrls.length];
         int i = 0;
         for (String picUrl : picUrls) {
             String url = picUrl.replaceFirst(BIT_PIC_REG,
-                    StatusBinder.PIC_THUMBNAIL);
+                    StatusBinder.ImageQuality.THUMBNAIL.keywork);
             thumbnailUrls[i++] = url;
         }
         return thumbnailUrls;
@@ -203,7 +223,7 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
 
     private static class ZoomInClickListener implements OnClickListener {
 
-        private static final int SCALE_SIZE_KEY = R.id.thumbnail_pic;
+        private static final int SCALE_SIZE_KEY = R.id.tag_scale_size;
 
         private ImageSwitcher target;
         private double scale;
@@ -218,16 +238,12 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         public void onClick(View v) {
             ImageView imageView = (ImageView) target.getCurrentView();
 
-            UpdatableTuple<Bitmap, Float> scaleInfo = getScaleInfo(imageView);
-            Bitmap bitmap = scaleInfo.getValue1();
+            Bitmap bitmap = getOriginalBitmap(imageView);
 
             int bmpWidth = bitmap.getWidth();
             int bmpHeight = bitmap.getHeight();
 
-            float scaleSize = scaleInfo.getValue2();
-            // 产生新的大小但Bitmap对象
-            Matrix matrix = new Matrix();
-            matrix.postScale(scaleSize, scaleSize);
+            Matrix matrix = getMatrix(imageView);
 
             Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bmpWidth,
                     bmpHeight, matrix, true);
@@ -235,18 +251,34 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
             imageView.setImageBitmap(resizeBmp);
         }
 
-        @SuppressWarnings("unchecked")
-        private UpdatableTuple<Bitmap, Float> getScaleInfo(ImageView imageView) {
-            Object tag = imageView.getTag();
-            if (tag != null) {
-                UpdatableTuple<Bitmap, Float> tuple = (UpdatableTuple<Bitmap, Float>) tag;
-                float scaleSize = (float) (tuple.getValue2() * scale);
-                return tuple.update(tuple.getValue1(), scaleSize);
-            }
+        private Matrix getMatrix(ImageView imageView) {
+            float scaleSize = getScaleSize(imageView);
+            // 产生新的大小Bitmap对象
+            Matrix matrix = new Matrix();
+            matrix.postScale(scaleSize, scaleSize);
+            return matrix;
+        }
 
-            BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+        private Bitmap getOriginalBitmap(ImageView v) {
+            Object tag = v.getTag();
+            if (tag != null) {
+                return (Bitmap) tag;
+            }
+            BitmapDrawable drawable = (BitmapDrawable) v.getDrawable();
             Bitmap bitmap = drawable.getBitmap();
-            return new UpdatableTuple<Bitmap, Float>(bitmap, (float) scale);
+            v.setTag(bitmap);
+            return bitmap;
+        }
+
+        private float getScaleSize(ImageView v) {
+            Object tag = v.getTag(SCALE_SIZE_KEY);
+            float scaleSize = (float) scale;
+            if (tag != null) {
+                scaleSize = (Float) tag;
+            }
+            scaleSize *= scale;
+            v.setTag(SCALE_SIZE_KEY, scaleSize);
+            return scaleSize;
         }
     }
 }
