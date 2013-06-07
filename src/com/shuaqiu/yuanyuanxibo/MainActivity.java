@@ -20,7 +20,7 @@ import com.shuaqiu.yuanyuanxibo.auth.AuthListener;
 import com.shuaqiu.yuanyuanxibo.auth.LoginFragment;
 import com.shuaqiu.yuanyuanxibo.auth.Oauth2AccessToken;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements OnClickListener {
 
     private static final String TAG = "main";
 
@@ -86,13 +86,12 @@ public class MainActivity extends FragmentActivity {
             // the TabListener interface, as the callback (listener) for when
             // this tab is selected.
             View tab = findViewById(SectionsPagerAdapter.TITLE_IDS[i]);
-            tab.setOnClickListener(new MainTabClickListener(i));
+            tab.setOnClickListener(this);
         }
 
         setTabBackground(0);
 
-        findViewById(R.id.refresh).setOnClickListener(
-                new RefreshClickListener());
+        findViewById(R.id.refresh).setOnClickListener(this);
     }
 
     // private boolean hasNewStatus() {
@@ -117,13 +116,6 @@ public class MainActivity extends FragmentActivity {
         default:
             return super.onOptionsItemSelected(item);
         }
-    }
-
-    private void onTabSelected(int position) {
-        // When the given tab is selected, switch to the corresponding page in
-        // the ViewPager.
-        System.err.println("tab selected -->" + position);
-        mViewPager.setCurrentItem(position);
     }
 
     /**
@@ -154,17 +146,35 @@ public class MainActivity extends FragmentActivity {
         return selectedBackground;
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+        case R.id.refresh:
+            refresh();
+            break;
+        default:
+            selectTab(v);
+            break;
+        }
+    }
+
+    private void selectTab(View v) {
+        // @see SectionsPagerAdapter#TITLE_IDS
+        int position = (Integer) v.getTag();
+        // When the given tab is selected, switch to the corresponding page in
+        // the ViewPager.
+        Log.d(TAG, "tab selected -->" + position);
+        mViewPager.setCurrentItem(position);
+    }
+
     /**
-     * @author shuaqiu Jun 2, 2013
+     * 進行刷新操作
      */
-    private final class RefreshClickListener implements OnClickListener {
-        @Override
-        public void onClick(View v) {
-            int currentItem = mViewPager.getCurrentItem();
-            Fragment item = mSectionsPagerAdapter.getItem(currentItem);
-            if (item instanceof RefreshableListFragment) {
-                ((RefreshableListFragment) item).refresh();
-            }
+    private void refresh() {
+        int currentItem = mViewPager.getCurrentItem();
+        Fragment item = mSectionsPagerAdapter.getItem(currentItem);
+        if (item instanceof RefreshableListFragment) {
+            ((RefreshableListFragment) item).refresh();
         }
     }
 
@@ -194,19 +204,6 @@ public class MainActivity extends FragmentActivity {
             StateKeeper.accessToken = new Oauth2AccessToken(responseText);
             AccessTokenKeeper.save(mContext, StateKeeper.accessToken);
             initMainView();
-        }
-    }
-
-    private class MainTabClickListener implements OnClickListener {
-        private int position;
-
-        public MainTabClickListener(int position) {
-            this.position = position;
-        }
-
-        @Override
-        public void onClick(View v) {
-            onTabSelected(position);
         }
     }
 }
