@@ -26,35 +26,23 @@ public class ViewUtil {
 
     private static final GroupOneTransformFilter GROUP_ONE_TRANSFORM_FILTER = new GroupOneTransformFilter();
 
-    /**
-     * Bit field indicating that web URLs should be matched in methods that take
-     * an options mask
-     */
+    /** URL */
     public static final int WEB_URLS = 0x01;
 
-    /**
-     * Bit field indicating that email addresses should be matched in methods
-     * that take an options mask
-     */
+    /** 話題 */
     public static final int TREND = 0x02;
 
-    /**
-     * Bit field indicating that phone numbers should be matched in methods that
-     * take an options mask
-     */
+    /** @用戶名 */
     public static final int AT_USER = 0x04;
 
-    /**
-     * Bit field indicating that street addresses should be matched in methods
-     * that take an options mask
-     */
+    /** 用戶名 */
     public static final int USER = 0x08;
 
-    /**
-     * Bit mask indicating that all available patterns should be matched in
-     * methods that take an options mask
-     */
-    public static final int ALL = WEB_URLS | TREND | AT_USER;
+    /** 表情 */
+    public static final int EMOTION = 0x0f;
+
+    /** 全部 */
+    public static final int ALL = WEB_URLS | TREND | AT_USER | EMOTION;
 
     public static void setImage(View v, String url) {
         setImage(v, url, null);
@@ -128,6 +116,10 @@ public class ViewUtil {
             Linkify.addLinks(textView, LinkPattern.USER, LinkScheme.USER, null,
                     GROUP_ONE_TRANSFORM_FILTER);
         }
+        if ((mask & EMOTION) != 0) {
+            Linkify.addLinks(textView, LinkPattern.USER, LinkScheme.USER, null,
+                    GROUP_ONE_TRANSFORM_FILTER);
+        }
     }
 
     private interface LinkPattern {
@@ -137,6 +129,8 @@ public class ViewUtil {
         Pattern AT_USER = Pattern.compile("@" + USER_PATTERN_STR);;
 
         Pattern TREND = Pattern.compile("#([^\\s:\\)）]+)#");
+
+        Pattern EMOTION = Pattern.compile("([\\w\\u4e00-\\u9fa5]+)");
     }
 
     private interface LinkScheme {
