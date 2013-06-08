@@ -39,7 +39,7 @@ public class ViewUtil {
     public static final int USER = 0x08;
 
     /** 表情 */
-    public static final int EMOTION = 0x0f;
+    public static final int EMOTION = 0x10;
 
     /** 全部 */
     public static final int ALL = WEB_URLS | TREND | AT_USER | EMOTION;
@@ -117,8 +117,9 @@ public class ViewUtil {
                     GROUP_ONE_TRANSFORM_FILTER);
         }
         if ((mask & EMOTION) != 0) {
-            Linkify.addLinks(textView, LinkPattern.USER, LinkScheme.USER, null,
-                    GROUP_ONE_TRANSFORM_FILTER);
+            // Linkify.addLinks(textView, LinkPattern.USER, LinkScheme.USER,
+            // null,
+            // GROUP_ONE_TRANSFORM_FILTER);
         }
     }
 

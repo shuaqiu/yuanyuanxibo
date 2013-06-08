@@ -38,19 +38,19 @@
             android:text="@string/save" />
     </RelativeLayout>
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/gallery"
         android:layout_below="@+id/title_bar"
-        android:scrollbars="horizontal|vertical" >
+        android:orientation="vertical" >
 
         <ImageSwitcher
             android:id="@+id/image_switcher"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
         </ImageSwitcher>
-    </ScrollView>
+    </LinearLayout>
 
     <Gallery
         android:id="@+id/gallery"
