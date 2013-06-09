@@ -21,6 +21,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(StatusHelper.getDdl());
+        db.execSQL(EmotionHelper.getDdl());
     }
 
     @Override

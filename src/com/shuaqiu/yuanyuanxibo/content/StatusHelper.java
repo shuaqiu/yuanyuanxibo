@@ -1,6 +1,5 @@
 package com.shuaqiu.yuanyuanxibo.content;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
@@ -14,7 +13,7 @@ import com.shuaqiu.common.Tuple;
 /**
  * @author shuaqiu 2013-5-31
  */
-public class StatusHelper extends DatabaseHelper {
+public class StatusHelper extends AbsObjectHelper {
 
     private static final String TAG = "StatusHelper";
 
@@ -124,43 +123,19 @@ public class StatusHelper extends DatabaseHelper {
         retweeted_visible(ColumnType.TEXT);
 
         // -----------------------------------------
-        private ColumnType type;
+        private ColumnType columnType;
 
-        private Column(ColumnType type) {
-            this.type = type;
+        private Column(ColumnType columnType) {
+            this.columnType = columnType;
         }
     }
 
     public static String getDdl() {
-        StringBuilder ddl = new StringBuilder("create table if not exists ");
-        ddl.append(TABLE);
-        ddl.append("(");
-
-        int i = 0;
-        for (Column column : COLUMNS) {
-            if (i > 0) {
-                ddl.append(", ");
-            }
-            ddl.append(column.name() + " " + column.type.name());
-            if (column == Column.id) {
-                ddl.append(" primary key");
-            }
-            i++;
-        }
-
-        ddl.append(")");
-
-        return ddl.toString();
+        return getDdl(TABLE, COLUMNS);
     }
 
     public static String[] names() {
-        String[] names = new String[COLUMNS.length];
-        int i = 0;
-        for (Column column : COLUMNS) {
-            names[i++] = column.name();
-        }
-
-        return names;
+        return names(COLUMNS);
     }
 
     public static Bundle toBundle(Cursor cursor, int position) {
@@ -191,11 +166,11 @@ public class StatusHelper extends DatabaseHelper {
             }
             try {
                 // 獲取值, 并放到bundle 中
-                if (c.type == ColumnType.TEXT) {
+                if (c.columnType == ColumnType.TEXT) {
                     target.putString(field, cursor.getString(c.ordinal()));
-                } else if (c.type == ColumnType.INTEGER) {
+                } else if (c.columnType == ColumnType.INTEGER) {
                     target.putLong(field, cursor.getLong(c.ordinal()));
-                } else if (c.type == ColumnType.BOOLEAN) {
+                } else if (c.columnType == ColumnType.BOOLEAN) {
                     target.putBoolean(field, cursor.getInt(c.ordinal()) == 1);
                 }
             } catch (Exception e) {
@@ -214,29 +189,13 @@ public class StatusHelper extends DatabaseHelper {
      */
     public StatusHelper(Context context) {
         super(context);
+        table = TABLE;
+        names = names();
+        orderBy = ORDER_BY;
     }
 
-    public Cursor query(String selection, String[] selectionArgs, String limit) {
-        return query(TABLE, names(), selection, selectionArgs, ORDER_BY, limit);
-    }
-
-    public int saveOrUpdate(JSONArray statuses) {
-        Log.d(TAG, "write status data to database");
-
-        for (int i = 0; i < statuses.length(); i++) {
-            JSONObject status = statuses.optJSONObject(i);
-            saveOrUpdate(status);
-        }
-
-        return statuses.length();
-    }
-
-    public long saveOrUpdate(JSONObject status) {
-        ContentValues values = extract(status);
-        return saveOrUpdate(TABLE, values);
-    }
-
-    private ContentValues extract(JSONObject status) {
+    @Override
+    protected ContentValues extract(JSONObject status) {
         JSONObject retweetedStatus = status.optJSONObject(RETWEETED_STATUS);
 
         int size = COLUMNS.length;
@@ -262,11 +221,11 @@ public class StatusHelper extends DatabaseHelper {
                 if (val != null) {
                     values.put(c.name(), val.toString());
                 }
-            } else if (c.type == ColumnType.TEXT) {
+            } else if (c.columnType == ColumnType.TEXT) {
                 values.put(c.name(), target.optString(field));
-            } else if (c.type == ColumnType.INTEGER) {
+            } else if (c.columnType == ColumnType.INTEGER) {
                 values.put(c.name(), target.optLong(field));
-            } else if (c.type == ColumnType.BOOLEAN) {
+            } else if (c.columnType == ColumnType.BOOLEAN) {
                 values.put(c.name(), target.optBoolean(field));
             }
         }

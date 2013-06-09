@@ -3,8 +3,17 @@ package com.shuaqiu.common.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.v4.util.LruCache;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ImageSpan;
 import android.text.util.Linkify;
 import android.text.util.Linkify.TransformFilter;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +28,8 @@ import com.shuaqiu.yuanyuanxibo.Defs;
  * @author shuaqiu 2013-5-3
  */
 public class ViewUtil {
+    private static final String TAG = "ViewUtil";
+
     /**
      * 中英文，數字，減號，下橫槓
      */
@@ -117,11 +128,56 @@ public class ViewUtil {
                     GROUP_ONE_TRANSFORM_FILTER);
         }
         if ((mask & EMOTION) != 0) {
-            // Linkify.addLinks(textView, LinkPattern.USER, LinkScheme.USER,
-            // null,
-            // GROUP_ONE_TRANSFORM_FILTER);
+            addEmotion(textView);
         }
     }
+
+    private static void addEmotion(TextView textView) {
+        Context context = textView.getContext();
+        SpannableString s = SpannableString.valueOf(textView.getText());
+        Matcher m = LinkPattern.EMOTION.matcher(s);
+
+        while (m.find()) {
+            int start = m.start();
+            int end = m.end();
+
+            String emotion = getEmotion(s, start, end);
+            if (emotion != null) {
+                Bitmap b = BitmapFactory.decodeFile(emotion);
+                ImageSpan span = new ImageSpan(context, b);
+                s.setSpan(span, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
+        }
+
+        textView.setText(s);
+    }
+
+    /**
+     * @param s
+     * @param start
+     * @param end
+     * @return
+     */
+    private static String getEmotion(Spannable s, int start, int end) {
+        CharSequence sub = s.subSequence(start, end);
+        Log.d(TAG, "sub from " + start + " to " + end + " is " + sub);
+
+        String emotion = emotions.get(sub.toString());
+        if (emotion != null) {
+            return emotion;
+        }
+
+        return null;
+    }
+
+    private static final LruCache<String, String> emotions = new LruCache<String, String>(
+            100) {
+        @Override
+        protected String create(String key) {
+            // TODO create emotion
+            return key;
+        };
+    };
 
     private interface LinkPattern {
 
@@ -131,7 +187,7 @@ public class ViewUtil {
 
         Pattern TREND = Pattern.compile("#([^\\s:\\)）]+)#");
 
-        Pattern EMOTION = Pattern.compile("([\\w\\u4e00-\\u9fa5]+)");
+        Pattern EMOTION = Pattern.compile("([\\u4e00-\\u9fa5]+)");
     }
 
     private interface LinkScheme {
