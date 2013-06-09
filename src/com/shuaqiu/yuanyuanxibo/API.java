@@ -41,14 +41,37 @@ public interface API {
 
     interface Status {
 
+        // ----------------------讀取接口----------------------------
+
         /**
          * 獲取當前登錄用戶及其所關注用戶的最新微博
          */
         String FRIEND_TIMELINE = "2/statuses/friends_timeline.json";
 
+        // ----------------------寫入接口----------------------------
+
+        /**
+         * 轉發一條微博
+         * <p>
+         * HTTP請求：POST
+         * </p>
+         * 參數：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>id</b>：需要轉發的微博ID, <b>必填</b>, int64</li>
+         * <li><b>status</b>：添加的轉發內容, 必須做URLEncode, 內容不超過140 個漢字, <b>可選</b>,
+         * 不填則默認爲"轉發微博", string</li>
+         * <li><b>is_comment</b>：是否在轉發的同時發表評論, 0: 否, 1: 評論給當前微博, 2: 評論給原微博, 3:
+         * 都評論, 默認爲0, 可選, int</li>
+         * </ul>
+         */
+        String REPOST = "2/statuses/repost.json";
     }
 
     interface Comment {
+
+        // ----------------------讀取接口----------------------------
+
         /**
          * 獲取當前登錄用戶的最新評論, 包括接收到的, 和發出的
          * <p>
@@ -85,6 +108,8 @@ public interface API {
          * </ul>
          */
         String SHOW = "2/comments/show.json";
+
+        // ----------------------寫入接口----------------------------
 
         /**
          * 對一條微博進行評論

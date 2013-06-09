@@ -5,7 +5,6 @@ package com.shuaqiu.common.promiss;
 
 /**
  * @author shuaqiu 2013-6-6
- * 
  */
 public interface Promiss<Done, Fail> {
 
@@ -16,6 +15,8 @@ public interface Promiss<Done, Fail> {
     boolean isResolved();
 
     boolean isRejected();
+
+    Promiss<Done, Fail> then(Callback<Done> callback);
 
     Promiss<Done, Fail> then(Callback<Done> doneCallback,
             Callback<Fail> failCallback);

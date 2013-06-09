@@ -4,19 +4,25 @@
 package com.shuaqiu.common.promiss;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+
+import com.shuaqiu.common.promiss.impl.DeferredTask;
 
 /**
  * @author shuaqiu 2013-6-6
- * 
  */
-public interface DeferredManager {
+public class DeferredManager {
 
-    <Done, Fail> Promiss<Done, Fail> when(Promiss<Done, Fail> promiss);
+    public static <Done, Fail> Promiss<Done, Fail> when(
+            Promiss<Done, Fail> promiss) {
+        return promiss;
+    }
 
-    Promiss<Void, Throwable> when(Runnable runnable);
+    public static Promiss<Void, Throwable> when(Runnable runnable) {
+        return new DeferredTask<Void>(Executors.callable(runnable, (Void) null));
+    }
 
-    <Done> Promiss<Done, Throwable> when(Callable<Done> callable);
-
-    <Done> Promiss<Done, Throwable> when(Future<Done> future);
+    public static <Done> Promiss<Done, Throwable> when(Callable<Done> callable) {
+        return new DeferredTask<Done>(callable);
+    }
 }

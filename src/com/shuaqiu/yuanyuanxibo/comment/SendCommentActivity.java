@@ -3,8 +3,6 @@
  */
 package com.shuaqiu.yuanyuanxibo.comment;
 
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,8 +13,9 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.shuaqiu.common.task.AsyncHttpPostTask;
-import com.shuaqiu.common.task.AsyncTaskListener;
+import com.shuaqiu.common.promiss.Callback;
+import com.shuaqiu.common.promiss.DeferredManager;
+import com.shuaqiu.common.task.PostCallable;
 import com.shuaqiu.yuanyuanxibo.API;
 import com.shuaqiu.yuanyuanxibo.Actions;
 import com.shuaqiu.yuanyuanxibo.R;
@@ -25,7 +24,7 @@ import com.shuaqiu.yuanyuanxibo.R;
  * @author shuaqiu Jun 3, 2013
  */
 public class SendCommentActivity extends Activity implements OnClickListener,
-        AsyncTaskListener<JSONObject> {
+        Callback<String> {
 
     // private static final String TAG = "SendCommentActivity";
 
@@ -55,31 +54,37 @@ public class SendCommentActivity extends Activity implements OnClickListener,
         }
     }
 
-    /**
-     * 
-     */
-    protected void sendComment() {
+    private void sendComment() {
         Editable comment = mCommentView.getText();
         if (comment.length() == 0) {
             return;
         }
 
         Intent intent = getIntent();
-        Bundle params = intent.getExtras();
-        params.putString("comment", comment.toString());
+        Bundle param = intent.getExtras();
+        param.putString("comment", comment.toString());
 
-        AsyncHttpPostTask task = new AsyncHttpPostTask(params, this);
+        String url = getUrl(intent);
+        DeferredManager.when(new PostCallable(url, param)).then(this);
+    }
 
+    /**
+     * @param intent
+     * @return
+     */
+    private String getUrl(Intent intent) {
         String action = intent.getAction();
         if (action == null || action.equals(Actions.COMMENT_CREATE)) {
-            task.execute(API.Comment.CREATE);
-        } else if (action.equals(Actions.COMMENT_REPLY)) {
-            task.execute(API.Comment.REPLY);
+            return API.Comment.CREATE;
         }
+        if (action.equals(Actions.COMMENT_REPLY)) {
+            return API.Comment.REPLY;
+        }
+        return null;
     }
 
     @Override
-    public void onPostExecute(JSONObject result) {
+    public void apply(String result) {
         Toast.makeText(this, R.string.sent, Toast.LENGTH_SHORT).show();
         finish();
     }

@@ -1,11 +1,14 @@
 package com.shuaqiu.common.util;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.util.LruCache;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -21,7 +24,9 @@ import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.shuaqiu.common.task.AsyncImageViewTask;
+import com.shuaqiu.common.promiss.DeferredManager;
+import com.shuaqiu.common.promiss.Promiss;
+import com.shuaqiu.common.promiss.impl.DeferredTask.TaskJob;
 import com.shuaqiu.yuanyuanxibo.Defs;
 
 /**
@@ -55,18 +60,20 @@ public class ViewUtil {
     /** 全部 */
     public static final int ALL = WEB_URLS | TREND | AT_USER | EMOTION;
 
-    public static void setImage(View v, String url) {
-        setImage(v, url, null);
+    public static Promiss<Bitmap, Throwable> setImage(View v, String url) {
+        return setImage(v, url, null);
     }
 
-    public static void setImage(View v, String url, View progressView) {
+    public static Promiss<Bitmap, Throwable> setImage(View v, String url,
+            View progress) {
         if (v == null) {
-            return;
+            return null;
         }
         if (v instanceof ImageView || v instanceof ImageSwitcher) {
-            AsyncImageViewTask task = new AsyncImageViewTask(v, progressView);
-            task.execute(url);
+            TaskJob<Bitmap> job = new ImageJob(v, url, progress);
+            return DeferredManager.when(job).then(job);
         }
+        return null;
     }
 
     public static void setText(View v, CharSequence text) {
@@ -178,6 +185,62 @@ public class ViewUtil {
             return key;
         };
     };
+
+    /**
+     * @author shuaqiu Jun 9, 2013
+     */
+    private static final class ImageJob implements TaskJob<Bitmap> {
+        private View mView;
+        private String mUrl;
+        private View mProgressView;
+
+        /**
+         * @param view
+         * @param url
+         * @param progressView
+         */
+        public ImageJob(View view, String url, View progressView) {
+            mView = view;
+            mUrl = url;
+            mProgressView = progressView;
+        }
+
+        @Override
+        public Bitmap call() throws Exception {
+            try {
+                return BitmapUtil.fromUrl(mUrl);
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            return null;
+        }
+
+        @Override
+        public void apply(Bitmap result) {
+            if (result != null) {
+                setImageBitmap(result);
+                mView.setVisibility(View.VISIBLE);
+            }
+
+            if (mProgressView != null) {
+                mProgressView.setVisibility(View.GONE);
+            }
+        }
+
+        /**
+         * @param result
+         */
+        private void setImageBitmap(Bitmap result) {
+            if (mView instanceof ImageView) {
+                ((ImageView) mView).setImageBitmap(result);
+            } else if (mView instanceof ImageSwitcher) {
+                Context context = mView.getContext();
+                Resources resources = context.getResources();
+                BitmapDrawable drawable = new BitmapDrawable(resources, result);
+                ((ImageSwitcher) mView).setImageDrawable(drawable);
+            }
+        }
+    }
 
     private interface LinkPattern {
 

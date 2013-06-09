@@ -1,30 +1,33 @@
 package com.shuaqiu.yuanyuanxibo.status;
 
+import java.util.concurrent.Callable;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-import com.shuaqiu.common.function.Function;
-import com.shuaqiu.common.task.Promise;
+import com.shuaqiu.common.promiss.Callback;
+import com.shuaqiu.common.promiss.impl.DeferredTask;
 import com.shuaqiu.common.widget.SimpleCursorAdapter;
 import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.Actions;
 import com.shuaqiu.yuanyuanxibo.R;
-import com.shuaqiu.yuanyuanxibo.RefreshableListFragment;
+import com.shuaqiu.yuanyuanxibo.Refreshable;
 import com.shuaqiu.yuanyuanxibo.content.CursorLoaderCallbacks;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 
 /**
  * @author shuaqiu Apr 27, 2013
  */
-public class StatusListFragment extends RefreshableListFragment {
+public class StatusListFragment extends ListFragment implements Refreshable {
 
     private static final String TAG = "StatusListFragment";
 
@@ -86,10 +89,22 @@ public class StatusListFragment extends RefreshableListFragment {
 
     @Override
     public void refresh() {
-        Promise<Void, Void> promise = new Promise<Void, Void>(
-                new DownloadFunction());
-        promise.then(new ReloadFunction());
-        promise.execute();
+        new DeferredTask<Void>(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                StatusDownloader downloader = new StatusDownloader(
+                        getActivity());
+                downloader.setBroadcast(false);
+                downloader.run();
+                return null;
+            }
+        }).then(new Callback<Void>() {
+            @Override
+            public void apply(Void result) {
+                Loader<Object> loader = getLoaderManager().getLoader(0);
+                loader.forceLoad();
+            }
+        });
     }
 
     /**
@@ -109,31 +124,6 @@ public class StatusListFragment extends RefreshableListFragment {
         @Override
         protected Bundle toData(Cursor cursor) {
             return StatusHelper.toBundle(cursor);
-        }
-    }
-
-    /**
-     * @author shuaqiu 2013-5-31
-     */
-    private final class DownloadFunction implements Function<Void, Void> {
-        @Override
-        public Void apply(Void params) {
-            StatusDownloader downloader = new StatusDownloader(getActivity());
-            downloader.setBroadcast(false);
-            downloader.run();
-            return null;
-        }
-    }
-
-    /**
-     * @author shuaqiu 2013-5-31
-     */
-    private final class ReloadFunction implements Function<Void, Void> {
-        @Override
-        public Void apply(Void params) {
-            Loader<Object> loader = getLoaderManager().getLoader(0);
-            loader.forceLoad();
-            return null;
         }
     }
 }

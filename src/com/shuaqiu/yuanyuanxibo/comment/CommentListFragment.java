@@ -7,17 +7,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListAdapter;
 
-import com.shuaqiu.common.task.AsyncHttpGetTask;
-import com.shuaqiu.common.task.AsyncTaskListener;
+import com.shuaqiu.common.promiss.Callback;
+import com.shuaqiu.common.promiss.DeferredManager;
+import com.shuaqiu.common.task.GetCallable;
 import com.shuaqiu.common.widget.SimpleBindAdapter;
 import com.shuaqiu.yuanyuanxibo.API;
 import com.shuaqiu.yuanyuanxibo.Actions;
@@ -28,7 +31,9 @@ import com.shuaqiu.yuanyuanxibo.StateKeeper;
  * @author shuaqiu 2013-5-1
  */
 public class CommentListFragment extends ListFragment implements
-        AsyncTaskListener<JSONObject> {
+        Callback<String> {
+
+    private static final String TAG = "CommentListFragment";
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -39,25 +44,32 @@ public class CommentListFragment extends ListFragment implements
         Intent intent = context.getIntent();
         String action = intent.getAction();
 
-        Bundle params = new Bundle(2);
+        Bundle param = new Bundle(2);
         String accessToken = StateKeeper.accessToken.getAccessToken();
-        params.putString("access_token", accessToken);
+        param.putString("access_token", accessToken);
 
+        String url = null;
         if (action == null || action.equals(Actions.USER_COMMENT)) {
-            new AsyncHttpGetTask(params, this).execute(API.Comment.TIMELINE);
+            url = API.Comment.TIMELINE;
         } else if (action.equals(Actions.STATUS_COMMENT)) {
+            url = API.Comment.SHOW;
+
             // intent 中包含微博的id 值
             long statusId = intent.getLongExtra("id", 0);
-            params.putLong("id", statusId);
+            param.putLong("id", statusId);
             // params.putAll(intent.getExtras());
-            new AsyncHttpGetTask(params, this).execute(API.Comment.SHOW);
         }
 
+        DeferredManager.when(new GetCallable(url, param)).then(this);
     }
 
     @Override
-    public void onPostExecute(JSONObject data) {
-        if (data == null) {
+    public void apply(String result) {
+        JSONObject data = null;
+        try {
+            data = new JSONObject(result);
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
             return;
         }
 

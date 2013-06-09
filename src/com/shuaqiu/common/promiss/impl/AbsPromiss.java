@@ -17,7 +17,6 @@ import com.shuaqiu.common.promiss.Transfer;
 
 /**
  * @author shuaqiu 2013-6-6
- * 
  */
 public abstract class AbsPromiss<Done, Fail> implements Promiss<Done, Fail> {
 
@@ -52,6 +51,11 @@ public abstract class AbsPromiss<Done, Fail> implements Promiss<Done, Fail> {
     @Override
     public boolean isRejected() {
         return state == State.REJECTED;
+    }
+
+    @Override
+    public Promiss<Done, Fail> then(Callback<Done> doneCallback) {
+        return done(doneCallback);
     }
 
     @Override

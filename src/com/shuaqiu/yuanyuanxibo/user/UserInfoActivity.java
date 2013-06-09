@@ -1,23 +1,25 @@
 package com.shuaqiu.yuanyuanxibo.user;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 
-import com.shuaqiu.common.task.AsyncHttpGetTask;
-import com.shuaqiu.common.task.AsyncTaskListener;
+import com.shuaqiu.common.promiss.Callback;
+import com.shuaqiu.common.promiss.DeferredManager;
+import com.shuaqiu.common.task.GetCallable;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.yuanyuanxibo.API.User;
 import com.shuaqiu.yuanyuanxibo.Defs;
-import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.StateKeeper;
 
-public class UserInfoActivity extends Activity implements
-        AsyncTaskListener<JSONObject> {
+public class UserInfoActivity extends Activity implements Callback<String> {
     static final String TAG = "user";
 
     @Override
@@ -30,10 +32,11 @@ public class UserInfoActivity extends Activity implements
         String accessToken = StateKeeper.accessToken.getAccessToken();
         String username = extractUsername();
 
-        Bundle args = new Bundle();
-        args.putString("access_token", accessToken);
-        args.putString("screen_name", username);
-        new AsyncHttpGetTask(args, this).execute(User.USER_INFO);
+        Bundle param = new Bundle();
+        param.putString("access_token", accessToken);
+        param.putString("screen_name", username);
+
+        DeferredManager.when(new GetCallable(User.USER_INFO, param)).then(this);
     }
 
     private String extractUsername() {
@@ -49,10 +52,15 @@ public class UserInfoActivity extends Activity implements
     }
 
     @Override
-    public void onPostExecute(JSONObject data) {
-        if (data == null) {
+    public void apply(String result) {
+        JSONObject data = null;
+        try {
+            data = new JSONObject(result);
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
             return;
         }
+
         ViewUtil.setImage(findViewById(R.id.profile_image),
                 data.optString("profile_image_url", null));
         ViewUtil.setText(findViewById(R.id.user_name),

@@ -173,8 +173,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     private void refresh() {
         int currentItem = mViewPager.getCurrentItem();
         Fragment item = mSectionsPagerAdapter.getItem(currentItem);
-        if (item instanceof RefreshableListFragment) {
-            ((RefreshableListFragment) item).refresh();
+        if (item instanceof Refreshable) {
+            ((Refreshable) item).refresh();
         }
     }
 

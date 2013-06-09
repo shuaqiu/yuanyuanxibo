@@ -11,6 +11,7 @@ import android.view.View.OnClickListener;
 
 import com.shuaqiu.yuanyuanxibo.comment.CommentActivity;
 import com.shuaqiu.yuanyuanxibo.comment.SendCommentActivity;
+import com.shuaqiu.yuanyuanxibo.status.RepostActivity;
 
 /**
  * @author shuaqiu 2013-6-3
@@ -38,6 +39,9 @@ public class StartActivityClickListener implements OnClickListener {
             break;
         case R.id.reposts_count:
         case R.id.retweeted_reposts_count:
+            intent.setClass(context, RepostActivity.class);
+            intent.setAction(Actions.STATUS_COMMENT);
+            intent.putExtras(mArgs);
             break;
         case R.id.comments_count:
         case R.id.retweeted_comments_count:
