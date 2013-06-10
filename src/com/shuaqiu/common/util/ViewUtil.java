@@ -250,7 +250,7 @@ public class ViewUtil {
 
         Pattern TREND = Pattern.compile("#([^\\s:\\)）]+)#");
 
-        Pattern EMOTION = Pattern.compile("([\\u4e00-\\u9fa5]+)");
+        Pattern EMOTION = Pattern.compile("\\[[\\u4e00-\\u9fa5]+\\]");
     }
 
     private interface LinkScheme {

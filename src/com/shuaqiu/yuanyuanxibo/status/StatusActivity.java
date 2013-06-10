@@ -2,7 +2,6 @@ package com.shuaqiu.yuanyuanxibo.status;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
@@ -11,15 +10,20 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 
-import com.shuaqiu.yuanyuanxibo.Actions;
+import com.shuaqiu.common.promiss.Callback;
+import com.shuaqiu.common.promiss.DeferredManager;
+import com.shuaqiu.yuanyuanxibo.Actions.Comment;
+import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
-import com.shuaqiu.yuanyuanxibo.comment.SendCommentActivity;
+import com.shuaqiu.yuanyuanxibo.comment.SendActivity;
+import com.shuaqiu.yuanyuanxibo.content.QueryCallable;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 
-public class StatusActivity extends FragmentActivity implements OnClickListener {
+public class StatusActivity extends FragmentActivity implements
+        OnClickListener, Callback<Cursor> {
 
-    private static final String TAG = "statusactivity";
+    static final String TAG = "statusactivity";
 
     private StatusHelper mStatusHelper;
     private Cursor mCursor;
@@ -44,8 +48,18 @@ public class StatusActivity extends FragmentActivity implements OnClickListener 
         mStatusHelper = new StatusHelper(this);
         mStatusHelper.openForRead();
 
-        new AsyncDatabaseTask().execute();
+        String selection = null;
+        String[] args = null;
+        if (mMaxId > 0) {
+            Log.d(TAG, "filter id <= " + mMaxId);
+            selection = "id <= ?";
+            args = new String[] { Long.toString(mMaxId) };
+        }
+        QueryCallable query = new QueryCallable(mStatusHelper, selection, args,
+                "100");
+        DeferredManager.when(query).then(this);
 
+        findViewById(R.id.repost).setOnClickListener(this);
         findViewById(R.id.comment).setOnClickListener(this);
     }
 
@@ -59,6 +73,34 @@ public class StatusActivity extends FragmentActivity implements OnClickListener 
         mStatusHelper.close();
     }
 
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent();
+
+        int currentItem = mViewPager.getCurrentItem();
+        Bundle status = mAdapter.getStatusBundle(currentItem);
+
+        String token = StateKeeper.accessToken.getAccessToken();
+        long id = status.getLong(StatusHelper.Column.id.name());
+        boolean isRetweeted = status.getBundle(StatusHelper.RETWEETED_STATUS) != null;
+        intent.putExtra("access_token", token);
+        intent.putExtra("id", id);
+        intent.putExtra("isRetweeted", isRetweeted);
+
+        switch (v.getId()) {
+        case R.id.repost:
+            intent.setAction(Status.REPOST);
+            intent.setClass(this, SendActivity.class);
+            break;
+        case R.id.comment:
+            intent.setAction(Comment.CREATE);
+            intent.setClass(this, SendActivity.class);
+            break;
+        }
+
+        startActivity(intent);
+    }
+
     private void initViewPager() {
         mAdapter = new StatusPagerAdapter(getSupportFragmentManager());
         mAdapter.changeCursor(mCursor);
@@ -69,47 +111,10 @@ public class StatusActivity extends FragmentActivity implements OnClickListener 
         mViewPager.setCurrentItem(mPosition);
     }
 
-    private class AsyncDatabaseTask extends AsyncTask<String, Void, Void> {
-
-        @Override
-        protected Void doInBackground(String... params) {
-            Log.d(TAG, "try to load status");
-            String selection = null;
-            String[] selectionArgs = null;
-            if (mMaxId > 0) {
-                Log.d(TAG, "filter id <= " + mMaxId);
-                selection = "id <= ?";
-                selectionArgs = new String[] { Long.toString(mMaxId) };
-            }
-            mCursor = mStatusHelper.query(selection, selectionArgs, "100");
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            Log.d(TAG, "loaded status, begin to show");
-            initViewPager();
-        }
-    }
-
     @Override
-    public void onClick(View v) {
-        Intent intent = new Intent();
-
-        int currentItem = mViewPager.getCurrentItem();
-        Bundle status = mAdapter.getStatusBundle(currentItem);
-
-        intent.putExtra("access_token",
-                StateKeeper.accessToken.getAccessToken());
-        intent.putExtra("id", status.getLong(StatusHelper.Column.id.name()));
-
-        switch (v.getId()) {
-        case R.id.comment:
-            intent.setAction(Actions.COMMENT_CREATE);
-            intent.setClass(this, SendCommentActivity.class);
-            break;
-        }
-
-        startActivity(intent);
+    public void apply(Cursor result) {
+        Log.d(TAG, "loaded status, begin to show");
+        mCursor = result;
+        initViewPager();
     }
 }

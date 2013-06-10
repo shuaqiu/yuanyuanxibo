@@ -1,7 +1,4 @@
-/**
- * 
- */
-package com.shuaqiu.yuanyuanxibo.comment;
+package com.shuaqiu.yuanyuanxibo.status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +20,18 @@ import com.shuaqiu.common.promiss.DeferredManager;
 import com.shuaqiu.common.task.GetCallable;
 import com.shuaqiu.common.widget.SimpleBindAdapter;
 import com.shuaqiu.yuanyuanxibo.API;
-import com.shuaqiu.yuanyuanxibo.Actions.Comment;
+import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
+import com.shuaqiu.yuanyuanxibo.status.StatusBinder.Type;
 
 /**
- * @author shuaqiu 2013-5-1
+ * @author shuaqiu Apr 27, 2013
  */
-public class CommentListFragment extends ListFragment implements
+public class RetweetedStatusListFragment extends ListFragment implements
         Callback<String> {
 
-    private static final String TAG = "CommentListFragment";
+    private static final String TAG = "RetweetedStatusListFragment";
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -49,12 +47,12 @@ public class CommentListFragment extends ListFragment implements
         param.putString("access_token", accessToken);
 
         String url = null;
-        if (action == null || action.equals(Comment.FOR_USER)) {
-            // 顯示用戶的評論列表
-            url = API.Comment.TIMELINE;
-        } else if (action.equals(Comment.FOR_STATUS)) {
-            // 顯示微博的評論列表
-            url = API.Comment.SHOW;
+        if (action == null || action.equals(Status.AT_ME_LIST)) {
+            // 最新的提到登錄用戶的微博列表
+            url = API.Status.MENTIONS;
+        } else if (action.equals(Status.REPOST_LIST)) {
+            // 獲取指定微博的轉發微博列表
+            url = API.Status.REPOST_TIMELINE;
 
             // intent 中包含微博的id 值
             long statusId = intent.getLongExtra("id", 0);
@@ -67,24 +65,36 @@ public class CommentListFragment extends ListFragment implements
 
     @Override
     public void apply(String result) {
+        JSONArray statuses = getStatuses(result);
+        Log.d(TAG, "length: " + statuses.length());
+
+        FragmentActivity context = getActivity();
+
+        JsonStatusBinder binder = new JsonStatusBinder(context, Type.REPOST);
+        ListAdapter adapter = new SimpleBindAdapter<JSONObject>(context,
+                toList(statuses), R.layout.listview_status, binder);
+
+        setListAdapter(adapter);
+    }
+
+    /**
+     * @param result
+     * @return
+     */
+    private JSONArray getStatuses(String result) {
+        if (result == null) {
+            return new JSONArray();
+        }
         JSONObject data = null;
         try {
             data = new JSONObject(result);
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage(), e);
-            return;
+            return new JSONArray();
         }
 
-        JSONArray comments = data.optJSONArray("comments");
-
-        FragmentActivity context = getActivity();
-
-        CommentBinder binder = new CommentBinder(context,
-                CommentBinder.Type.STATUS);
-        ListAdapter adapter = new SimpleBindAdapter<JSONObject>(context,
-                toList(comments), R.layout.listview_comment, binder);
-
-        setListAdapter(adapter);
+        JSONArray statuses = data.optJSONArray("reposts");
+        return statuses;
     }
 
     protected List<JSONObject> toList(JSONArray arr) {

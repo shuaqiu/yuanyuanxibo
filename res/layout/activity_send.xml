@@ -24,11 +24,12 @@
             android:text="@string/back" />
 
         <TextView
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/back"
-            android:text="@string/send_comment" />
+            android:text="@string/empty" />
 
         <Button
             android:id="@+id/send"
@@ -39,7 +40,7 @@
     </RelativeLayout>
 
     <EditText
-        android:id="@+id/comment"
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/action_bar"
@@ -58,6 +59,23 @@
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="@dimen/ten_dp"
         android:text="@string/repost_weibo" />
+
+    <CheckBox
+        android:id="@+id/comment_original_weibo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/comment_weibo"
+        android:layout_alignParentLeft="true"
+        android:text="@string/comment_original" />
+
+    <CheckBox
+        android:id="@+id/comment_weibo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/action_bar"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="@dimen/ten_dp"
+        android:text="@string/comment_weibo" />
 
     <LinearLayout
         android:id="@+id/action_bar"
@@ -91,7 +109,6 @@
             android:contentDescription="@string/action_emotion"
             android:padding="@dimen/five_dp"
             android:src="@drawable/ic_action_emotion" />
-
     </LinearLayout>
 
 </RelativeLayout>

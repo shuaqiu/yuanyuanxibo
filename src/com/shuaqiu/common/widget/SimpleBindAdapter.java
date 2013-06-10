@@ -37,11 +37,17 @@ public class SimpleBindAdapter<Data> extends BaseAdapter {
 
     @Override
     public int getCount() {
+        if (mData == null) {
+            return 0;
+        }
         return mData.size();
     }
 
     @Override
     public Object getItem(int position) {
+        if (mData == null) {
+            return null;
+        }
         return mData.get(position);
     }
 
@@ -64,7 +70,7 @@ public class SimpleBindAdapter<Data> extends BaseAdapter {
             v = convertView;
         }
 
-        bindView(position, v);
+        bindView(v, position);
 
         return v;
     }
@@ -79,7 +85,7 @@ public class SimpleBindAdapter<Data> extends BaseAdapter {
                 mDropDownResource);
     }
 
-    private void bindView(int position, View view) {
+    private void bindView(View view, int position) {
         final Data aData = mData.get(position);
         if (aData == null) {
             return;

@@ -1,7 +1,5 @@
 package com.shuaqiu.yuanyuanxibo.status;
 
-import java.util.concurrent.Callable;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,10 +13,10 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.shuaqiu.common.promiss.Callback;
-import com.shuaqiu.common.promiss.impl.DeferredTask;
+import com.shuaqiu.common.promiss.DeferredManager;
 import com.shuaqiu.common.widget.SimpleCursorAdapter;
 import com.shuaqiu.common.widget.ViewBinder;
-import com.shuaqiu.yuanyuanxibo.Actions;
+import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.Refreshable;
 import com.shuaqiu.yuanyuanxibo.content.CursorLoaderCallbacks;
@@ -35,11 +33,18 @@ public class StatusListFragment extends ListFragment implements Refreshable {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        showFriendStatuses();
+    }
+
+    /**
+     * 
+     */
+    private void showFriendStatuses() {
         Context context = getActivity();
-        StatusBinder<Bundle> statusBinder = new BundleStatusBinder(context,
+        StatusBinder<Bundle> binder = new BundleStatusBinder(context,
                 StatusBinder.Type.LIST);
         SimpleCursorAdapter<Bundle> adapter = new StatusCursorAdapter(context,
-                R.layout.listview_status, statusBinder);
+                R.layout.listview_status, binder);
         setListAdapter(adapter);
 
         CursorLoaderCallbacks loadCallback = new CursorLoaderCallbacks(context,
@@ -48,7 +53,6 @@ public class StatusListFragment extends ListFragment implements Refreshable {
         getLoaderManager().initLoader(0, null, loadCallback);
 
         startService(context);
-
         receiveBroadcast();
     }
 
@@ -82,23 +86,15 @@ public class StatusListFragment extends ListFragment implements Refreshable {
     private void receiveBroadcast() {
         NewStatusReceiver receiver = new NewStatusReceiver();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Actions.NEW_STATUS);
+        filter.addAction(Status.NEW_RECEIVED);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
                 receiver, filter);
     }
 
     @Override
     public void refresh() {
-        new DeferredTask<Void>(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                StatusDownloader downloader = new StatusDownloader(
-                        getActivity());
-                downloader.setBroadcast(false);
-                downloader.run();
-                return null;
-            }
-        }).then(new Callback<Void>() {
+        Runnable runner = new StatusDownloader(getActivity(), false);
+        DeferredManager.when(runner).then(new Callback<Void>() {
             @Override
             public void apply(Void result) {
                 Loader<Object> loader = getLoaderManager().getLoader(0);

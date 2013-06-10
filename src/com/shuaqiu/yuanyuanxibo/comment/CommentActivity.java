@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 
-import com.shuaqiu.yuanyuanxibo.Actions;
+import com.shuaqiu.yuanyuanxibo.Actions.Comment;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
 
@@ -46,8 +46,8 @@ public class CommentActivity extends FragmentActivity implements
                 StateKeeper.accessToken.getAccessToken());
         intent.putExtra("id", getIntent().getLongExtra("id", 0));
 
-        intent.setAction(Actions.COMMENT_CREATE);
-        intent.setClass(this, SendCommentActivity.class);
+        intent.setAction(Comment.CREATE);
+        intent.setClass(this, SendActivity.class);
 
         startActivity(intent);
     }

@@ -12,7 +12,7 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.shuaqiu.yuanyuanxibo.Actions;
+import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.MainActivity;
 import com.shuaqiu.yuanyuanxibo.R;
 
@@ -53,7 +53,7 @@ public class NewStatusReceiver extends BroadcastReceiver {
 
     private PendingIntent createPendingIntent(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.setAction(Actions.NEW_STATUS);
+        intent.setAction(Status.NEW_RECEIVED);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 

@@ -43,22 +43,22 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         mType = type;
     }
 
-    /**
-     * @param view
-     * @param data
-     */
     @Override
     public void bindView(View view, final Data data) {
         setProfileImage(view, data);
         setStatusViews(view, data);
-        setRetweetedViews(view, data);
-        setThumbnailPic(view, data);
+
+        if (mType == Type.REPOST) {
+            // 某條微博的轉發微博列表界面不需要再顯示原始微博和圖片了
+            view.findViewById(R.id.retweeted).setVisibility(View.GONE);
+            view.findViewById(R.id.thumbnail_pic).setVisibility(View.GONE);
+            view.findViewById(R.id.progress).setVisibility(View.GONE);
+        } else {
+            setRetweetedViews(view, data);
+            setThumbnailPic(view, data);
+        }
     }
 
-    /**
-     * @param view
-     * @param status
-     */
     protected void setProfileImage(View view, final Data status) {
         View v = view.findViewById(R.id.profile_image);
         String profileImage = optProfileImage(status);
@@ -67,9 +67,6 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         }
     }
 
-    /**
-     * @param status
-     */
     protected void setStatusViews(View view, Data status) {
         View usernameView = view.findViewById(R.id.user_name);
         ViewUtil.setText(usernameView, optUsername(status));
@@ -84,8 +81,12 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
 
         ViewUtil.setText(view.findViewById(R.id.source), optSource(status));
 
-        Bundle args = new Bundle(1);
+        Bundle args = new Bundle(2);
         args.putLong("id", optStatusId(status));
+        Data retweetedStatus = optRetweetedStatus(status);
+        if (retweetedStatus != null) {
+            args.putBoolean("isRetweeted", true);
+        }
         OnClickListener listener = new StartActivityClickListener(args);
 
         ViewUtil.setText(view.findViewById(R.id.attitudes_count),
@@ -98,10 +99,6 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
                 optCount(status, Column.comments_count), listener);
     }
 
-    /**
-     * @param view
-     * @param status
-     */
     protected void setRetweetedViews(View view, final Data status) {
         View retweeted = view.findViewById(R.id.retweeted);
         Data retweetedStatus = optRetweetedStatus(status);
@@ -113,9 +110,6 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         }
     }
 
-    /**
-     * @param retweetedStatus
-     */
     protected void setRetweetedStatusViews(View view, Data retweetedStatus) {
         View usernameView = view.findViewById(R.id.retweeted_user_name);
         ViewUtil.setText(usernameView, optUsername(retweetedStatus));
@@ -147,8 +141,6 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
 
     /**
      * 顯示微博圖片
-     * 
-     * @param status
      */
     protected void setThumbnailPic(View view, Data status) {
         View v = view.findViewById(R.id.thumbnail_pic);
@@ -193,8 +185,6 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
 
     /**
      * 隱藏進度條
-     * 
-     * @param progress
      */
     protected void hideProgress(View progress) {
         if (progress != null) {
@@ -205,7 +195,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     /**
      * 根據設置值, 獲取要使用的圖片質量
      * 
-     * @return
+     * @return 圖片質量
      */
     protected ImageQuality getImageQuality(Type type) {
         SharedPreferences pref = PreferenceManager
@@ -224,7 +214,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     /**
      * 獲取默認的圖片質量
      * 
-     * @return
+     * @return 默認的圖片質量
      */
     protected ImageQuality getDefaultImageQuality(Type type) {
         if (type == Type.LIST) {
@@ -439,10 +429,15 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     public enum Type {
         /** 微博列表界面 */
         LIST("image_quality_list"),
+
         /** 微博詳細界面 */
         DETAIL("image_quality_detail"),
+
         /** 微博原圖查看界面 */
-        PIC_VIEWER("image_quality_original");
+        PIC_VIEWER("image_quality_original"),
+
+        /** 某條微博的轉發微博列表界面 */
+        REPOST(null);
 
         /**
          * 對應的圖片質量屬性key, 用於獲取系統設置的圖片質量.<br/>
@@ -461,7 +456,6 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 要顯示的圖片質量
      * 
      * @author shuaqiu 2013-6-5
-     * 
      */
     public enum ImageQuality {
         /** 無圖 */
@@ -503,7 +497,6 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 當點擊圖片時, 打開原圖顯示
      * 
      * @author shuaqiu 2013-6-5
-     * 
      */
     private class ViewImageClickListener implements OnClickListener {
         private Context mContext;

@@ -1,5 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     <RelativeLayout
@@ -39,8 +38,8 @@
     </RelativeLayout>
     
     <fragment
-        android:id="@+id/login"
-        android:name="com.shuaqiu.yuanyuanxibo.status.StatusListFragment"
+        android:id="@+id/list_fragment"
+        android:name="com.shuaqiu.yuanyuanxibo.status.RetweetedStatusListFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_below="@+id/title_bar" />

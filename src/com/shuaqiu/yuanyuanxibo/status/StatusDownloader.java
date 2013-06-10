@@ -12,7 +12,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.shuaqiu.yuanyuanxibo.Actions;
+import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.HttpCursor;
 import com.shuaqiu.yuanyuanxibo.HttpCursor.CursorPair;
 import com.shuaqiu.yuanyuanxibo.HttpCursorKeeper;
@@ -29,7 +29,8 @@ class StatusDownloader implements Runnable {
         mContext = context;
     }
 
-    public void setBroadcast(boolean isBroadcast) {
+    public StatusDownloader(Context context, boolean isBroadcast) {
+        mContext = context;
         this.isBroadcast = isBroadcast;
     }
 
@@ -117,7 +118,7 @@ class StatusDownloader implements Runnable {
      */
     private void sendBoardcast(int savedCount) {
         Log.d(TAG, "send boardcast");
-        Intent intent = new Intent(Actions.NEW_STATUS);
+        Intent intent = new Intent(Status.NEW_RECEIVED);
         intent.putExtra("count", savedCount);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }

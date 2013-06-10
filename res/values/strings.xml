@@ -63,10 +63,16 @@
     <string name="thumbnail_value">THUMBNAIL</string>
     <string name="large_image_value">LARGE</string>
     <string name="original_image_value">ORIGINAL</string>
+    
     <string name="save">Save</string>
     <string name="back">Back</string>
     <string name="send_comment">Send Comment</string>
     <string name="reposts">Reposts</string>
+    <string name="comment_original">Comment Original Weibo</string>
+    <string name="comment_weibo">Comment Weibo</string>
+    
+    <string name="default_repost_content">Forward</string>
+    <string name="default_comment_content">Comment:</string>
     
 
     

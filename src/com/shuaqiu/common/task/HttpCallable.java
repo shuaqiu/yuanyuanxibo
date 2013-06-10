@@ -26,14 +26,14 @@ public abstract class HttpCallable implements Callable<String> {
     @Override
     public String call() throws Exception {
         if (mUrl == null) {
-            Log.w(TAG, "try to post to a null url, returned");
+            Log.w(TAG, "try to request to a null url, returned");
             return null;
         }
         return httpCall();
     }
 
     /**
-     * @return
+     * @return the call response as string
      */
     protected abstract String httpCall();
 

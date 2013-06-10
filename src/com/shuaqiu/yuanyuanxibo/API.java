@@ -45,8 +45,68 @@ public interface API {
 
         /**
          * 獲取當前登錄用戶及其所關注用戶的最新微博
+         * <p>
+         * HTTP請求：GET
+         * </p>
+         * 參數：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>since_id</b>：若指定此參數, 則返回ID 比since_id 大的微博（即比since_id 晚的微博）,
+         * 默認爲0, 可選, int64</li>
+         * <li><b>max_id</b>：若指定此參數, 則返回ID 小於或等於max_id 的微博, 默認爲0, 可選, int64</li>
+         * <li><b>count</b>：單頁返回的記錄數, 最大不超過200, 默認爲20, 可選, int</li>
+         * <li><b>page</b>：返回結果的頁碼, 默認爲1, 可選, int</li>
+         * <li><b>base_app</b>：是否只獲取當前應用的數據, 0: 否, 獲取所有數據, 1: 是, 僅獲取當前應用數據,
+         * 默認爲0, 可選, int</li>
+         * <li><b>feature</b>：過濾類型ID, 0: 全部, 1: 原創, 2: 圖片, 3: 視頻, 4: 音樂, 默認爲0,
+         * 可選, int</li>
+         * <li><b>trim_user</b>：返回值中user 字段開關, 0: 返回完整的user 字段, 1: 僅返回user_id,
+         * 默認爲0, 可選, int</li>
+         * </ul>
          */
         String FRIEND_TIMELINE = "2/statuses/friends_timeline.json";
+
+        /**
+         * 獲取最新的提到登錄用戶的微博列表, 即@我 的微博
+         * <p>
+         * HTTP請求：GET
+         * </p>
+         * 參數：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>since_id</b>：若指定此參數, 則返回ID 比since_id 大的微博（即比since_id 晚的微博）,
+         * 默認爲0, 可選, int64</li>
+         * <li><b>max_id</b>：若指定此參數, 則返回ID 小於或等於max_id 的微博, 默認爲0, 可選, int64</li>
+         * <li><b>count</b>：單頁返回的記錄數, 最大不超過200, 默認爲20, 可選, int</li>
+         * <li><b>page</b>：返回結果的頁碼, 默認爲1, 可選, int</li>
+         * <li><b>filter_by_author</b>：作者篩選類型, 0: 全部, 1: 我關注的人, 2: 陌生人, 默認爲0,
+         * 可選, int</li>
+         * <li><b>filter_by_source</b>：來源篩選類型, 0: 全部, 1: 來自微博, 2: 來自微群, 默認爲0,
+         * 可選, int</li>
+         * <li><b>filter_by_type</b>：原創篩選類型, 0: 全部微博, 1: 原創的微博, 默認爲0, 可選, int</li>
+         * </ul>
+         */
+        String MENTIONS = "2/statuses/mentions.json";
+
+        /**
+         * 獲取指定微博的轉發微博列表
+         * <p>
+         * HTTP請求：GET
+         * </p>
+         * 參數：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>id</b>：需要查詢的微博ID, <b>必填</b>, int64</li>
+         * <li><b>since_id</b>：若指定此參數, 則返回ID 比since_id 大的微博（即比since_id 晚的微博）,
+         * 默認爲0, 可選, int64</li>
+         * <li><b>max_id</b>：若指定此參數, 則返回ID 小於或等於max_id 的微博, 默認爲0, 可選, int64</li>
+         * <li><b>count</b>：單頁返回的記錄數, 最大不超過200, 默認爲20, 可選, int</li>
+         * <li><b>page</b>：返回結果的頁碼, 默認爲1, 可選, int</li>
+         * <li><b>filter_by_author</b>：作者篩選類型, 0: 全部, 1: 我關注的人, 2: 陌生人, 默認爲0,
+         * 可選, int</li>
+         * </ul>
+         */
+        String REPOST_TIMELINE = "2/statuses/repost_timeline.json";
 
         // ----------------------寫入接口----------------------------
 

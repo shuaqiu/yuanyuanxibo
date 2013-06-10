@@ -35,6 +35,10 @@
             android:label="@string/title_activity_status" >
         </activity>
         <activity
+            android:name="com.shuaqiu.yuanyuanxibo.status.RepostActivity"
+            android:label="@string/title_activity_status" >
+        </activity>
+        <activity
             android:name="com.shuaqiu.yuanyuanxibo.status.PictureViewerActivity"
             android:label="@string/title_activity_status" >
         </activity>
@@ -43,7 +47,7 @@
             android:label="@string/title_activity_comment" >
         </activity>
         <activity
-            android:name="com.shuaqiu.yuanyuanxibo.comment.SendCommentActivity"
+            android:name="com.shuaqiu.yuanyuanxibo.comment.SendActivity"
             android:label="@string/title_activity_comment" >
         </activity>
         <activity

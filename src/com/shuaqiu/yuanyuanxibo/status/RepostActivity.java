@@ -10,10 +10,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 
-import com.shuaqiu.yuanyuanxibo.Actions;
+import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
-import com.shuaqiu.yuanyuanxibo.comment.SendCommentActivity;
+import com.shuaqiu.yuanyuanxibo.comment.SendActivity;
 
 /**
  * @author shuaqiu Jun 9, 2013
@@ -27,7 +27,7 @@ public class RepostActivity extends FragmentActivity implements OnClickListener 
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_comment);
+        setContentView(R.layout.activity_repost);
 
         findViewById(R.id.repost).setOnClickListener(this);
         findViewById(R.id.back).setOnClickListener(this);
@@ -37,7 +37,7 @@ public class RepostActivity extends FragmentActivity implements OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
         case R.id.repost:
-            toSendCommentActivity();
+            toSendRepostActivity();
             break;
         case R.id.back:
             finish();
@@ -45,15 +45,18 @@ public class RepostActivity extends FragmentActivity implements OnClickListener 
         }
     }
 
-    private void toSendCommentActivity() {
+    private void toSendRepostActivity() {
         Intent intent = new Intent();
 
         intent.putExtra("access_token",
                 StateKeeper.accessToken.getAccessToken());
-        intent.putExtra("id", getIntent().getLongExtra("id", 0));
+        Intent startIntent = getIntent();
+        intent.putExtra("id", startIntent.getLongExtra("id", 0));
+        intent.putExtra("isRetweeted",
+                startIntent.getBooleanExtra("isRetweeted", false));
 
-        intent.setAction(Actions.REPOST_STATUS);
-        intent.setClass(this, SendCommentActivity.class);
+        intent.setAction(Status.REPOST);
+        intent.setClass(this, SendActivity.class);
 
         startActivity(intent);
     }
