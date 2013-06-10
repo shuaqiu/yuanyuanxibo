@@ -49,7 +49,7 @@ public class StatusListFragment extends ListFragment implements Refreshable {
 
         CursorLoaderCallbacks loadCallback = new CursorLoaderCallbacks(context,
                 adapter, StatusHelper.TABLE, StatusHelper.names(),
-                StatusHelper.ORDER_BY);
+                StatusHelper.ORDER_BY, "100");
         getLoaderManager().initLoader(0, null, loadCallback);
 
         startService(context);

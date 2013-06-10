@@ -21,20 +21,27 @@ public class CursorLoaderCallbacks implements LoaderCallbacks<Cursor> {
     private String mTable;
     private String[] mProjection;
     private String mOrderBy;
+    private String mLimit;
 
     public CursorLoaderCallbacks(Context context, CursorAdapter adapter,
             String table, String[] projection, String orderBy) {
+        this(context, adapter, table, projection, orderBy, null);
+    }
+
+    public CursorLoaderCallbacks(Context context, CursorAdapter adapter,
+            String table, String[] projection, String orderBy, String limit) {
         mContext = context;
         mAdapter = adapter;
         mTable = table;
         mProjection = projection;
         mOrderBy = orderBy;
+        mLimit = limit;
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new AsyncCursorLoader(mContext, mTable, mProjection, null, null,
-                null, null, mOrderBy);
+                null, null, mOrderBy, mLimit);
     }
 
     @Override

@@ -26,6 +26,7 @@ public class AsyncCursorLoader extends AsyncTaskLoader<Cursor> {
     String mGroupBy;
     String mHaving;
     String mSortOrder;
+    String mLimit;
 
     SQLiteDatabase mDb;
     Cursor mCursor;
@@ -37,7 +38,7 @@ public class AsyncCursorLoader extends AsyncTaskLoader<Cursor> {
             mDb = new DatabaseOpenHelper(getContext()).getWritableDatabase();
         }
         Cursor cursor = mDb.query(mTable, mProjection, mSelection,
-                mSelectionArgs, mGroupBy, mHaving, mSortOrder);
+                mSelectionArgs, mGroupBy, mHaving, mSortOrder, mLimit);
         if (cursor != null) {
             // Ensure the cursor window is filled
             cursor.getCount();
@@ -90,6 +91,13 @@ public class AsyncCursorLoader extends AsyncTaskLoader<Cursor> {
     public AsyncCursorLoader(Context context, String table,
             String[] projection, String selection, String[] selectionArgs,
             String groupBy, String having, String sortOrder) {
+        this(context, table, projection, selection, selectionArgs, groupBy,
+                having, sortOrder, null);
+    }
+
+    public AsyncCursorLoader(Context context, String table,
+            String[] projection, String selection, String[] selectionArgs,
+            String groupBy, String having, String sortOrder, String limit) {
         super(context);
         mObserver = new ForceLoadContentObserver();
         mTable = table;
@@ -99,6 +107,7 @@ public class AsyncCursorLoader extends AsyncTaskLoader<Cursor> {
         mGroupBy = groupBy;
         mHaving = having;
         mSortOrder = sortOrder;
+        mLimit = limit;
     }
 
     /**
@@ -149,12 +158,12 @@ public class AsyncCursorLoader extends AsyncTaskLoader<Cursor> {
         mCursor = null;
     }
 
-    public String getmTable() {
+    public String getTable() {
         return mTable;
     }
 
-    public void setmTable(String mTable) {
-        this.mTable = mTable;
+    public void setTable(String table) {
+        mTable = table;
     }
 
     public String[] getProjection() {
@@ -185,16 +194,16 @@ public class AsyncCursorLoader extends AsyncTaskLoader<Cursor> {
         return mGroupBy;
     }
 
-    public void setmGroupBy(String mGroupBy) {
-        this.mGroupBy = mGroupBy;
+    public void setGroupBy(String groupBy) {
+        mGroupBy = groupBy;
     }
 
-    public String getmHaving() {
+    public String getHaving() {
         return mHaving;
     }
 
-    public void setmHaving(String mHaving) {
-        this.mHaving = mHaving;
+    public void setHaving(String having) {
+        mHaving = having;
     }
 
     public String getSortOrder() {
@@ -203,6 +212,14 @@ public class AsyncCursorLoader extends AsyncTaskLoader<Cursor> {
 
     public void setSortOrder(String sortOrder) {
         mSortOrder = sortOrder;
+    }
+
+    public String getLimit() {
+        return mLimit;
+    }
+
+    public void setLimit(String limit) {
+        mLimit = limit;
     }
 
     @Override
@@ -230,6 +247,9 @@ public class AsyncCursorLoader extends AsyncTaskLoader<Cursor> {
         writer.print(prefix);
         writer.print("mSortOrder=");
         writer.println(mSortOrder);
+        writer.print(prefix);
+        writer.print("mLimit=");
+        writer.println(mLimit);
         writer.print(prefix);
         writer.print("mCursor=");
         writer.println(mCursor);
