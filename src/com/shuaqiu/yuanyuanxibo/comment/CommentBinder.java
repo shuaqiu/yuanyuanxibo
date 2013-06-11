@@ -74,7 +74,8 @@ public class CommentBinder implements ViewBinder<JSONObject> {
         }
         content = target.optString("text", "");
 
-        ViewUtil.setText(view.findViewById(R.id.reply_content), content);
+        ViewUtil.setText(view.findViewById(R.id.reply_content), content,
+                ViewUtil.ALL);
     }
 
     /**

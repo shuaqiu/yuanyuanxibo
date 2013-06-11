@@ -10,6 +10,7 @@ import android.view.Window;
 import com.shuaqiu.yuanyuanxibo.Actions.Comment;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
+import com.shuaqiu.yuanyuanxibo.status.StatusBinder;
 
 public class CommentActivity extends FragmentActivity implements
         OnClickListener {
@@ -31,7 +32,7 @@ public class CommentActivity extends FragmentActivity implements
     public void onClick(View v) {
         switch (v.getId()) {
         case R.id.comment:
-            toSendCommentActivity();
+            toSendActivity();
             break;
         case R.id.back:
             finish();
@@ -39,12 +40,16 @@ public class CommentActivity extends FragmentActivity implements
         }
     }
 
-    private void toSendCommentActivity() {
+    /**
+     * 
+     @see StatusBinder#buildClickArg()
+     */
+    private void toSendActivity() {
         Intent intent = new Intent();
 
         intent.putExtra("access_token",
                 StateKeeper.accessToken.getAccessToken());
-        intent.putExtra("id", getIntent().getLongExtra("id", 0));
+        intent.putExtras(getIntent());
 
         intent.setAction(Comment.CREATE);
         intent.setClass(this, SendActivity.class);

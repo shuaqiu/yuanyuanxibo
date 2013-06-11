@@ -37,7 +37,7 @@ public class RepostActivity extends FragmentActivity implements OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
         case R.id.repost:
-            toSendRepostActivity();
+            toSendActivity();
             break;
         case R.id.back:
             finish();
@@ -45,15 +45,16 @@ public class RepostActivity extends FragmentActivity implements OnClickListener 
         }
     }
 
-    private void toSendRepostActivity() {
+    /**
+     * 
+     @see StatusBinder#buildClickArg()
+     */
+    private void toSendActivity() {
         Intent intent = new Intent();
 
         intent.putExtra("access_token",
                 StateKeeper.accessToken.getAccessToken());
-        Intent startIntent = getIntent();
-        intent.putExtra("id", startIntent.getLongExtra("id", 0));
-        intent.putExtra("isRetweeted",
-                startIntent.getBooleanExtra("isRetweeted", false));
+        intent.putExtras(getIntent());
 
         intent.setAction(Status.REPOST);
         intent.setClass(this, SendActivity.class);

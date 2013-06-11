@@ -46,11 +46,7 @@ public class SendActivity extends Activity implements OnClickListener,
         Intent intent = getIntent();
         initViewState(intent);
 
-        mHolder.mSend.setOnClickListener(this);
-        mHolder.mBack.setOnClickListener(this);
-        mHolder.mTrend.setOnClickListener(this);
-        mHolder.mAt.setOnClickListener(this);
-        mHolder.mEmotion.setOnClickListener(this);
+        initAction();
     }
 
     private void initViewHolder() {
@@ -88,29 +84,73 @@ public class SendActivity extends Activity implements OnClickListener,
         String action = intent.getAction();
         Log.d(TAG, "action: " + action);
         if (action != null && action.equals(Status.REPOST)) {
-            // 轉發微博
-            mHolder.mTitle.setText(R.string.repost_weibo);
-            mHolder.mContent.setText(R.string.default_repost_content);
-
-            mHolder.mRepost.setVisibility(View.GONE);
-            mHolder.mComment.setVisibility(View.VISIBLE);
-
-            boolean isRetweeted = intent.getBooleanExtra("isRetweeted", false);
-            Log.d(TAG, "isRetweeted: " + isRetweeted);
-            if (isRetweeted) {
-                mHolder.mCommentOriginal.setVisibility(View.VISIBLE);
-            } else {
-                mHolder.mCommentOriginal.setVisibility(View.GONE);
-            }
+            initRepostState(intent);
         } else {
-            // 評論微博或回復評論
-            mHolder.mTitle.setText(R.string.send_comment);
-            mHolder.mContent.setText(R.string.default_comment_content);
+            initCommentState(intent);
+        }
+    }
 
-            mHolder.mRepost.setVisibility(View.VISIBLE);
-            mHolder.mComment.setVisibility(View.GONE);
+    /**
+     * 轉發微博
+     * 
+     * @param intent
+     */
+    private void initRepostState(Intent intent) {
+        mHolder.mTitle.setText(R.string.repost_weibo);
+
+        mHolder.mRepost.setVisibility(View.GONE);
+        mHolder.mComment.setVisibility(View.VISIBLE);
+
+        boolean isRetweeted = intent.getBooleanExtra("isRetweeted", false);
+        Log.d(TAG, "isRetweeted: " + isRetweeted);
+        if (isRetweeted) {
+            // 設置當前的內容爲之前轉發的內容
+            String username = intent.getStringExtra("username");
+            String current = intent.getStringExtra("text");
+            String content = String.format("//@%s:%s", username, current);
+            mHolder.mContent.setText(content);
+
+            mHolder.mCommentOriginal.setVisibility(View.VISIBLE);
+        } else {
+            String defaultConent = getString(R.string.default_repost_content);
+            mHolder.mContent.setText(defaultConent);
+            mHolder.mContent.setSelection(0, defaultConent.length());
+
             mHolder.mCommentOriginal.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * 評論微博或回復評論
+     * 
+     * @param intent
+     */
+    private void initCommentState(Intent intent) {
+        mHolder.mTitle.setText(R.string.send_comment);
+
+        String action = intent.getAction();
+        if (action == null || action.equals(Comment.CREATE)) {
+        } else if (action.equals(Comment.REPLY)) {
+            String username = intent.getStringExtra("username");
+            String replyTo = getString(R.string.default_comment_content,
+                    username);
+            mHolder.mContent.setText(replyTo);
+        }
+
+        mHolder.mRepost.setVisibility(View.VISIBLE);
+        mHolder.mComment.setVisibility(View.GONE);
+        mHolder.mCommentOriginal.setVisibility(View.GONE);
+    }
+
+    /**
+     * 
+     */
+    private void initAction() {
+        mHolder.mSend.setOnClickListener(this);
+        mHolder.mBack.setOnClickListener(this);
+        mHolder.mTrend.setOnClickListener(this);
+        mHolder.mAt.setOnClickListener(this);
+        mHolder.mEmotion.setOnClickListener(this);
     }
 
     @Override

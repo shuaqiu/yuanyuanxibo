@@ -72,7 +72,7 @@
     <string name="comment_weibo">Comment Weibo</string>
     
     <string name="default_repost_content">Forward</string>
-    <string name="default_comment_content">Comment:</string>
+    <string name="default_comment_content">Reply@%s:</string>
     
 
     

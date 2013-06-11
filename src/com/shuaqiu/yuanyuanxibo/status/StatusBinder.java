@@ -81,12 +81,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
 
         ViewUtil.setText(view.findViewById(R.id.source), optSource(status));
 
-        Bundle args = new Bundle(2);
-        args.putLong("id", optStatusId(status));
-        Data retweetedStatus = optRetweetedStatus(status);
-        if (retweetedStatus != null) {
-            args.putBoolean("isRetweeted", true);
-        }
+        Bundle args = buildClickArgs(status);
         OnClickListener listener = new StartActivityClickListener(args);
 
         ViewUtil.setText(view.findViewById(R.id.attitudes_count),
@@ -111,8 +106,10 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     }
 
     protected void setRetweetedStatusViews(View view, Data retweetedStatus) {
+        String username = optUsername(retweetedStatus);
+
         View usernameView = view.findViewById(R.id.retweeted_user_name);
-        ViewUtil.setText(usernameView, optUsername(retweetedStatus));
+        ViewUtil.setText(usernameView, username);
         ViewUtil.addLinks(usernameView, ViewUtil.USER);
 
         View textView = view.findViewById(R.id.retweeted_text);
@@ -125,8 +122,9 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         ViewUtil.setText(view.findViewById(R.id.retweeted_source),
                 optSource(retweetedStatus));
 
-        Bundle args = new Bundle(1);
+        Bundle args = new Bundle(2);
         args.putLong("id", optStatusId(retweetedStatus));
+        args.putString("username", username);
         OnClickListener listener = new StartActivityClickListener(args);
 
         ViewUtil.setText(view.findViewById(R.id.retweeted_attitudes_count),
@@ -181,6 +179,22 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
                 setPics(view, status, imgQuality, l);
             }
         }
+    }
+
+    /**
+     * @param status
+     * @return
+     */
+    protected Bundle buildClickArgs(Data status) {
+        Bundle args = new Bundle();
+        args.putLong("id", optStatusId(status));
+        args.putString("username", optUsername(status));
+        Data retweetedStatus = optRetweetedStatus(status);
+        if (retweetedStatus != null) {
+            args.putBoolean("isRetweeted", true);
+            args.putString("text", optText(status));
+        }
+        return args;
     }
 
     /**

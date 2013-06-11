@@ -81,11 +81,8 @@ public class StatusActivity extends FragmentActivity implements
         Bundle status = mAdapter.getStatusBundle(currentItem);
 
         String token = StateKeeper.accessToken.getAccessToken();
-        long id = status.getLong(StatusHelper.Column.id.name());
-        boolean isRetweeted = status.getBundle(StatusHelper.RETWEETED_STATUS) != null;
         intent.putExtra("access_token", token);
-        intent.putExtra("id", id);
-        intent.putExtra("isRetweeted", isRetweeted);
+        intent.putExtras(buildClickArgs(status));
 
         switch (v.getId()) {
         case R.id.repost:
@@ -99,6 +96,11 @@ public class StatusActivity extends FragmentActivity implements
         }
 
         startActivity(intent);
+    }
+
+    protected Bundle buildClickArgs(Bundle status) {
+        BundleStatusBinder binder = new BundleStatusBinder(this, null);
+        return binder.buildClickArgs(status);
     }
 
     private void initViewPager() {
