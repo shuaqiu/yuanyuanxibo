@@ -123,7 +123,7 @@ public class StatusHelper extends AbsObjectHelper {
         retweeted_visible(ColumnType.TEXT);
 
         // -----------------------------------------
-        private ColumnType columnType;
+        ColumnType columnType;
 
         private Column(ColumnType columnType) {
             this.columnType = columnType;
@@ -131,7 +131,7 @@ public class StatusHelper extends AbsObjectHelper {
     }
 
     public static String getDdl() {
-        return getDdl(TABLE, COLUMNS);
+        return getDdl(TABLE, COLUMNS, Column.id);
     }
 
     public static String[] names() {

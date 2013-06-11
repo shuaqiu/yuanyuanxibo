@@ -86,6 +86,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
             // the TabListener interface, as the callback (listener) for when
             // this tab is selected.
             View tab = findViewById(SectionsPagerAdapter.TITLE_IDS[i]);
+            tab.setTag(i);
             tab.setOnClickListener(this);
         }
 

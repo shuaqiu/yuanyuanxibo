@@ -89,6 +89,22 @@ public interface API {
         String MENTIONS = "2/statuses/mentions.json";
 
         /**
+         * 獲取官方表情的詳細信息
+         * <p>
+         * HTTP請求：GET
+         * </p>
+         * 參數：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>type</b>：表情類別, face: 普通表情, ani: 魔法表情, carton: 動漫表情, 默認爲face,
+         * 可選, string</li>
+         * <li><b>language</b>：語言類別, cnname: 簡體, twname: 繁體, 默認爲cnname, 可選,
+         * string</li>
+         * </ul>
+         */
+        String EMOTIONS = "2/emotions.json";
+
+        /**
          * 獲取指定微博的轉發微博列表
          * <p>
          * HTTP請求：GET

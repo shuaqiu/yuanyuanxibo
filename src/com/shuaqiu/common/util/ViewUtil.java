@@ -1,16 +1,17 @@
 package com.shuaqiu.common.util;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.util.LruCache;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
@@ -24,10 +25,12 @@ import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.shuaqiu.common.Tuple;
 import com.shuaqiu.common.promiss.DeferredManager;
 import com.shuaqiu.common.promiss.Promiss;
 import com.shuaqiu.common.promiss.impl.DeferredTask.TaskJob;
 import com.shuaqiu.yuanyuanxibo.Defs;
+import com.shuaqiu.yuanyuanxibo.content.EmotionHelper;
 
 /**
  * @author shuaqiu 2013-5-3
@@ -135,56 +138,119 @@ public class ViewUtil {
                     GROUP_ONE_TRANSFORM_FILTER);
         }
         if ((mask & EMOTION) != 0) {
-            addEmotion(textView);
+            EmotionJob job = new EmotionJob(textView);
+            DeferredManager.when(job).then(job);
         }
     }
 
-    private static void addEmotion(TextView textView) {
-        Context context = textView.getContext();
-        SpannableString s = SpannableString.valueOf(textView.getText());
-        Matcher m = LinkPattern.EMOTION.matcher(s);
+    private static final class EmotionJob implements
+            TaskJob<Map<Tuple<Integer, Integer>, Bitmap>> {
 
-        while (m.find()) {
-            int start = m.start();
-            int end = m.end();
+        private static final LruCache<String, String> emotions = new LruCache<String, String>(
+                100);
+        private TextView mTextView;
 
-            String emotion = getEmotion(s, start, end);
-            if (emotion != null) {
-                Bitmap b = BitmapFactory.decodeFile(emotion);
-                ImageSpan span = new ImageSpan(context, b);
-                s.setSpan(span, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-            }
+        private EmotionJob(TextView mTextView) {
+            this.mTextView = mTextView;
         }
 
-        textView.setText(s);
-    }
-
-    /**
-     * @param s
-     * @param start
-     * @param end
-     * @return
-     */
-    private static String getEmotion(Spannable s, int start, int end) {
-        CharSequence sub = s.subSequence(start, end);
-        Log.d(TAG, "sub from " + start + " to " + end + " is " + sub);
-
-        String emotion = emotions.get(sub.toString());
-        if (emotion != null) {
-            return emotion;
-        }
-
-        return null;
-    }
-
-    private static final LruCache<String, String> emotions = new LruCache<String, String>(
-            100) {
         @Override
-        protected String create(String key) {
-            // TODO create emotion
-            return key;
-        };
-    };
+        public Map<Tuple<Integer, Integer>, Bitmap> call() {
+            CharSequence s = mTextView.getText();
+            Matcher m = LinkPattern.EMOTION.matcher(s);
+
+            Map<Tuple<Integer, Integer>, Bitmap> map = new HashMap<Tuple<Integer, Integer>, Bitmap>();
+            while (m.find()) {
+                int start = m.start();
+                int end = m.end();
+
+                String url = getEmotionUrl(s, start, end);
+                if (url != null) {
+                    try {
+                        Bitmap b = BitmapUtil.fromUrl(url);
+                        map.put(new Tuple<Integer, Integer>(start, end), b);
+
+                    } catch (IOException e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+                }
+            }
+
+            return map;
+        }
+
+        @Override
+        public void apply(Map<Tuple<Integer, Integer>, Bitmap> result) {
+            Context context = mTextView.getContext();
+            SpannableString s = SpannableString.valueOf(mTextView.getText());
+            for (Tuple<Integer, Integer> range : result.keySet()) {
+                ImageSpan span = new ImageSpan(context, result.get(range));
+                s.setSpan(span, range.getValue1(), range.getValue2(),
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
+            mTextView.setText(s);
+        }
+
+        /**
+         * @param s
+         * @param start
+         * @param end
+         * @return
+         */
+        private String getEmotionUrl(CharSequence s, int start, int end) {
+            String emotionPhrase = s.subSequence(start, end).toString();
+            Log.d(TAG, "sub: (" + start + "," + end + ") = " + emotionPhrase);
+
+            String url = emotions.get(emotionPhrase);
+            if (url != null) {
+                return url;
+            }
+
+            url = queryUrl(emotionPhrase);
+            if (url != null) {
+                emotions.put(emotionPhrase, url);
+                return url;
+            }
+
+            return null;
+        }
+
+        /**
+         * 從數據庫查詢是否有這個表情
+         * 
+         * @param string
+         *            表情字符串
+         * @return 表情的URL 地址
+         */
+        private String queryUrl(String emotion) {
+            EmotionHelper helper = new EmotionHelper(mTextView.getContext());
+            Cursor cursor = null;
+            try {
+                helper.openForWrite();
+
+                helper.tryDownload();
+
+                String selection = EmotionHelper.Column.phrase.name() + "= ?";
+                String[] selectionArgs = new String[] { emotion };
+                cursor = helper.query(selection, selectionArgs, null);
+                if (cursor.getCount() == 0) {
+                    return null;
+                }
+                if (cursor.moveToFirst()) {
+                    return cursor.getString(EmotionHelper.Column.url.ordinal());
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+                helper.close();
+            }
+            return null;
+        }
+
+    }
 
     /**
      * @author shuaqiu Jun 9, 2013

@@ -33,7 +33,7 @@ public class DatabaseHelper {
     }
 
     public void openForRead() {
-        mDb = mDbOpenHelper.getWritableDatabase();
+        mDb = mDbOpenHelper.getReadableDatabase();
     }
 
     public long saveOrUpdate(String table, ContentValues values) {

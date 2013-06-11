@@ -14,7 +14,7 @@ import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.R;
-import com.shuaqiu.yuanyuanxibo.StartActivityClickListener;
+import com.shuaqiu.yuanyuanxibo.misc.StartActivityClickListener;
 
 /**
  * @author shuaqiu 2013-5-1

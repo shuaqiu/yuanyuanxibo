@@ -1,5 +1,7 @@
 package com.shuaqiu.yuanyuanxibo.content;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
@@ -8,17 +10,21 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.shuaqiu.common.util.HttpUtil;
+import com.shuaqiu.yuanyuanxibo.API.Status;
+import com.shuaqiu.yuanyuanxibo.StateKeeper;
+
 /**
  * @author shuaqiu 2013-5-31
  */
 public class EmotionHelper extends AbsObjectHelper {
 
-    static final String TAG = "StatusHelper";
+    static final String TAG = "EmotionHelper";
 
     public static final String TABLE = "t_emotion";
 
     /** 排序字段 */
-    public static final String ORDER_BY = Column.id.name() + " desc";
+    public static final String ORDER_BY = Column.phrase.name() + " desc";
 
     public static final Column[] COLUMNS = Column.values();
 
@@ -28,8 +34,6 @@ public class EmotionHelper extends AbsObjectHelper {
      * @author shuaqiu 2013-5-31
      */
     public enum Column {
-        /** ID */
-        id(ColumnType.INTEGER),
         /** 短語 */
         phrase(ColumnType.TEXT),
         /** 類型 */
@@ -58,7 +62,7 @@ public class EmotionHelper extends AbsObjectHelper {
     }
 
     protected static String getDdl() {
-        return getDdl(TABLE, COLUMNS, true);
+        return getDdl(TABLE, COLUMNS, Column.phrase);
     }
 
     public static String[] names() {
@@ -130,4 +134,56 @@ public class EmotionHelper extends AbsObjectHelper {
         return values;
     }
 
+    public void tryDownload() {
+        if (isEmotionInDb()) {
+            Log.d(TAG, "emotions is already in database");
+            return;
+        }
+
+        Log.d(TAG, "prepare to download");
+
+        Bundle params = new Bundle();
+        String accessToken = StateKeeper.accessToken.getAccessToken();
+        params.putString("access_token", accessToken);
+
+        Log.d(TAG, "start to download");
+        String respText = HttpUtil.httpGet(Status.EMOTIONS, params);
+        Log.d(TAG, "downloaded: " + respText);
+
+        if (respText == null) {
+            return;
+        }
+
+        JSONArray arr = null;
+        try {
+            arr = new JSONArray(respText);
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            return;
+        }
+
+        if (arr == null || arr.length() == 0) {
+            Log.d(TAG, "not data");
+            return;
+        }
+
+        Log.d(TAG, "write emotions data to database");
+        saveOrUpdate(arr);
+    }
+
+    private boolean isEmotionInDb() {
+        Cursor cursor = null;
+        try {
+            cursor = query(null, null, "1");
+            return cursor.getCount() > 0;
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return false;
+
+    }
 }

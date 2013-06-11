@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.shuaqiu.yuanyuanxibo;
+package com.shuaqiu.yuanyuanxibo.misc;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +11,8 @@ import android.view.View.OnClickListener;
 
 import com.shuaqiu.yuanyuanxibo.Actions.Comment;
 import com.shuaqiu.yuanyuanxibo.Actions.Status;
+import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.comment.CommentActivity;
 import com.shuaqiu.yuanyuanxibo.comment.SendActivity;
 import com.shuaqiu.yuanyuanxibo.status.RepostActivity;

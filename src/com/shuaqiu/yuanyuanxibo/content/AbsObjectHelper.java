@@ -13,22 +13,27 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
-import com.shuaqiu.yuanyuanxibo.content.EmotionHelper.Column;
-
 /**
  * @author shuaqiu 2013-6-9
- * 
  */
 public abstract class AbsObjectHelper extends DatabaseHelper {
 
     private static final String TAG = "AbsObjectHelper";
 
-    protected static <E extends Enum<E>> String getDdl(String table, E[] columns) {
-        return getDdl(table, columns, false);
+    protected static <E extends Enum<E>> String getDdl(String table,
+            E[] columns, E primary) {
+        return getDdl(table, columns, primary, false);
     }
 
-    protected static <E extends Enum<E>> String getDdl(String table,
-            E[] columns, boolean isAutoIncrement) {
+    /**
+     * @param table
+     * @param columns
+     * @param primary
+     * @param isAutoIncrement
+     * @return
+     */
+    private static <E extends Enum<E>> String getDdl(String table, E[] columns,
+            E primary, boolean isAutoIncrement) {
         StringBuilder ddl = new StringBuilder("create table if not exists ");
         ddl.append(table);
         ddl.append("(");
@@ -42,7 +47,7 @@ public abstract class AbsObjectHelper extends DatabaseHelper {
 
             ColumnType columnType = getColumnType(column);
             ddl.append(columnType.name());
-            if (column == Column.id) {
+            if (column == primary) {
                 ddl.append(" primary key");
                 if (isAutoIncrement) {
                     ddl.append(" autoincrement");
@@ -95,7 +100,7 @@ public abstract class AbsObjectHelper extends DatabaseHelper {
     }
 
     public int saveOrUpdate(JSONArray arr) {
-        Log.d(TAG, "write status data to database");
+        Log.d(TAG, "write data to " + table);
 
         for (int i = 0; i < arr.length(); i++) {
             JSONObject json = arr.optJSONObject(i);

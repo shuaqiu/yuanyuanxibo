@@ -23,9 +23,9 @@ import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.R;
-import com.shuaqiu.yuanyuanxibo.StartActivityClickListener;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
+import com.shuaqiu.yuanyuanxibo.misc.StartActivityClickListener;
 
 /**
  * @author shuaqiu Jun 2, 2013
