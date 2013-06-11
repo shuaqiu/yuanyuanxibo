@@ -135,6 +135,7 @@ public class SendActivity extends Activity implements OnClickListener,
             String replyTo = getString(R.string.default_comment_content,
                     username);
             mHolder.mContent.setText(replyTo);
+            mHolder.mContent.setSelection(replyTo.length());
         }
 
         mHolder.mRepost.setVisibility(View.VISIBLE);

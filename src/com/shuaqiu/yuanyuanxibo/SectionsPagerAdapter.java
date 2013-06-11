@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.shuaqiu.yuanyuanxibo.comment.CommentListFragment;
+import com.shuaqiu.yuanyuanxibo.status.RetweetedStatusListFragment;
 import com.shuaqiu.yuanyuanxibo.status.StatusListFragment;
 
 /**
@@ -29,8 +30,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         mContext = context;
-        items = new Fragment[] { new StatusListFragment(), new Fragment(),
-                new Fragment(), new Fragment() };
+        items = new Fragment[getCount()];
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         case 0:
             return new StatusListFragment();
         case 1:
-            return new Fragment();
+            return new RetweetedStatusListFragment();
         case 2:
             return new CommentListFragment();
         case 3:

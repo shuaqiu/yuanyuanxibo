@@ -20,8 +20,12 @@ import com.shuaqiu.yuanyuanxibo.misc.StartActivityClickListener;
  * @author shuaqiu 2013-5-1
  */
 public class CommentBinder implements ViewBinder<JSONObject> {
+    /** 顯示評論的方式 */
     public enum Type {
-        USER, STATUS
+        /** 顯示當前登錄用戶的評論列表 */
+        USER,
+        /** 顯示某條微博的評論 */
+        STATUS
     }
 
     // private Context mContext;
@@ -36,64 +40,100 @@ public class CommentBinder implements ViewBinder<JSONObject> {
 
     @Override
     public void bindView(View view, final JSONObject comment) {
-        View usernameView = view.findViewById(R.id.user_name);
-        ViewUtil.setText(usernameView, optUsername(comment), ViewUtil.USER);
+        ViewHolder holder = getViewHolder(view);
 
-        ViewUtil.setText(view.findViewById(R.id.created_at),
-                optCreateTime(comment));
+        setComment(holder, comment);
+        setReplyFor(holder, comment);
+        setAction(holder, comment);
+    }
 
-        ViewUtil.setText(view.findViewById(R.id.text),
-                comment.optString("text", ""), ViewUtil.ALL);
+    protected ViewHolder getViewHolder(View view) {
+        Object tag = view.getTag();
+        if (tag != null && tag instanceof ViewHolder) {
+            return (ViewHolder) tag;
+        }
 
-        ViewUtil.setText(view.findViewById(R.id.source), optSource(comment));
+        ViewHolder holder = new ViewHolder();
+        view.setTag(holder);
 
-        setReplyFor(view, comment);
+        holder.mUsername = view.findViewById(R.id.user_name);
+        holder.mCreateAt = view.findViewById(R.id.created_at);
+        holder.mComment = view.findViewById(R.id.text);
+        holder.mSource = view.findViewById(R.id.source);
+        holder.mReplyContainer = view.findViewById(R.id.reply_container);
+        holder.mReplyContent = view.findViewById(R.id.reply_content);
+        holder.mToReply = view.findViewById(R.id.to_reply);
 
-        setReplyAction(view, comment);
+        return holder;
+    }
+
+    protected void setComment(ViewHolder holder, final JSONObject comment) {
+        ViewUtil.setText(holder.mUsername, optUsername(comment), ViewUtil.USER);
+        ViewUtil.setText(holder.mCreateAt, optCreateTime(comment));
+        ViewUtil.setText(holder.mComment, comment.optString("text", ""),
+                ViewUtil.ALL);
+        ViewUtil.setText(holder.mSource, optSource(comment));
     }
 
     /**
-     * @param view
+     * 顯示評論的對象, 也就是評論是針對什麼的
+     * 
+     * @param holder
      * @param comment
      */
-    protected void setReplyFor(View view, JSONObject comment) {
-        String content = null;
-
+    protected void setReplyFor(ViewHolder holder, final JSONObject comment) {
         JSONObject target = comment.optJSONObject("reply_comment");
         if (target == null) {
             // 這個評論是直接對微博的
+
             if (mType == Type.STATUS) {
-                // 如果是顯示微博的評論列表, 則不需要顯示原來的微博信息了
-                view.findViewById(R.id.reply_container)
-                        .setVisibility(View.GONE);
+                // 如果是顯示微博的評論列表, 則不需要顯示原來的微博信息了(因爲剛剛才從微博界面過來)
+                holder.mReplyContainer.setVisibility(View.GONE);
                 return;
             }
 
             // 改爲顯示評論的微博內容
             target = comment.optJSONObject("status");
         }
-        content = target.optString("text", "");
-
-        ViewUtil.setText(view.findViewById(R.id.reply_content), content,
-                ViewUtil.ALL);
+        String content = target.optString("text", "");
+        ViewUtil.setText(holder.mReplyContent, content, ViewUtil.ALL);
     }
 
     /**
-     * @param view
+     * 綁定按鈕的事件
+     * 
+     * @param holder
      * @param comment
      */
-    protected void setReplyAction(View view, final JSONObject comment) {
-        Bundle args = new Bundle(2);
-        JSONObject status = comment.optJSONObject("status");
-        long statusId = status.optLong("id");
-        args.putLong("id", statusId);
-        args.putLong("cid", comment.optLong("id"));
+    protected void setAction(ViewHolder holder, final JSONObject comment) {
+        Bundle args = buildClickArgs(comment);
         OnClickListener l = new StartActivityClickListener(args);
-        view.findViewById(R.id.to_reply).setOnClickListener(l);
+        holder.mToReply.setOnClickListener(l);
     }
 
-    protected String optUsername(JSONObject status) {
-        JSONObject user = status.optJSONObject("user");
+    /**
+     * 構造在點擊"回復" 按鈕時, 傳遞的參數
+     * 
+     * @param comment
+     * @return
+     */
+    protected Bundle buildClickArgs(final JSONObject comment) {
+        Bundle args = new Bundle(3);
+        JSONObject status = comment.optJSONObject("status");
+        args.putLong("id", status.optLong("id"));
+        args.putLong("cid", comment.optLong("id"));
+        args.putString("username", optUsername(comment));
+        return args;
+    }
+
+    /**
+     * 獲取評論的作者名稱
+     * 
+     * @param comment
+     * @return
+     */
+    protected String optUsername(final JSONObject comment) {
+        JSONObject user = comment.optJSONObject("user");
         if (user == null) {
             return "";
         }
@@ -101,14 +141,30 @@ public class CommentBinder implements ViewBinder<JSONObject> {
     }
 
     // "Sat Apr 27 00:59:08 +0800 2013"
-    protected String optCreateTime(JSONObject status) {
-        String createdAt = status.optString("created_at");
+    protected String optCreateTime(final JSONObject comment) {
+        String createdAt = comment.optString("created_at");
         return mTimeHelper.beautyTime(createdAt);
     }
 
-    protected String optSource(JSONObject status) {
-        String source = status.optString("source");
+    /**
+     * 獲取評論的來源(客戶端)
+     * 
+     * @param comment
+     * @return
+     */
+    protected String optSource(final JSONObject comment) {
+        String source = comment.optString("source");
         // return Html.fromHtml(source);
         return source.replaceAll("<a.*?>(.*?)</a>", "$1");
+    }
+
+    protected static class ViewHolder {
+        protected View mUsername;
+        protected View mCreateAt;
+        protected View mComment;
+        protected View mSource;
+        protected View mReplyContainer;
+        protected View mReplyContent;
+        protected View mToReply;
     }
 }

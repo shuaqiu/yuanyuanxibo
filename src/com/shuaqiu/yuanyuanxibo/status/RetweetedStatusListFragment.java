@@ -33,34 +33,55 @@ public class RetweetedStatusListFragment extends ListFragment implements
 
     private static final String TAG = "RetweetedStatusListFragment";
 
+    private static final int OPER_MENTIONS = 1;
+    private static final int OPER_REPOSTS = 2;
+
+    private int oper = OPER_MENTIONS;
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        FragmentActivity context = getActivity();
+        initOper();
+        DeferredManager.when(buildCallable()).then(this);
+    }
 
-        Intent intent = context.getIntent();
+    private void initOper() {
+        Intent intent = getActivity().getIntent();
         String action = intent.getAction();
 
+        if (action != null && action.equals(Status.REPOST_LIST)) {
+            // 獲取指定微博的轉發微博列表
+            oper = OPER_REPOSTS;
+        } else {
+            // 最新的提到登錄用戶的微博列表
+            // action.equals(Status.AT_ME_LIST) ||
+            // action.equals(Intent.ACTION_MAIN)
+            oper = OPER_MENTIONS;
+        }
+    }
+
+    private GetCallable buildCallable() {
         Bundle param = new Bundle(2);
         String accessToken = StateKeeper.accessToken.getAccessToken();
         param.putString("access_token", accessToken);
 
         String url = null;
-        if (action == null || action.equals(Status.AT_ME_LIST)) {
+        if (oper == OPER_MENTIONS) {
             // 最新的提到登錄用戶的微博列表
             url = API.Status.MENTIONS;
-        } else if (action.equals(Status.REPOST_LIST)) {
+        } else if (oper == OPER_REPOSTS) {
             // 獲取指定微博的轉發微博列表
             url = API.Status.REPOST_TIMELINE;
 
+            Intent intent = getActivity().getIntent();
             // intent 中包含微博的id 值
             long statusId = intent.getLongExtra("id", 0);
             param.putLong("id", statusId);
             // params.putAll(intent.getExtras());
         }
 
-        DeferredManager.when(new GetCallable(url, param)).then(this);
+        return new GetCallable(url, param);
     }
 
     @Override
@@ -70,7 +91,7 @@ public class RetweetedStatusListFragment extends ListFragment implements
 
         FragmentActivity context = getActivity();
 
-        JsonStatusBinder binder = new JsonStatusBinder(context, Type.REPOST);
+        JsonStatusBinder binder = new JsonStatusBinder(context, getListType());
         ListAdapter adapter = new SimpleBindAdapter<JSONObject>(context,
                 toList(statuses), R.layout.listview_status, binder);
 
@@ -78,11 +99,24 @@ public class RetweetedStatusListFragment extends ListFragment implements
     }
 
     /**
+     * @return
+     */
+    private Type getListType() {
+        if (oper == OPER_REPOSTS) {
+            return Type.REPOST;
+        }
+        return Type.LIST;
+    }
+
+    /**
+     * 根據結果獲取微博列表
+     * 
      * @param result
      * @return
      */
     private JSONArray getStatuses(String result) {
         if (result == null) {
+            // 這裏返回一個空的array, 避免界面上的進度條一直在轉
             return new JSONArray();
         }
         JSONObject data = null;
@@ -93,11 +127,22 @@ public class RetweetedStatusListFragment extends ListFragment implements
             return new JSONArray();
         }
 
-        JSONArray statuses = data.optJSONArray("reposts");
-        return statuses;
+        return data.optJSONArray(getStatusesKey());
     }
 
-    protected List<JSONObject> toList(JSONArray arr) {
+    /**
+     * 獲取返回的數據中微博的key, 兩種請求的key 是不一樣的
+     * 
+     * @return
+     */
+    private String getStatusesKey() {
+        if (oper == OPER_REPOSTS) {
+            return "reposts";
+        }
+        return "statuses";
+    }
+
+    private List<JSONObject> toList(JSONArray arr) {
         if (arr == null) {
             return null;
         }

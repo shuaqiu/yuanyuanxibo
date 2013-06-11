@@ -26,6 +26,7 @@ import com.shuaqiu.yuanyuanxibo.API;
 import com.shuaqiu.yuanyuanxibo.Actions.Comment;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.StateKeeper;
+import com.shuaqiu.yuanyuanxibo.comment.CommentBinder.Type;
 
 /**
  * @author shuaqiu 2013-5-1
@@ -35,59 +36,93 @@ public class CommentListFragment extends ListFragment implements
 
     private static final String TAG = "CommentListFragment";
 
+    private static final int OPER_FOR_USER = 1;
+    private static final int OPER_FOR_STATUS = 2;
+
+    private int oper = OPER_FOR_USER;
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        FragmentActivity context = getActivity();
+        initOper();
+        DeferredManager.when(buildCallable()).then(this);
+    }
 
-        Intent intent = context.getIntent();
+    private void initOper() {
+        Intent intent = getActivity().getIntent();
         String action = intent.getAction();
 
+        if (action != null && action.equals(Comment.FOR_STATUS)) {
+            // 顯示微博的評論列表
+            oper = OPER_FOR_STATUS;
+        } else {
+            // 顯示用戶的評論列表
+            // action.equals(Comment.FOR_USER) ||
+            // action.equals(Intent.ACTION_MAIN)
+            oper = OPER_FOR_USER;
+        }
+    }
+
+    private GetCallable buildCallable() {
         Bundle param = new Bundle(2);
         String accessToken = StateKeeper.accessToken.getAccessToken();
         param.putString("access_token", accessToken);
 
         String url = null;
-        if (action == null || action.equals(Comment.FOR_USER)) {
-            // 顯示用戶的評論列表
+        if (oper == OPER_FOR_USER) {
+            // 最新的提到登錄用戶的微博列表
             url = API.Comment.TIMELINE;
-        } else if (action.equals(Comment.FOR_STATUS)) {
-            // 顯示微博的評論列表
+        } else if (oper == OPER_FOR_STATUS) {
+            // 獲取指定微博的轉發微博列表
             url = API.Comment.SHOW;
 
+            Intent intent = getActivity().getIntent();
             // intent 中包含微博的id 值
             long statusId = intent.getLongExtra("id", 0);
             param.putLong("id", statusId);
             // params.putAll(intent.getExtras());
         }
 
-        DeferredManager.when(new GetCallable(url, param)).then(this);
+        return new GetCallable(url, param);
     }
 
     @Override
     public void apply(String result) {
-        JSONObject data = null;
-        try {
-            data = new JSONObject(result);
-        } catch (JSONException e) {
-            Log.e(TAG, e.getMessage(), e);
-            return;
-        }
-
-        JSONArray comments = data.optJSONArray("comments");
+        JSONArray comments = getComments(result);
 
         FragmentActivity context = getActivity();
 
-        CommentBinder binder = new CommentBinder(context,
-                CommentBinder.Type.STATUS);
+        CommentBinder binder = new CommentBinder(context, getListType());
         ListAdapter adapter = new SimpleBindAdapter<JSONObject>(context,
                 toList(comments), R.layout.listview_comment, binder);
 
         setListAdapter(adapter);
     }
 
-    protected List<JSONObject> toList(JSONArray arr) {
+    private Type getListType() {
+        if (oper == OPER_FOR_STATUS) {
+            return CommentBinder.Type.STATUS;
+        }
+        return CommentBinder.Type.USER;
+    }
+
+    private JSONArray getComments(String result) {
+        if (result == null) {
+            return new JSONArray();
+        }
+        JSONObject data = null;
+        try {
+            data = new JSONObject(result);
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            return new JSONArray();
+        }
+
+        return data.optJSONArray("comments");
+    }
+
+    private List<JSONObject> toList(JSONArray arr) {
         if (arr == null) {
             return null;
         }
