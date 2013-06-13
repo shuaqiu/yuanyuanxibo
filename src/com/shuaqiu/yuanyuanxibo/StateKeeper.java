@@ -37,7 +37,7 @@ public final class StateKeeper {
      * @param context
      */
     public static void init(Context context) {
-        StateKeeper.accessToken = AccessTokenKeeper.read(context);
+        accessToken = AccessTokenKeeper.read(context);
         isWifi = isWifiConnected(context);
         pictureDir = getPictureDir(context);
     }
