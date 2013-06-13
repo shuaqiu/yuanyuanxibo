@@ -17,7 +17,6 @@ import com.shuaqiu.yuanyuanxibo.R;
 
 /**
  * @author shuaqiu 2013-6-13
- * 
  */
 public class FriendSelectionActivity extends FragmentActivity implements
         OnClickListener {
@@ -77,7 +76,7 @@ public class FriendSelectionActivity extends FragmentActivity implements
         Intent data = new Intent();
         data.putExtra("selectedFriends", text.toString());
         setResult(RESULT_OK, data);
-        finishActivity(1);
+        finish();
     }
 
     private static class ViewHolder {

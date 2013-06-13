@@ -54,8 +54,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/selected_friends"
-        android:layout_marginTop="@dimen/three_dp"
-        android:padding="@dimen/five_dp" >
+        android:background="@drawable/bg_round_title"
+        android:paddingBottom="@dimen/five_dp" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.03"
+            android:background="@color/azure"
+            android:padding="@dimen/five_dp"
+            android:text="" />
 
         <TextView
             android:id="@+id/recent"
@@ -70,6 +78,14 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/five_dp"
             android:text="@string/all" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/azure"
+            android:padding="@dimen/five_dp"
+            android:text="" />
     </LinearLayout>
 
     <android.support.v4.view.ViewPager
