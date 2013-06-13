@@ -18,8 +18,7 @@
             android:layout_centerVertical="true"
             android:contentDescription="@string/back"
             android:padding="@dimen/eight_dp"
-            android:src="@drawable/ic_action_back"
-            android:text="@string/back" />
+            android:src="@drawable/ic_action_back"/>
 
         <TextView
             android:layout_width="wrap_content"

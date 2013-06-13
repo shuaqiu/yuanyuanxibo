@@ -20,8 +20,7 @@
             android:layout_centerVertical="true"
             android:contentDescription="@string/back"
             android:padding="@dimen/eight_dp"
-            android:src="@drawable/ic_action_back"
-            android:text="@string/back" />
+            android:src="@drawable/ic_action_back" />
 
         <TextView
             android:id="@+id/title"
@@ -76,6 +75,17 @@
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="@dimen/ten_dp"
         android:text="@string/comment_weibo" />
+
+    <TextView
+        android:id="@+id/remain_char_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/action_bar"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="@dimen/ten_dp"
+        android:layout_marginRight="@dimen/ten_dp"
+        android:drawableRight="@drawable/ic_action_delete"
+        android:text="@string/empty" />
 
     <LinearLayout
         android:id="@+id/action_bar"

@@ -224,4 +224,26 @@ public interface API {
 
     }
 
+    interface Friend {
+
+        /**
+         * 獲取用戶的關注列表
+         * <p>
+         * HTTP請求：GET
+         * </p>
+         * 參數：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>uid</b>：需要查詢的用戶ID, <b>必填*</b>, int64</li>
+         * <li><b>screen_name</b>：需要查詢的用戶暱稱, <b>必填*</b>, string</li>
+         * <li><b>count</b>：單頁返回的記錄數, 默認爲50, 最大不超過200, 可選, int</li>
+         * <li><b>cursor</b>：返回結果的游標, 下一頁用返回值裡的next_cursor, 上一頁用previous_cursor,
+         * 默認爲0, 可選, int</li>
+         * <li><b>trim_status</b>：返回值中user 字段status 字段開關, 0: 返回完整的status 字段, 1:
+         * 僅返回status_id, 默認爲1, 可選, int</li>
+         * </ul>
+         * 其中: uid 和screen_name 兩者必需選一個, 且只能選一個
+         */
+        String FRIENDS = "2/friendships/friends.json";
+    }
 }

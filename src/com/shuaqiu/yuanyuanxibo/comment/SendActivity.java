@@ -4,9 +4,12 @@
 package com.shuaqiu.yuanyuanxibo.comment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,14 +26,21 @@ import com.shuaqiu.yuanyuanxibo.API;
 import com.shuaqiu.yuanyuanxibo.Actions.Comment;
 import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.friend.FriendSelectionActivity;
+import com.shuaqiu.yuanyuanxibo.trend.TrendActivity;
 
 /**
  * @author shuaqiu Jun 3, 2013
  */
 public class SendActivity extends Activity implements OnClickListener,
-        Callback<String> {
+        Callback<String>, TextWatcher, DialogInterface.OnClickListener {
 
     private static final String TAG = "SendActivity";
+
+    private static final int MAX_CHAR_COUNT = 140;
+
+    private static final int CODE_TREND = 1;
+    private static final int CODE_FRIEND = 2;
 
     private ViewHolder mHolder;
 
@@ -43,10 +53,10 @@ public class SendActivity extends Activity implements OnClickListener,
 
         initViewHolder();
 
-        Intent intent = getIntent();
-        initViewState(intent);
-
+        // 調整一下順序, 先綁定事件處理, 然後才設置界面的顯示 (主要是為了計數的顯示)
         initAction();
+
+        initViewState();
     }
 
     private void initViewHolder() {
@@ -55,7 +65,7 @@ public class SendActivity extends Activity implements OnClickListener,
         }
         View decorView = getWindow().getDecorView();
         Object tag = decorView.getTag();
-        if (tag != null) {
+        if (tag != null && tag instanceof ViewHolder) {
             mHolder = (ViewHolder) tag;
             return;
         }
@@ -64,6 +74,8 @@ public class SendActivity extends Activity implements OnClickListener,
 
         mHolder.mContent = (EditText) findViewById(R.id.content);
         mHolder.mTitle = (TextView) findViewById(R.id.title);
+        mHolder.mRemainCharCount = (TextView) findViewById(R.id.remain_char_count);
+
         mHolder.mRepost = (CheckBox) findViewById(R.id.repost_weibo);
         mHolder.mComment = (CheckBox) findViewById(R.id.comment_weibo);
         mHolder.mCommentOriginal = (CheckBox) findViewById(R.id.comment_original_weibo);
@@ -78,9 +90,237 @@ public class SendActivity extends Activity implements OnClickListener,
     }
 
     /**
-     * @param intent
+     * 
      */
-    private void initViewState(Intent intent) {
+    private void initAction() {
+        mHolder.mContent.addTextChangedListener(this);
+
+        mHolder.mSend.setOnClickListener(this);
+        mHolder.mBack.setOnClickListener(this);
+
+        mHolder.mRemainCharCount.setOnClickListener(this);
+
+        mHolder.mTrend.setOnClickListener(this);
+        mHolder.mAt.setOnClickListener(this);
+        mHolder.mEmotion.setOnClickListener(this);
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count,
+            int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        int remainCharCount = MAX_CHAR_COUNT - s.length();
+        mHolder.mRemainCharCount.setText(Integer.toString(remainCharCount));
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+        case R.id.send:
+            send();
+            break;
+        case R.id.back:
+            finish();
+            break;
+        case R.id.remain_char_count:
+            confirmDeleteContent();
+            break;
+        case R.id.action_trend:
+            showTrends();
+            break;
+        case R.id.action_at:
+            showFriends();
+            break;
+        case R.id.action_emotion:
+            showEmotions();
+            break;
+        }
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        switch (which) {
+        case DialogInterface.BUTTON_POSITIVE:
+            deleteContent();
+            break;
+        case DialogInterface.BUTTON_NEGATIVE:
+            dialog.dismiss();
+            break;
+        }
+    }
+
+    private void send() {
+        Bundle param = buildParam();
+        if (param == null) {
+            Toast.makeText(this, R.string.empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String url = getUrl();
+        DeferredManager.when(new PostCallable(url, param)).then(this);
+    }
+
+    private Bundle buildParam() {
+        Editable content = mHolder.mContent.getText();
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        if (action != null && action.equals(Status.REPOST)) {
+            // 轉發微博
+            return buildRepostParam(content);
+        }
+
+        // 評論微博或回復評論
+        if (content.length() == 0) {
+            // 內容不能爲空
+            return null;
+        }
+        return buildCommentParam(content);
+    }
+
+    /**
+     * 轉發微博API 調用的參數設置
+     * 
+     * @param content
+     *            內容
+     * @return 參數設置
+     * @see API.Status.REPOST
+     * 
+     */
+    private Bundle buildRepostParam(Editable content) {
+        Intent intent = getIntent();
+        Bundle param = intent.getExtras();
+
+        if (content.length() > 0) {
+            param.putString("status", content.toString());
+        }
+        if (mHolder.mComment.isChecked()
+                && mHolder.mCommentOriginal.isChecked()) {
+            param.putInt("is_comment", 3);
+        } else if (mHolder.mComment.isChecked()) {
+            param.putInt("is_comment", 1);
+        } else if (mHolder.mCommentOriginal.isChecked()) {
+            param.putInt("is_comment", 2);
+        }
+        return param;
+    }
+
+    /**
+     * 評論微博或回复評論API 調用的參數設置
+     * 
+     * @param content
+     *            內容
+     * @return 參數設置
+     * @see API.Status.CREATE
+     * @see API.Status.REPLY
+     * 
+     */
+    private Bundle buildCommentParam(Editable content) {
+        Intent intent = getIntent();
+        Bundle param = intent.getExtras();
+
+        if (mHolder.mRepost.isChecked()) {
+            // 如果在評論的同時轉發微博, 則直接用轉發微博的API
+            param.putString("status", content.toString());
+            param.putInt("is_comment", 1);
+            if (mHolder.mCommentOriginal.isChecked()) {
+                param.putInt("is_comment", 3);
+            }
+        } else {
+            // 評論微博或回復評論
+            param.putString("comment", content.toString());
+
+            if (mHolder.mCommentOriginal.isChecked()) {
+                param.putInt("comment_ori", 1);
+            }
+        }
+
+        return param;
+    }
+
+    private String getUrl() {
+        Intent intent = getIntent();
+        String action = intent.getAction();
+
+        if (action != null && action.equals(Status.REPOST)
+                || mHolder.mRepost.isChecked()) {
+            return API.Status.REPOST;
+        }
+        if (action == null || action.equals(Comment.CREATE)) {
+            return API.Comment.CREATE;
+        }
+        if (action.equals(Comment.REPLY)) {
+            return API.Comment.REPLY;
+        }
+        return null;
+    }
+
+    @Override
+    public void apply(String result) {
+        Toast.makeText(this, R.string.sent, Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    private void confirmDeleteContent() {
+        new AlertDialog.Builder(this).setTitle(R.string.tip)
+                .setIcon(R.drawable.ic_action_delete)
+                .setMessage(R.string.confirm_delete_conent)
+                .setPositiveButton(R.string.ok, this)
+                .setNegativeButton(R.string.cancel, this).show();
+    }
+
+    private void deleteContent() {
+        mHolder.mContent.setText("");
+    }
+
+    /**
+     * 
+     */
+    private void showTrends() {
+        Intent intent = new Intent(this, TrendActivity.class);
+        startActivityForResult(intent, CODE_TREND);
+    }
+
+    /**
+     * 
+     */
+    private void showFriends() {
+        Intent intent = new Intent(this, FriendSelectionActivity.class);
+        startActivityForResult(intent, CODE_FRIEND);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+        case CODE_TREND:
+            break;
+        case CODE_FRIEND:
+            if (resultCode == RESULT_OK) {
+                mHolder.mContent.getText().append(
+                        data.getStringExtra("selectedFriends"));
+            }
+            break;
+        }
+
+    }
+
+    /**
+     * 
+     */
+    private void showEmotions() {
+    }
+
+    /**
+     * 設置界面的顯示
+     */
+    private void initViewState() {
+        Intent intent = getIntent();
         String action = intent.getAction();
         Log.d(TAG, "action: " + action);
         if (action != null && action.equals(Status.REPOST)) {
@@ -114,6 +354,7 @@ public class SendActivity extends Activity implements OnClickListener,
         } else {
             String defaultConent = getString(R.string.default_repost_content);
             mHolder.mContent.setText(defaultConent);
+            // 將當前的內容全選了, 便於直接刪除
             mHolder.mContent.setSelection(0, defaultConent.length());
 
             mHolder.mCommentOriginal.setVisibility(View.GONE);
@@ -135,6 +376,7 @@ public class SendActivity extends Activity implements OnClickListener,
             String replyTo = getString(R.string.default_comment_content,
                     username);
             mHolder.mContent.setText(replyTo);
+            // 設置輸入光標的位置
             mHolder.mContent.setSelection(replyTo.length());
         }
 
@@ -143,131 +385,10 @@ public class SendActivity extends Activity implements OnClickListener,
         mHolder.mCommentOriginal.setVisibility(View.GONE);
     }
 
-    /**
-     * 
-     */
-    private void initAction() {
-        mHolder.mSend.setOnClickListener(this);
-        mHolder.mBack.setOnClickListener(this);
-        mHolder.mTrend.setOnClickListener(this);
-        mHolder.mAt.setOnClickListener(this);
-        mHolder.mEmotion.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-        case R.id.send:
-            send();
-            break;
-        case R.id.back:
-            finish();
-            break;
-        case R.id.action_trend:
-            break;
-        case R.id.action_at:
-            break;
-        case R.id.action_emotion:
-            break;
-        }
-    }
-
-    private void send() {
-        Bundle param = buildParam();
-        if (param == null) {
-            Toast.makeText(this, R.string.empty, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String url = getUrl();
-        DeferredManager.when(new PostCallable(url, param)).then(this);
-    }
-
-    private Bundle buildParam() {
-        Editable content = mHolder.mContent.getText();
-
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        if (action != null && action.equals(Status.REPOST)) {
-            // 轉發微博
-            return buildRepostParam(content);
-        }
-
-        // 評論微博或回復評論
-        if (content.length() == 0) {
-            // 內容不能爲空
-            return null;
-        }
-        return buildCommentParam(content);
-    }
-
-    private Bundle buildRepostParam(Editable content) {
-        Intent intent = getIntent();
-        Bundle param = intent.getExtras();
-
-        if (content.length() > 0) {
-            param.putString("status", content.toString());
-        }
-        if (mHolder.mComment.isChecked()
-                && mHolder.mCommentOriginal.isChecked()) {
-            param.putInt("is_comment", 3);
-        } else if (mHolder.mComment.isChecked()) {
-            param.putInt("is_comment", 1);
-        } else if (mHolder.mCommentOriginal.isChecked()) {
-            param.putInt("is_comment", 2);
-        }
-        return param;
-    }
-
-    private Bundle buildCommentParam(Editable content) {
-        Intent intent = getIntent();
-        Bundle param = intent.getExtras();
-
-        if (mHolder.mRepost.isChecked()) {
-            // 如果在評論的同時轉發微博, 則直接用轉發微博的API
-            param.putString("status", content.toString());
-            param.putInt("is_comment", 1);
-            if (mHolder.mCommentOriginal.isChecked()) {
-                param.putInt("is_comment", 3);
-            }
-        } else {
-            // 評論微博或回復評論
-            param.putString("comment", content.toString());
-
-            if (mHolder.mCommentOriginal.isChecked()) {
-                param.putInt("comment_ori", 1);
-            }
-        }
-
-        return param;
-    }
-
-    private String getUrl() {
-        Intent intent = getIntent();
-        String action = intent.getAction();
-
-        if ((action != null && action.equals(Status.REPOST))
-                || mHolder.mRepost.isChecked()) {
-            return API.Status.REPOST;
-        }
-        if (action == null || action.equals(Comment.CREATE)) {
-            return API.Comment.CREATE;
-        }
-        if (action.equals(Comment.REPLY)) {
-            return API.Comment.REPLY;
-        }
-        return null;
-    }
-
-    @Override
-    public void apply(String result) {
-        Toast.makeText(this, R.string.sent, Toast.LENGTH_SHORT).show();
-        finish();
-    }
-
     private static class ViewHolder {
         private TextView mTitle;
         private EditText mContent;
-        private TextView mCharCount;
+        private TextView mRemainCharCount;
         private CheckBox mRepost;
         private CheckBox mComment;
         private CheckBox mCommentOriginal;

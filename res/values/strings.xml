@@ -74,6 +74,13 @@
     <string name="default_repost_content">Forward</string>
     <string name="default_comment_content">Reply@%s:</string>
     
+    <string name="tip">Tip</string>
+    <string name="ok">OK</string>
+    <string name="confirm_delete_conent">Are you sure to clear the inputed content?</string>
+
+    <string name="friends">Friends</string>
+    <string name="recent">Recent</string>
+    <string name="all">All</string>
 
     
 </resources>
