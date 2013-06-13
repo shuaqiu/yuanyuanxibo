@@ -134,7 +134,7 @@ public class EmotionHelper extends AbsObjectHelper {
         return values;
     }
 
-    public void tryDownload() {
+    public void tryDownloadData() {
         if (isEmotionInDb()) {
             Log.d(TAG, "emotions is already in database");
             return;
@@ -184,6 +184,9 @@ public class EmotionHelper extends AbsObjectHelper {
             }
         }
         return false;
+    }
+
+    public void tryDownloadImage() {
 
     }
 }

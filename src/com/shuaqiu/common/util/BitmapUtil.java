@@ -9,39 +9,45 @@ import java.net.URL;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
+
+import com.shuaqiu.common.ImageType;
 
 /**
  * @author shuaqiu 2013-4-30
  */
 public class BitmapUtil {
 
-    private static final File cacheFolder = new File(
-            Environment.getExternalStorageDirectory(), "yyxibo/imgcache");
-
     /**
-     * @param value
-     * @return
+     * 根據圖片URL 獲取bitmap 對象. 首先嘗試從緩存文件中獲取, 如果沒有, 則進行下載
+     * 
+     * @param type
+     *            圖片類型
+     * @param urlStr
+     *            URL 地址
+     * @return 返回獲取到的Bitmap. 如果類型或URL 地址錯誤, 或者不能下載指定URL 的圖片, 則返回null.
      * @throws IOException
      */
-    public static Bitmap fromUrl(String value) throws IOException {
-        if (value == null || "".equals(value.trim())) {
+    public static Bitmap fromUrl(ImageType type, String urlStr)
+            throws IOException {
+        if (type == null || urlStr == null || "".equals(urlStr.trim())) {
             return null;
         }
-        URL url = HttpUtil.parseUrl(value);
+        URL url = HttpUtil.parseUrl(urlStr);
         if (url == null) {
             return null;
         }
 
-        String cacheFilename = SecurityUtil.md5(value);
+        String cacheFilename = SecurityUtil.md5(urlStr);
 
-        File cacheFile = new File(cacheFolder, cacheFilename);
+        File cacheFile = new File(type.getFolder(), cacheFilename);
         if (!cacheFile.exists()) {
             boolean isDownloaded = HttpUtil.downloadTo(url, cacheFile);
             if (!isDownloaded) {
                 return null;
             }
         }
+        cacheFile.setLastModified(System.currentTimeMillis());
+
         return BitmapFactory.decodeFile(cacheFile.getPath());
     }
 

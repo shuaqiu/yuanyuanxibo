@@ -16,7 +16,7 @@ public class WifiReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         boolean isWifi = StateKeeper.isWifi;
-        StateKeeper.isWifi = StateKeeper.isWifi(context);
+        StateKeeper.isWifi = StateKeeper.isWifiConnected(context);
         Log.i(TAG, "isWifi: " + isWifi + "-->" + StateKeeper.isWifi);
     }
 }

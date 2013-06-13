@@ -42,10 +42,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         // 初始化屬性設置
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-        // 首先初始化一下Wifi 的狀態
-        StateKeeper.isWifi = StateKeeper.isWifi(this);
+        // 首先初始化一下狀態
+        StateKeeper.init(this);
 
-        StateKeeper.accessToken = AccessTokenKeeper.read(this);
         if (StateKeeper.accessToken.isSessionValid()) {
             initMainView();
         } else {

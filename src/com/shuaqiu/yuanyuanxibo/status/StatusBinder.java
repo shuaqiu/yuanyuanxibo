@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
+import com.shuaqiu.common.ImageType;
 import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.common.widget.ViewBinder;
@@ -63,7 +64,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         View v = view.findViewById(R.id.profile_image);
         String profileImage = optProfileImage(status);
         if (profileImage != null) {
-            ViewUtil.setImage(v, profileImage);
+            ViewUtil.setImage(v, ImageType.PROFILE, profileImage);
         }
     }
 
