@@ -3,10 +3,13 @@
  */
 package com.shuaqiu.yuanyuanxibo.content;
 
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.util.Log;
 
 /**
@@ -59,7 +62,70 @@ public class DatabaseHelper {
     }
 
     public enum ColumnType {
-        TEXT, INTEGER, BOOLEAN
+        /** 字符竄 */
+        TEXT {
+            @Override
+            public <E extends Enum<E>> void addToBundle(Bundle bundle,
+                    Cursor cursor, E column) {
+                String val = cursor.getString(column.ordinal());
+                bundle.putString(column.name(), val);
+            }
+
+            @Override
+            public void extractTo(ContentValues values, JSONObject json,
+                    String field) {
+                values.put(field, json.optString(field));
+            }
+        },
+        /** 整型 */
+        INTEGER {
+            @Override
+            public <E extends Enum<E>> void addToBundle(Bundle bundle,
+                    Cursor cursor, E column) {
+                bundle.putLong(column.name(), cursor.getLong(column.ordinal()));
+            }
+
+            @Override
+            public void extractTo(ContentValues values, JSONObject json,
+                    String field) {
+                values.put(field, json.optLong(field));
+            }
+        },
+        /** boolean */
+        BOOLEAN {
+            @Override
+            public <E extends Enum<E>> void addToBundle(Bundle bundle,
+                    Cursor cursor, E column) {
+                boolean val = cursor.getInt(column.ordinal()) == 1;
+                bundle.putBoolean(column.name(), val);
+            }
+
+            @Override
+            public void extractTo(ContentValues values, JSONObject json,
+                    String field) {
+                values.put(field, json.optBoolean(field));
+            }
+        };
+
+        /**
+         * 從cursor 取出對應column 的值, 並放入到bundle, 其中key 直接使用column 的name() 方法返回值
+         * 
+         * @param bundle
+         * @param cursor
+         * @param column
+         */
+        public abstract <E extends Enum<E>> void addToBundle(Bundle bundle,
+                Cursor cursor, E column);
+
+        /**
+         * 從JSON 中取出對應字段的值, 並放入到ContentValues, key 直接使用該字段
+         * 
+         * @param values
+         * @param json
+         * @param field
+         */
+        public abstract void extractTo(ContentValues values, JSONObject json,
+                String field);
     }
 
 }

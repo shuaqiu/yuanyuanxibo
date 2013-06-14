@@ -302,8 +302,9 @@ public class SendActivity extends Activity implements OnClickListener,
             break;
         case CODE_FRIEND:
             if (resultCode == RESULT_OK) {
-                mHolder.mContent.getText().append(
-                        data.getStringExtra("selectedFriends"));
+                String friends = data.getStringExtra("selectedFriends");
+                int cursorPosition = mHolder.mContent.getSelectionEnd();
+                mHolder.mContent.getText().insert(cursorPosition, friends);
             }
             break;
         }

@@ -87,16 +87,9 @@ public class EmotionHelper extends AbsObjectHelper {
                 continue;
             }
 
-            String field = c.name();
             try {
                 // 獲取值, 并放到bundle 中
-                if (c.columnType == ColumnType.TEXT) {
-                    emotion.putString(field, cursor.getString(c.ordinal()));
-                } else if (c.columnType == ColumnType.INTEGER) {
-                    emotion.putLong(field, cursor.getLong(c.ordinal()));
-                } else if (c.columnType == ColumnType.BOOLEAN) {
-                    emotion.putBoolean(field, cursor.getInt(c.ordinal()) == 1);
-                }
+                c.columnType.addToBundle(emotion, cursor, c);
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
             }
@@ -120,15 +113,7 @@ public class EmotionHelper extends AbsObjectHelper {
         ContentValues values = new ContentValues(COLUMNS.length);
 
         for (Column c : COLUMNS) {
-            String field = c.name();
-
-            if (c.columnType == ColumnType.TEXT) {
-                values.put(field, json.optString(field));
-            } else if (c.columnType == ColumnType.INTEGER) {
-                values.put(field, json.optLong(field));
-            } else if (c.columnType == ColumnType.BOOLEAN) {
-                values.put(field, json.optBoolean(field));
-            }
+            c.columnType.extractTo(values, json, c.name());
         }
 
         return values;
