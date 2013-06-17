@@ -3,33 +3,30 @@
  */
 package com.shuaqiu.yuanyuanxibo;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.view.View;
 
+import com.shuaqiu.common.widget.FragmentTabHelper.FragmentTabPagerAdapter;
+import com.shuaqiu.yuanyuanxibo.MainActivity.ViewHolder;
 import com.shuaqiu.yuanyuanxibo.comment.CommentListFragment;
 import com.shuaqiu.yuanyuanxibo.status.RetweetedStatusListFragment;
 import com.shuaqiu.yuanyuanxibo.status.StatusListFragment;
 
 /**
- * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one
- * of the sections/tabs/pages.
  */
-public class SectionsPagerAdapter extends FragmentPagerAdapter {
-    public static final int[] TITLE_IDS = new int[] { R.id.home, R.id.at_me,
-            R.id.comments, R.id.messages };
+public class SectionsPagerAdapter extends FragmentTabPagerAdapter {
 
-    public static final int[] TITIES = new int[] { R.string.home,
-            R.string.at_me, R.string.comments, R.string.messages };
-
+    private ViewHolder mHolder;
+    private View[] mTabs;
     private Fragment[] items;
 
-    private final Context mContext;
-
-    public SectionsPagerAdapter(Context context, FragmentManager fm) {
+    public SectionsPagerAdapter(FragmentManager fm, ViewHolder holder) {
         super(fm);
-        mContext = context;
+        mHolder = holder;
+        mTabs = new View[] { mHolder.mHome, mHolder.mAtMe, mHolder.mComments,
+                mHolder.mMessages };
         items = new Fragment[getCount()];
     }
 
@@ -61,11 +58,21 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return TITIES.length;
+        return mTabs.length;
     }
 
     @Override
-    public CharSequence getPageTitle(int position) {
-        return mContext.getString(TITIES[position]);
+    public int getTabId(int position) {
+        return getTab(position).getId();
+    }
+
+    @Override
+    public View getTab(int position) {
+        return mTabs[position];
+    }
+
+    @Override
+    public ViewPager getViewPager() {
+        return mHolder.mViewPager;
     }
 }

@@ -46,9 +46,9 @@ public interface API {
         /**
          * 獲取當前登錄用戶及其所關注用戶的最新微博
          * <p>
-         * HTTP請求：GET
+         * <b>HTTP請求</b>：GET
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>since_id</b>：若指定此參數, 則返回ID 比since_id 大的微博（即比since_id 晚的微博）,
@@ -69,9 +69,9 @@ public interface API {
         /**
          * 獲取最新的提到登錄用戶的微博列表, 即@我 的微博
          * <p>
-         * HTTP請求：GET
+         * <b>HTTP請求</b>：GET
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>since_id</b>：若指定此參數, 則返回ID 比since_id 大的微博（即比since_id 晚的微博）,
@@ -91,9 +91,9 @@ public interface API {
         /**
          * 獲取官方表情的詳細信息
          * <p>
-         * HTTP請求：GET
+         * <b>HTTP請求</b>：GET
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>type</b>：表情類別, face: 普通表情, ani: 魔法表情, carton: 動漫表情, 默認爲face,
@@ -107,9 +107,9 @@ public interface API {
         /**
          * 獲取指定微博的轉發微博列表
          * <p>
-         * HTTP請求：GET
+         * <b>HTTP請求</b>：GET
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>id</b>：需要查詢的微博ID, <b>必填</b>, int64</li>
@@ -129,9 +129,9 @@ public interface API {
         /**
          * 轉發一條微博
          * <p>
-         * HTTP請求：POST
+         * <b>HTTP請求</b>：POST
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>id</b>：需要轉發的微博ID, <b>必填</b>, int64</li>
@@ -151,9 +151,9 @@ public interface API {
         /**
          * 獲取當前登錄用戶的最新評論, 包括接收到的, 和發出的
          * <p>
-         * HTTP請求：GET
+         * <b>HTTP請求</b>：GET
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>since_id</b>：若指定此參數, 則返回ID 比since_id 大的評論（即比since_id 晚的評論）,
@@ -168,9 +168,9 @@ public interface API {
         /**
          * 根據微博ID 返回微博的評論列表
          * <p>
-         * HTTP請求：GET
+         * <b>HTTP請求</b>：GET
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>id</b>：需要查詢的微博ID, <b>必填</b>, int64</li>
@@ -190,9 +190,9 @@ public interface API {
         /**
          * 對一條微博進行評論
          * <p>
-         * HTTP請求：POST
+         * <b>HTTP請求</b>：POST
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>id</b>：需要評論的微博ID, <b>必填</b>, int64</li>
@@ -206,9 +206,9 @@ public interface API {
         /**
          * 回復一條評論
          * <p>
-         * HTTP請求：POST
+         * <b>HTTP請求</b>：POST
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>id</b>：需要評論的微博ID, <b>必填</b>, int64</li>
@@ -229,9 +229,9 @@ public interface API {
         /**
          * 獲取用戶的關注列表
          * <p>
-         * HTTP請求：GET
+         * <b>HTTP請求</b>：GET
          * </p>
-         * 參數：
+         * <b>參數</b>：
          * <ul>
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>uid</b>：需要查詢的用戶ID, <b>必填*</b>, int64</li>
@@ -245,5 +245,38 @@ public interface API {
          * 其中: uid 和screen_name 兩者必需選一個, 且只能選一個
          */
         String FRIENDS = "2/friendships/friends.json";
+
+        /**
+         * 獲取用戶關注的用戶ID 列表
+         * <p>
+         * <b>HTTP請求</b>：GET
+         * </p>
+         * <b>參數</b>：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>uid</b>：需要查詢的用戶ID, <b>必填*</b>, int64</li>
+         * <li><b>screen_name</b>：需要查詢的用戶暱稱, <b>必填*</b>, string</li>
+         * <li><b>count</b>：單頁返回的記錄數, 默認爲50, 最大不超過200, 可選, int</li>
+         * <li><b>cursor</b>：返回結果的游標, 下一頁用返回值裡的next_cursor, 上一頁用previous_cursor,
+         * 默認爲0, 可選, int</li>
+         * </ul>
+         * 其中: uid 和screen_name 兩者必需選一個, 且只能選一個
+         * <p>
+         * <b>返回</b>:
+         * </p>
+         * 
+         * <pre>
+         * {
+         *     "ids": [
+         *         1409912873,
+         *         3288233711
+         *     ],
+         *     "next_cursor": 2,
+         *     "previous_cursor": 0,
+         *     "total_number": 41
+         * }
+         * </pre>
+         */
+        String FRIENDS_IDS = "2/friendships/friends/ids.json";
     }
 }

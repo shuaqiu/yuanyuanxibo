@@ -46,139 +46,174 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
 
     @Override
     public void bindView(View view, final Data data) {
-        setProfileImage(view, data);
-        setStatusViews(view, data);
+        ViewHolder holder = initViewHolder(view);
+
+        setProfileImage(holder, data);
+        setStatusViews(holder, data);
 
         if (mType == Type.REPOST) {
             // 某條微博的轉發微博列表界面不需要再顯示原始微博和圖片了
-            view.findViewById(R.id.retweeted).setVisibility(View.GONE);
-            view.findViewById(R.id.thumbnail_pic).setVisibility(View.GONE);
-            view.findViewById(R.id.progress).setVisibility(View.GONE);
+            holder.mRetweeted.setVisibility(View.GONE);
+            holder.mThumbnailPic.setVisibility(View.GONE);
+            holder.mProgress.setVisibility(View.GONE);
         } else {
-            setRetweetedViews(view, data);
-            setThumbnailPic(view, data);
+            setRetweetedViews(holder, data);
+            setThumbnailPic(holder, data);
         }
     }
 
-    protected void setProfileImage(View view, final Data status) {
-        View v = view.findViewById(R.id.profile_image);
+    protected ViewHolder initViewHolder(View view) {
+        Object tag = view.getTag();
+        if (tag != null && tag instanceof ViewHolder) {
+            return (ViewHolder) tag;
+        }
+
+        ViewHolder holder = new ViewHolder();
+        view.setTag(holder);
+
+        holder.mProfileImage = view.findViewById(R.id.profile_image);
+
+        holder.mUsername = view.findViewById(R.id.user_name);
+        holder.mCreateAt = view.findViewById(R.id.created_at);
+        holder.mText = view.findViewById(R.id.text);
+        holder.mSource = view.findViewById(R.id.source);
+        holder.mAttitudesCount = view.findViewById(R.id.attitudes_count);
+        holder.mRepostsCount = view.findViewById(R.id.reposts_count);
+        holder.mCommentsCount = view.findViewById(R.id.comments_count);
+
+        holder.mRetweeted = view.findViewById(R.id.retweeted);
+
+        holder.mRetweetedUsername = view.findViewById(R.id.retweeted_user_name);
+        holder.mRetweetedCreateAt = view
+                .findViewById(R.id.retweeted_created_at);
+        holder.mRetweetedText = view.findViewById(R.id.retweeted_text);
+        holder.mRetweetedSource = view.findViewById(R.id.retweeted_source);
+        holder.mRetweetedAttitudesCount = view
+                .findViewById(R.id.retweeted_attitudes_count);
+        holder.mRetweetedRepostsCount = view
+                .findViewById(R.id.retweeted_reposts_count);
+        holder.mRetweetedCommentsCount = view
+                .findViewById(R.id.retweeted_comments_count);
+
+        holder.mStatusContent = (LinearLayout) view
+                .findViewById(R.id.status_content);
+        holder.mThumbnailPic = view.findViewById(R.id.thumbnail_pic);
+        holder.mProgress = view.findViewById(R.id.progress);
+
+        return holder;
+    }
+
+    protected void setProfileImage(ViewHolder holder, final Data status) {
         String profileImage = optProfileImage(status);
         if (profileImage != null) {
-            ViewUtil.setImage(v, ImageType.PROFILE, profileImage);
+            ViewUtil.setImage(holder.mProfileImage, ImageType.PROFILE,
+                    profileImage);
         }
     }
 
-    protected void setStatusViews(View view, Data status) {
-        View usernameView = view.findViewById(R.id.user_name);
-        ViewUtil.setText(usernameView, optUsername(status));
-        ViewUtil.addLinks(usernameView, ViewUtil.USER);
+    protected void setStatusViews(ViewHolder holder, Data status) {
+        ViewUtil.setText(holder.mUsername, optUsername(status));
+        ViewUtil.addLinks(holder.mUsername, ViewUtil.USER);
 
-        View textView = view.findViewById(R.id.text);
-        ViewUtil.setText(textView, optText(status));
-        ViewUtil.addLinks(textView, ViewUtil.ALL);
+        ViewUtil.setText(holder.mText, optText(status));
+        ViewUtil.addLinks(holder.mText, ViewUtil.ALL);
 
-        ViewUtil.setText(view.findViewById(R.id.created_at),
-                optCreateTime(status));
+        ViewUtil.setText(holder.mCreateAt, optCreateTime(status));
 
-        ViewUtil.setText(view.findViewById(R.id.source), optSource(status));
+        ViewUtil.setText(holder.mSource, optSource(status));
 
         Bundle args = buildClickArgs(status);
         OnClickListener listener = new StartActivityClickListener(args);
 
-        ViewUtil.setText(view.findViewById(R.id.attitudes_count),
+        ViewUtil.setText(holder.mAttitudesCount,
                 optCount(status, Column.attitudes_count), listener);
 
-        ViewUtil.setText(view.findViewById(R.id.reposts_count),
+        ViewUtil.setText(holder.mRepostsCount,
                 optCount(status, Column.reposts_count), listener);
 
-        ViewUtil.setText(view.findViewById(R.id.comments_count),
+        ViewUtil.setText(holder.mCommentsCount,
                 optCount(status, Column.comments_count), listener);
     }
 
-    protected void setRetweetedViews(View view, final Data status) {
-        View retweeted = view.findViewById(R.id.retweeted);
+    protected void setRetweetedViews(ViewHolder holder, final Data status) {
         Data retweetedStatus = optRetweetedStatus(status);
         if (retweetedStatus == null) {
-            retweeted.setVisibility(View.GONE);
+            holder.mRetweeted.setVisibility(View.GONE);
         } else {
-            retweeted.setVisibility(View.VISIBLE);
-            setRetweetedStatusViews(view, retweetedStatus);
+            holder.mRetweeted.setVisibility(View.VISIBLE);
+            setRetweetedStatusViews(holder, retweetedStatus);
         }
     }
 
-    protected void setRetweetedStatusViews(View view, Data retweetedStatus) {
+    protected void setRetweetedStatusViews(ViewHolder holder,
+            Data retweetedStatus) {
         String username = optUsername(retweetedStatus);
 
-        View usernameView = view.findViewById(R.id.retweeted_user_name);
-        ViewUtil.setText(usernameView, username);
-        ViewUtil.addLinks(usernameView, ViewUtil.USER);
+        ViewUtil.setText(holder.mRetweetedUsername, username);
+        ViewUtil.addLinks(holder.mRetweetedUsername, ViewUtil.USER);
 
-        View textView = view.findViewById(R.id.retweeted_text);
-        ViewUtil.setText(textView, optText(retweetedStatus));
-        ViewUtil.addLinks(textView, ViewUtil.ALL);
+        ViewUtil.setText(holder.mRetweetedText, optText(retweetedStatus));
+        ViewUtil.addLinks(holder.mRetweetedText, ViewUtil.ALL);
 
-        ViewUtil.setText(view.findViewById(R.id.retweeted_created_at),
+        ViewUtil.setText(holder.mRetweetedCreateAt,
                 optCreateTime(retweetedStatus));
 
-        ViewUtil.setText(view.findViewById(R.id.retweeted_source),
-                optSource(retweetedStatus));
+        ViewUtil.setText(holder.mRetweetedSource, optSource(retweetedStatus));
 
-        Bundle args = new Bundle(2);
-        args.putLong("id", optStatusId(retweetedStatus));
-        args.putString("username", username);
+        Bundle args = buildClickArgs(retweetedStatus);
         OnClickListener listener = new StartActivityClickListener(args);
 
-        ViewUtil.setText(view.findViewById(R.id.retweeted_attitudes_count),
+        ViewUtil.setText(holder.mRetweetedAttitudesCount,
                 optCount(retweetedStatus, Column.attitudes_count), listener);
 
-        ViewUtil.setText(view.findViewById(R.id.retweeted_reposts_count),
+        ViewUtil.setText(holder.mRetweetedRepostsCount,
                 optCount(retweetedStatus, Column.reposts_count), listener);
 
-        ViewUtil.setText(view.findViewById(R.id.retweeted_comments_count),
+        ViewUtil.setText(holder.mRetweetedCommentsCount,
                 optCount(retweetedStatus, Column.comments_count), listener);
     }
 
     /**
      * 顯示微博圖片
      */
-    protected void setThumbnailPic(View view, Data status) {
-        View v = view.findViewById(R.id.thumbnail_pic);
-        View progress = view.findViewById(R.id.progress);
-
-        v.setVisibility(View.GONE);
+    protected void setThumbnailPic(ViewHolder holder, Data status) {
+        holder.mThumbnailPic.setVisibility(View.GONE);
         ImageQuality imgQuality = getImageQuality(mType);
 
         if (imgQuality == ImageQuality.NONE) {
             // 無圖, 直接返回即可
-            hideProgress(progress);
+            hideProgress(holder.mProgress);
             return;
         }
 
         String thumbnailPic = optThumbnailPic(status, imgQuality);
         if (thumbnailPic == null) {
-            hideProgress(progress);
-        } else {
-            ViewUtil.setImage(v, thumbnailPic, progress);
+            // 微博沒有圖片, 直接返回
+            hideProgress(holder.mProgress);
+            return;
+        }
 
-            if (mType == Type.DETAIL) {
-                // 對於微博詳細界面, 要顯示微博的所有圖片
-                ImageQuality picViewerQuality = getImageQuality(Type.PIC_VIEWER);
-                if (picViewerQuality == ImageQuality.NONE) {
-                    // 圖片查看設置爲無圖, 那麼直接就不用打開這個activity 了
-                    // 顯示其他的圖片
-                    setPics(view, status, imgQuality, null);
-                    return;
-                }
+        // 顯示微博圖片
+        ViewUtil.setImage(holder.mThumbnailPic, thumbnailPic, holder.mProgress);
 
-                String[] pics = optPics(status, picViewerQuality);
-                OnClickListener l = new ViewImageClickListener(mContext, pics);
-
-                v.setTag(0);
-                v.setOnClickListener(l);
-
+        if (mType == Type.DETAIL) {
+            // 對於微博詳細界面, 要顯示微博的所有圖片
+            ImageQuality picViewerQuality = getImageQuality(Type.PIC_VIEWER);
+            if (picViewerQuality == ImageQuality.NONE) {
+                // 圖片查看設置爲無圖, 那麼直接就不用打開這個activity 了
                 // 顯示其他的圖片
-                setPics(view, status, imgQuality, l);
+                setPics(holder, status, imgQuality, null);
+                return;
             }
+
+            String[] pics = optPics(status, picViewerQuality);
+            OnClickListener l = new ViewImageClickListener(mContext, pics);
+
+            holder.mThumbnailPic.setTag(0);
+            holder.mThumbnailPic.setOnClickListener(l);
+
+            // 顯示其他的圖片
+            setPics(holder, status, imgQuality, l);
         }
     }
 
@@ -247,20 +282,19 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     /**
      * 如果有多張圖片, 則進行顯示
      * 
-     * @param view
+     * @param holder
      * @param status
      * @param quality
      * @param listener
      */
-    protected void setPics(View view, Data status, ImageQuality quality,
-            OnClickListener listener) {
+    protected void setPics(ViewHolder holder, Data status,
+            ImageQuality quality, OnClickListener listener) {
         String[] pics = optPics(status, quality);
         if (pics == null || pics.length < 2) {
             // 第一張圖片已經在前面顯示了
             return;
         }
-        LinearLayout content = (LinearLayout) view
-                .findViewById(R.id.status_content);
+
         LayoutParams params = getLayoutParams();
         for (int i = 1; i < pics.length; i++) {
             String pic = pics[i];
@@ -280,7 +314,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
                 v.setTag(i);
                 v.setOnClickListener(listener);
             }
-            content.addView(v);
+            holder.mStatusContent.addView(v);
 
             ViewUtil.setImage(v, pic);
         }
@@ -513,7 +547,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * 
      * @author shuaqiu 2013-6-5
      */
-    private class ViewImageClickListener implements OnClickListener {
+    private static class ViewImageClickListener implements OnClickListener {
         private Context mContext;
         private String[] mPics;
 
@@ -539,4 +573,28 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         }
     }
 
+    private static class ViewHolder {
+        private View mProfileImage;
+
+        private View mUsername;
+        private View mCreateAt;
+        private View mText;
+        private View mSource;
+        private View mAttitudesCount;
+        private View mRepostsCount;
+        private View mCommentsCount;
+
+        private View mRetweeted;
+        private View mRetweetedUsername;
+        private View mRetweetedCreateAt;
+        private View mRetweetedText;
+        private View mRetweetedSource;
+        private View mRetweetedAttitudesCount;
+        private View mRetweetedRepostsCount;
+        private View mRetweetedCommentsCount;
+
+        private LinearLayout mStatusContent;
+        private View mThumbnailPic;
+        private View mProgress;
+    }
 }

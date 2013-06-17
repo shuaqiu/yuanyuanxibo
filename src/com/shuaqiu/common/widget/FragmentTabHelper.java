@@ -19,7 +19,7 @@ import com.shuaqiu.yuanyuanxibo.R;
  */
 public class FragmentTabHelper implements OnClickListener, OnPageChangeListener {
 
-    private static final String TAG = "FragmentTabHost";
+    private static final String TAG = "FragmentTabHelper";
 
     private int defaultBackground = 0;
 
@@ -50,25 +50,18 @@ public class FragmentTabHelper implements OnClickListener, OnPageChangeListener 
         init();
     }
 
-    private void init() {
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the app.
+    public FragmentTabPagerAdapter getPagerAdapter() {
+        return mPagerAdapter;
+    }
 
-        // Set up the ViewPager with the sections adapter.
+    private void init() {
         mViewPager = mPagerAdapter.getViewPager();
         mViewPager.setAdapter(mPagerAdapter);
 
-        // When swiping between different sections, select the corresponding
-        // tab. We can also use ActionBar.Tab#select() to do this if we have
-        // a reference to the Tab.
         mViewPager.setOnPageChangeListener(this);
 
         // For each of the sections in the app, add a tab to the action bar.
         for (int i = 0; i < mPagerAdapter.getCount(); i++) {
-            // Create a tab with text corresponding to the page title defined by
-            // the adapter. Also specify this Activity object, which implements
-            // the TabListener interface, as the callback (listener) for when
-            // this tab is selected.
             View tab = mPagerAdapter.getTab(i);
             tab.setTag(i);
             tab.setOnClickListener(this);
@@ -93,25 +86,42 @@ public class FragmentTabHelper implements OnClickListener, OnPageChangeListener 
 
     private int getDefaultBackground() {
         if (defaultBackground == 0) {
-            defaultBackground = mContext.getResources().getColor(R.color.azure);
+            setDefaultBackground(R.color.azure);
         }
         return defaultBackground;
     }
 
     private int getSelectedBackground() {
         if (selectedBackground == 0) {
-            selectedBackground = mContext.getResources().getColor(
-                    R.color.g_blue);
+            setSelectedBackground(R.color.g_blue);
         }
         return selectedBackground;
     }
 
-    @Override
-    public void onClick(View v) {
-        selectTab(v);
+    /**
+     * 設置Tab 的默認背景色
+     * 
+     * @param colorId
+     *            背景色的id
+     */
+    public void setDefaultBackground(int colorId) {
+        defaultBackground = mContext.getResources().getColor(colorId);
     }
 
-    private void selectTab(View v) {
+    /**
+     * 設在選中的Tab 的背景色
+     * 
+     * @param colorId
+     *            背景色的ID
+     */
+    public void setSelectedBackground(int colorId) {
+        selectedBackground = mContext.getResources().getColor(colorId);
+    }
+
+    // ----------- Tab 的點擊事件 ------------------------------
+
+    @Override
+    public void onClick(View v) {
         int position = (Integer) v.getTag();
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
@@ -119,6 +129,7 @@ public class FragmentTabHelper implements OnClickListener, OnPageChangeListener 
         mViewPager.setCurrentItem(position);
     }
 
+    // --------------ViewPager 的切換事件 -----------------------
     @Override
     public void onPageScrolled(int position, float positionOffset,
             int positionOffsetPixels) {
@@ -133,6 +144,10 @@ public class FragmentTabHelper implements OnClickListener, OnPageChangeListener 
     public void onPageScrollStateChanged(int state) {
     }
 
+    /**
+     * 在FragmentPagerAdapter 的基礎上, 增加Tab 和ViewPager 的獲取
+     * 
+     */
     public static abstract class FragmentTabPagerAdapter extends
             FragmentPagerAdapter {
 
