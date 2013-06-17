@@ -37,7 +37,7 @@ public class UserInfoActivity extends Activity implements Callback<String> {
         param.putString("access_token", accessToken);
         param.putString("screen_name", username);
 
-        DeferredManager.when(new GetCallable(User.USER_INFO, param)).then(this);
+        DeferredManager.when(new GetCallable(User.SHOW, param)).then(this);
     }
 
     private String extractUsername() {

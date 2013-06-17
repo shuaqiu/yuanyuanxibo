@@ -35,7 +35,7 @@ public interface API {
         /**
          * 根據用戶的ID 或者screen_name 獲取用戶信息
          */
-        String USER_INFO = "2/users/show.json";
+        String SHOW = "2/users/show.json";
 
     }
 
@@ -226,6 +226,8 @@ public interface API {
 
     interface Friend {
 
+        // ----------------------讀取接口----------------------------
+
         /**
          * 獲取用戶的關注列表
          * <p>
@@ -256,7 +258,7 @@ public interface API {
          * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
          * <li><b>uid</b>：需要查詢的用戶ID, <b>必填*</b>, int64</li>
          * <li><b>screen_name</b>：需要查詢的用戶暱稱, <b>必填*</b>, string</li>
-         * <li><b>count</b>：單頁返回的記錄數, 默認爲50, 最大不超過200, 可選, int</li>
+         * <li><b>count</b>：單頁返回的記錄數, 默認爲500, 最大不超過5000, 可選, int</li>
          * <li><b>cursor</b>：返回結果的游標, 下一頁用返回值裡的next_cursor, 上一頁用previous_cursor,
          * 默認爲0, 可選, int</li>
          * </ul>
@@ -278,5 +280,96 @@ public interface API {
          * </pre>
          */
         String FRIENDS_IDS = "2/friendships/friends/ids.json";
+
+        /**
+         * 獲取用戶的粉絲列表
+         * <p>
+         * <b>HTTP請求</b>：GET
+         * </p>
+         * <b>參數</b>：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>uid</b>：需要查詢的用戶ID, <b>必填*</b>, int64</li>
+         * <li><b>screen_name</b>：需要查詢的用戶暱稱, <b>必填*</b>, string</li>
+         * <li><b>count</b>：單頁返回的記錄數, 默認爲50, 最大不超過200, 可選, int</li>
+         * <li><b>cursor</b>：返回結果的游標, 下一頁用返回值裡的next_cursor, 上一頁用previous_cursor,
+         * 默認爲0, 可選, int</li>
+         * <li><b>trim_status</b>：返回值中user 字段status 字段開關, 0: 返回完整的status 字段, 1:
+         * 僅返回status_id, 默認爲1, 可選, int</li>
+         * </ul>
+         * 其中: uid 和screen_name 兩者必需選一個, 且只能選一個
+         */
+        String FOLLOWERS = "2/friendships/followers.json";
+
+        /**
+         * 獲取用戶的粉絲ID 列表
+         * <p>
+         * <b>HTTP請求</b>：GET
+         * </p>
+         * <b>參數</b>：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>uid</b>：需要查詢的用戶ID, <b>必填*</b>, int64</li>
+         * <li><b>screen_name</b>：需要查詢的用戶暱稱, <b>必填*</b>, string</li>
+         * <li><b>count</b>：單頁返回的記錄數, 默認爲500, 最大不超過5000, 可選, int</li>
+         * <li><b>cursor</b>：返回結果的游標, 下一頁用返回值裡的next_cursor, 上一頁用previous_cursor,
+         * 默認爲0, 可選, int</li>
+         * </ul>
+         * 其中: uid 和screen_name 兩者必需選一個, 且只能選一個
+         * <p>
+         * <b>返回</b>:
+         * </p>
+         * 
+         * <pre>
+         * {
+         *     "ids": [
+         *         1409912873,
+         *         3288233711
+         *     ],
+         *     "next_cursor": 2,
+         *     "previous_cursor": 0,
+         *     "total_number": 41
+         * }
+         * </pre>
+         */
+        String FOLLOWERS_IDS = "2/friendships/followers/ids.json";
+
+        // ----------------------寫入接口----------------------------
+
+        /**
+         * 關注一個用戶
+         * <p>
+         * <b>HTTP請求</b>：POST
+         * </p>
+         * <b>參數</b>：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>uid</b>：需要查詢的用戶ID, <b>必填*</b>, int64</li>
+         * <li><b>screen_name</b>：需要查詢的用戶暱稱, <b>必填*</b>, string</li>
+         * </ul>
+         * 其中: uid 和screen_name 兩者必需選一個, 且只能選一個
+         * <p>
+         * <b>返回</b>: 用戶信息
+         * </p>
+         */
+        String CREATE = "2/friendships/create.json";
+
+        /**
+         * 取消關注一個用戶
+         * <p>
+         * <b>HTTP請求</b>：POST
+         * </p>
+         * <b>參數</b>：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>uid</b>：需要查詢的用戶ID, <b>必填*</b>, int64</li>
+         * <li><b>screen_name</b>：需要查詢的用戶暱稱, <b>必填*</b>, string</li>
+         * </ul>
+         * 其中: uid 和screen_name 兩者必需選一個, 且只能選一個
+         * <p>
+         * <b>返回</b>: 用戶信息
+         * </p>
+         */
+        String DESTROY = "2/friendships/destroy.json";
     }
 }
