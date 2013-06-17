@@ -21,11 +21,10 @@ import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.content.CursorLoaderCallbacks;
 import com.shuaqiu.yuanyuanxibo.content.FriendshipHelper;
-import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
+import com.shuaqiu.yuanyuanxibo.content.FriendshipHelper.Column;
 
 /**
  * @author shuaqiu 2013-6-14
- * 
  */
 public class FriendshipListFragment extends ListFragment implements
         OnScrollListener {
@@ -40,8 +39,9 @@ public class FriendshipListFragment extends ListFragment implements
         ViewBinder<Bundle> binder = new ViewBinder<Bundle>() {
             @Override
             public void bindView(View view, Bundle data) {
-                ViewUtil.setText(view.findViewById(R.id.screen_name), data
-                        .getString(FriendshipHelper.Column.screen_name.name()));
+                View v = view.findViewById(R.id.screen_name);
+                String name = data.getString(Column.screen_name.name());
+                ViewUtil.setText(v, name);
             }
         };
         SimpleCursorAdapter<Bundle> adapter = new FriendshipCursorAdapter(
@@ -63,11 +63,10 @@ public class FriendshipListFragment extends ListFragment implements
         EditText selectedFriends = (EditText) activity
                 .findViewById(R.id.selected_friends);
 
-        Bundle item = (Bundle) getListAdapter().getItem(position);
-        String name = item
-                .getString(FriendshipHelper.Column.screen_name.name());
+        Cursor item = (Cursor) getListAdapter().getItem(position);
+        String name = item.getString(Column.screen_name.ordinal());
 
-        selectedFriends.getText().append(name);
+        selectedFriends.getText().append(name).append(" @");
     }
 
     /**
@@ -87,7 +86,7 @@ public class FriendshipListFragment extends ListFragment implements
 
         @Override
         protected Bundle toData(Cursor cursor) {
-            return StatusHelper.toBundle(cursor);
+            return FriendshipHelper.toBundle(cursor);
         }
     }
 

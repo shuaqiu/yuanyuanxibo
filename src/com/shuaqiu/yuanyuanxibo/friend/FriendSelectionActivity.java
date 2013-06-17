@@ -37,6 +37,7 @@ public class FriendSelectionActivity extends FragmentActivity implements
 
         initViewHolder();
         initTab();
+        mHolder.mSelectedFriends.setText("@");
 
         mHolder.mOk.setOnClickListener(this);
         mHolder.mBack.setOnClickListener(this);

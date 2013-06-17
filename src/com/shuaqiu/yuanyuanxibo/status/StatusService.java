@@ -12,6 +12,7 @@ import android.net.ConnectivityManager;
 import android.os.IBinder;
 
 import com.shuaqiu.yuanyuanxibo.WifiReceiver;
+import com.shuaqiu.yuanyuanxibo.friend.FriendshipTask;
 
 public class StatusService extends Service {
 
@@ -39,6 +40,10 @@ public class StatusService extends Service {
         StatusDownloader command = new StatusDownloader(this);
         future = mThreadPoll.scheduleWithFixedDelay(command, 30, delay,
                 TimeUnit.SECONDS);
+
+        //
+        FriendshipTask friendshipTask = new FriendshipTask(this);
+        mThreadPoll.schedule(friendshipTask, 10, TimeUnit.SECONDS);
 
         mWifiReceiver = new WifiReceiver();
         registerReceiver(mWifiReceiver, new IntentFilter(

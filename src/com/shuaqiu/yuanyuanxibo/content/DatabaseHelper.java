@@ -57,6 +57,10 @@ public class DatabaseHelper {
                 orderBy, limit);
     }
 
+    public Cursor rawQuery(String sql, String[] selectionArgs) {
+        return mDb.rawQuery(sql, selectionArgs);
+    }
+
     public void close() {
         mDbOpenHelper.close();
     }
