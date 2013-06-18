@@ -61,6 +61,14 @@ public class DatabaseHelper {
         return mDb.rawQuery(sql, selectionArgs);
     }
 
+    public void execSQL(String sql) {
+        mDb.execSQL(sql);
+    }
+
+    public void execSQL(String sql, Object... bindArgs) {
+        mDb.execSQL(sql, bindArgs);
+    }
+
     public void close() {
         mDbOpenHelper.close();
     }

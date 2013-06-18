@@ -31,18 +31,26 @@ import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.content.FriendshipHelper;
 import com.shuaqiu.yuanyuanxibo.content.FriendshipHelper.Column;
 import com.shuaqiu.yuanyuanxibo.content.QueryCallable;
+import com.shuaqiu.yuanyuanxibo.content.QueryCallable.Builder;
 
 /**
  * @author shuaqiu 2013-6-14
  */
-public class FriendshipListFragment extends ListFragment implements
+public class FriendsListFragment extends ListFragment implements
         OnScrollListener, Callback<Cursor> {
 
     private static final String TAG = "FriendshipListFragment";
 
+    private static final String SELECTCOUNT_UPDATE_SQL = String.format(
+            "update %s set %s = ifnull(%s, 0) + 1 where %s = ?",
+            FriendshipHelper.TABLE, Column.selected_count.name(),
+            Column.selected_count.name(), Column.screen_name.name());
+
+    private Type mType;
+
     private EditText mSelected;
 
-    private FriendshipHelper mStatusHelper;
+    private FriendshipHelper mHelper;
     private List<Bundle> mFriends;
 
     private boolean isLoading;
@@ -51,13 +59,29 @@ public class FriendshipListFragment extends ListFragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        initType();
         initListView();
 
-        mStatusHelper = new FriendshipHelper(getActivity());
-        mStatusHelper.openForRead();
+        mHelper = new FriendshipHelper(getActivity());
+        mHelper.openForRead();
 
         String limit = "20";
         doQuery(limit);
+    }
+
+    private void initType() {
+        Bundle arguments = getArguments();
+        if (arguments == null) {
+            mType = Type.RECENT;
+            return;
+        }
+
+        try {
+            mType = Type.valueOf(arguments.getString("type"));
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+            mType = Type.RECENT;
+        }
     }
 
     private void initListView() {
@@ -65,17 +89,27 @@ public class FriendshipListFragment extends ListFragment implements
 
         FragmentActivity context = getActivity();
         ViewBinder<Bundle> binder = new FriendshipBinder();
-
         BaseAdapter adapter = new SimpleBindAdapter<Bundle>(context, mFriends,
                 R.layout.listview_friendship, binder);
         setListAdapter(adapter);
 
-        getListView().setOnScrollListener(this);
+        if (mType == Type.ALL) {
+            getListView().setOnScrollListener(this);
+        }
     }
 
     private void doQuery(String limit) {
-        QueryCallable query = new QueryCallable(mStatusHelper, null, null,
-                limit);
+        String selection = Column.following.name() + " = 1";
+        Builder builder = new QueryCallable.Builder(mHelper).selection(
+                selection).limit(limit);
+        if (mType == Type.RECENT) {
+            // 只查找選擇過的
+            builder.selection(selection + " and "
+                    + Column.selected_count.name() + " > 0");
+            // 如果是查找最近使用過的關注好友, 則根據選擇的次數倒序排列
+            builder.orderBy(Column.selected_count.name() + " desc");
+        }
+        QueryCallable query = builder.build();
         DeferredManager.when(query).then(this);
     }
 
@@ -83,7 +117,7 @@ public class FriendshipListFragment extends ListFragment implements
     public void onDestroy() {
         super.onDestroy();
 
-        mStatusHelper.close();
+        mHelper.close();
         mFriends = null;
     }
 
@@ -122,7 +156,19 @@ public class FriendshipListFragment extends ListFragment implements
             holder.mSelected.setChecked(true);
 
             text.append(name).append(" @");
+
+            updateSelectCount(name);
         }
+    }
+
+    /**
+     * 更新選擇的次數
+     * 
+     * @param name
+     */
+    private void updateSelectCount(String name) {
+        Log.d(TAG, "select -> " + name);
+        mHelper.execSQL(SELECTCOUNT_UPDATE_SQL, name);
     }
 
     private EditText getSelectedFriendsView() {
@@ -142,13 +188,19 @@ public class FriendshipListFragment extends ListFragment implements
             int visibleItemCount, int totalItemCount) {
         boolean isAtBottom = firstVisibleItem + visibleItemCount >= totalItemCount;
         if (!isLoading && firstVisibleItem > 0 && isAtBottom) {
-            Log.d(TAG, "load more after " + totalItemCount);
-
             isLoading = true;
+
+            Log.d(TAG, "load more after " + totalItemCount);
             doQuery(totalItemCount + ", 20");
         } else {
             isLoading = false;
         }
+    }
+
+    enum Type {
+        RECENT,
+
+        ALL;
     }
 
     private static final class FriendshipBinder implements ViewBinder<Bundle> {

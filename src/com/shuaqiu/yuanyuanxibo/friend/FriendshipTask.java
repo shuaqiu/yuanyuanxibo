@@ -41,7 +41,7 @@ public class FriendshipTask implements Runnable {
                 int netCount = getCount(type);
                 int dbCount = getCountFromDb(type);
                 if (netCount > dbCount) {
-                    Log.d(TAG, String.format("type: %s, online: %i, local: %i",
+                    Log.d(TAG, String.format("type: %s, online: %d, local: %d",
                             type, netCount, dbCount));
                     downloadNewDatas(type, netCount - dbCount);
                 }

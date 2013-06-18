@@ -3,8 +3,6 @@ package com.shuaqiu.yuanyuanxibo.content;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
@@ -12,11 +10,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-
-import com.shuaqiu.common.util.HttpUtil;
-import com.shuaqiu.yuanyuanxibo.API.Friend;
-import com.shuaqiu.yuanyuanxibo.StateKeeper;
-import com.shuaqiu.yuanyuanxibo.auth.Oauth2AccessToken;
 
 /**
  * <code><pre>
@@ -77,7 +70,7 @@ public class FriendshipHelper extends AbsObjectHelper {
     public static final String TABLE = "t_friendship";
 
     /** 排序字段 */
-    public static final String ORDER_BY = Column.id.name() + " desc";
+    public static final String ORDER_BY = Column.screen_name.name();
 
     public static final Column[] COLUMNS = Column.values();
 
@@ -160,7 +153,11 @@ public class FriendshipHelper extends AbsObjectHelper {
         /***/
         mbrank(ColumnType.TEXT),
         /***/
-        block_word(ColumnType.TEXT);
+        block_word(ColumnType.TEXT),
+
+        //
+        /** 選擇的次數, 用於 "@ 用戶" 的選擇 */
+        selected_count(ColumnType.INTEGER);
 
         // -----------------------------------------
         ColumnType columnType;
@@ -238,60 +235,4 @@ public class FriendshipHelper extends AbsObjectHelper {
         return values;
     }
 
-    public void downloadAllFriends() {
-        Log.d(TAG, "prepare to download");
-
-        Bundle params = new Bundle();
-        Oauth2AccessToken accessToken = StateKeeper.accessToken;
-        params.putString("access_token", accessToken.getAccessToken());
-        params.putString("uid", accessToken.getUid());
-        // params.putInt("count", 200);
-
-        int cursor = 0;
-        // do {
-        JSONObject json = download(params, cursor);
-        if (json == null) {
-            return;
-        }
-
-        // 取得下一頁的cursor, 進行循環遍歷, 獲取所有的關注.
-        // 如果已經到最後一頁, 則next_cursor 的值為0
-        cursor = json.optInt("next_cursor");
-        // } while (cursor > 0);
-    }
-
-    public JSONObject download(Bundle params, int cursor) {
-        params.putInt("cursor", cursor);
-
-        Log.d(TAG, "start to download");
-        String respText = HttpUtil.httpGet(Friend.FRIENDS, params);
-        Log.d(TAG, "downloaded: " + respText);
-
-        if (respText == null) {
-            return null;
-        }
-
-        JSONObject json = null;
-        try {
-            json = new JSONObject(respText);
-        } catch (JSONException e) {
-            Log.e(TAG, e.getMessage(), e);
-            return null;
-        }
-
-        JSONArray arr = json.optJSONArray("users");
-        if (arr == null || arr.length() == 0) {
-            Log.d(TAG, "not data");
-            return null;
-        }
-
-        Log.d(TAG, "write emotions data to database");
-        saveOrUpdate(arr);
-
-        return json;
-    }
-
-    public void tryDownloadImage() {
-
-    }
 }

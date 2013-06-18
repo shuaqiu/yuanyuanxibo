@@ -151,7 +151,17 @@ public class FriendSelectionActivity extends FragmentActivity implements
 
         @Override
         public Fragment getItem(int position) {
-            return new FriendshipListFragment();
+            if (position == 1) {
+                // All
+                FriendsListFragment fragment = new FriendsListFragment();
+                Bundle args = new Bundle(1);
+                args.putString("type", FriendsListFragment.Type.ALL.name());
+                fragment.setArguments(args);
+                return fragment;
+            }
+
+            // Recent
+            return new FriendsListFragment();
         }
 
     }

@@ -55,8 +55,8 @@ public class StatusActivity extends FragmentActivity implements
             selection = "id <= ?";
             args = new String[] { Long.toString(mMaxId) };
         }
-        QueryCallable query = new QueryCallable(mStatusHelper, selection, args,
-                "100");
+        QueryCallable query = new QueryCallable.Builder(mStatusHelper)
+                .selection(selection).args(args).limit("100").build();
         DeferredManager.when(query).then(this);
 
         findViewById(R.id.repost).setOnClickListener(this);
