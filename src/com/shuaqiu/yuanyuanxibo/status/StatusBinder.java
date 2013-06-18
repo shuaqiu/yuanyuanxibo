@@ -46,7 +46,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
 
     @Override
     public void bindView(View view, final Data data) {
-        ViewHolder holder = initViewHolder(view);
+        ViewHolder holder = ViewHolder.from(view);
 
         setProfileImage(holder, data);
         setStatusViews(holder, data);
@@ -60,47 +60,6 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             setRetweetedViews(holder, data);
             setThumbnailPic(holder, data);
         }
-    }
-
-    protected ViewHolder initViewHolder(View view) {
-        Object tag = view.getTag();
-        if (tag != null && tag instanceof ViewHolder) {
-            return (ViewHolder) tag;
-        }
-
-        ViewHolder holder = new ViewHolder();
-        view.setTag(holder);
-
-        holder.mProfileImage = view.findViewById(R.id.profile_image);
-
-        holder.mUsername = view.findViewById(R.id.user_name);
-        holder.mCreateAt = view.findViewById(R.id.created_at);
-        holder.mText = view.findViewById(R.id.text);
-        holder.mSource = view.findViewById(R.id.source);
-        holder.mAttitudesCount = view.findViewById(R.id.attitudes_count);
-        holder.mRepostsCount = view.findViewById(R.id.reposts_count);
-        holder.mCommentsCount = view.findViewById(R.id.comments_count);
-
-        holder.mRetweeted = view.findViewById(R.id.retweeted);
-
-        holder.mRetweetedUsername = view.findViewById(R.id.retweeted_user_name);
-        holder.mRetweetedCreateAt = view
-                .findViewById(R.id.retweeted_created_at);
-        holder.mRetweetedText = view.findViewById(R.id.retweeted_text);
-        holder.mRetweetedSource = view.findViewById(R.id.retweeted_source);
-        holder.mRetweetedAttitudesCount = view
-                .findViewById(R.id.retweeted_attitudes_count);
-        holder.mRetweetedRepostsCount = view
-                .findViewById(R.id.retweeted_reposts_count);
-        holder.mRetweetedCommentsCount = view
-                .findViewById(R.id.retweeted_comments_count);
-
-        holder.mStatusContent = (LinearLayout) view
-                .findViewById(R.id.status_content);
-        holder.mThumbnailPic = view.findViewById(R.id.thumbnail_pic);
-        holder.mProgress = view.findViewById(R.id.progress);
-
-        return holder;
     }
 
     protected void setProfileImage(ViewHolder holder, final Data status) {
@@ -596,5 +555,47 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         private LinearLayout mStatusContent;
         private View mThumbnailPic;
         private View mProgress;
+
+        protected static ViewHolder from(View v) {
+            Object tag = v.getTag();
+            if (tag != null && tag instanceof ViewHolder) {
+                return (ViewHolder) tag;
+            }
+
+            ViewHolder holder = new ViewHolder();
+            v.setTag(holder);
+
+            holder.mProfileImage = v.findViewById(R.id.profile_image);
+
+            holder.mUsername = v.findViewById(R.id.user_name);
+            holder.mCreateAt = v.findViewById(R.id.created_at);
+            holder.mText = v.findViewById(R.id.text);
+            holder.mSource = v.findViewById(R.id.source);
+            holder.mAttitudesCount = v.findViewById(R.id.attitudes_count);
+            holder.mRepostsCount = v.findViewById(R.id.reposts_count);
+            holder.mCommentsCount = v.findViewById(R.id.comments_count);
+
+            holder.mRetweeted = v.findViewById(R.id.retweeted);
+
+            holder.mRetweetedUsername = v
+                    .findViewById(R.id.retweeted_user_name);
+            holder.mRetweetedCreateAt = v
+                    .findViewById(R.id.retweeted_created_at);
+            holder.mRetweetedText = v.findViewById(R.id.retweeted_text);
+            holder.mRetweetedSource = v.findViewById(R.id.retweeted_source);
+            holder.mRetweetedAttitudesCount = v
+                    .findViewById(R.id.retweeted_attitudes_count);
+            holder.mRetweetedRepostsCount = v
+                    .findViewById(R.id.retweeted_reposts_count);
+            holder.mRetweetedCommentsCount = v
+                    .findViewById(R.id.retweeted_comments_count);
+
+            holder.mStatusContent = (LinearLayout) v
+                    .findViewById(R.id.status_content);
+            holder.mThumbnailPic = v.findViewById(R.id.thumbnail_pic);
+            holder.mProgress = v.findViewById(R.id.progress);
+
+            return holder;
+        }
     }
 }

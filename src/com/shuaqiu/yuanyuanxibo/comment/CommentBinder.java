@@ -40,31 +40,11 @@ public class CommentBinder implements ViewBinder<JSONObject> {
 
     @Override
     public void bindView(View view, final JSONObject comment) {
-        ViewHolder holder = getViewHolder(view);
+        ViewHolder holder = ViewHolder.from(view);
 
         setComment(holder, comment);
         setReplyFor(holder, comment);
         setAction(holder, comment);
-    }
-
-    protected ViewHolder getViewHolder(View view) {
-        Object tag = view.getTag();
-        if (tag != null && tag instanceof ViewHolder) {
-            return (ViewHolder) tag;
-        }
-
-        ViewHolder holder = new ViewHolder();
-        view.setTag(holder);
-
-        holder.mUsername = view.findViewById(R.id.user_name);
-        holder.mCreateAt = view.findViewById(R.id.created_at);
-        holder.mComment = view.findViewById(R.id.text);
-        holder.mSource = view.findViewById(R.id.source);
-        holder.mReplyContainer = view.findViewById(R.id.reply_container);
-        holder.mReplyContent = view.findViewById(R.id.reply_content);
-        holder.mToReply = view.findViewById(R.id.to_reply);
-
-        return holder;
     }
 
     protected void setComment(ViewHolder holder, final JSONObject comment) {
@@ -166,5 +146,25 @@ public class CommentBinder implements ViewBinder<JSONObject> {
         protected View mReplyContainer;
         protected View mReplyContent;
         protected View mToReply;
+
+        protected static ViewHolder from(View v) {
+            Object tag = v.getTag();
+            if (tag != null && tag instanceof ViewHolder) {
+                return (ViewHolder) tag;
+            }
+
+            ViewHolder holder = new ViewHolder();
+            v.setTag(holder);
+
+            holder.mUsername = v.findViewById(R.id.user_name);
+            holder.mCreateAt = v.findViewById(R.id.created_at);
+            holder.mComment = v.findViewById(R.id.text);
+            holder.mSource = v.findViewById(R.id.source);
+            holder.mReplyContainer = v.findViewById(R.id.reply_container);
+            holder.mReplyContent = v.findViewById(R.id.reply_content);
+            holder.mToReply = v.findViewById(R.id.to_reply);
+
+            return holder;
+        }
     }
 }

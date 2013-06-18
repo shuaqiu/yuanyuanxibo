@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.util.Log;
 
 import com.shuaqiu.common.widget.CursorAdapter;
 
@@ -15,6 +16,8 @@ import com.shuaqiu.common.widget.CursorAdapter;
  * @author shuaqiu May 6, 2013
  */
 public class CursorLoaderCallbacks implements LoaderCallbacks<Cursor> {
+
+    private static final String TAG = "CursorLoaderCallbacks";
 
     private Context mContext;
     private CursorAdapter mAdapter;
@@ -40,6 +43,13 @@ public class CursorLoaderCallbacks implements LoaderCallbacks<Cursor> {
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (args != null) {
+            String limit = args.getString("limit");
+            Log.d(TAG, limit);
+            if (limit != null) {
+                mLimit = limit;
+            }
+        }
         return new AsyncCursorLoader(mContext, mTable, mProjection, null, null,
                 null, null, mOrderBy, mLimit);
     }

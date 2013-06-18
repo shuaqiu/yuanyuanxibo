@@ -64,29 +64,7 @@ public class SendActivity extends Activity implements OnClickListener,
             return;
         }
         View decorView = getWindow().getDecorView();
-        Object tag = decorView.getTag();
-        if (tag != null && tag instanceof ViewHolder) {
-            mHolder = (ViewHolder) tag;
-            return;
-        }
-
-        mHolder = new ViewHolder();
-
-        mHolder.mContent = (EditText) findViewById(R.id.content);
-        mHolder.mTitle = (TextView) findViewById(R.id.title);
-        mHolder.mRemainCharCount = (TextView) findViewById(R.id.remain_char_count);
-
-        mHolder.mRepost = (CheckBox) findViewById(R.id.repost_weibo);
-        mHolder.mComment = (CheckBox) findViewById(R.id.comment_weibo);
-        mHolder.mCommentOriginal = (CheckBox) findViewById(R.id.comment_original_weibo);
-
-        mHolder.mBack = findViewById(R.id.back);
-        mHolder.mSend = findViewById(R.id.send);
-        mHolder.mTrend = findViewById(R.id.action_trend);
-        mHolder.mAt = findViewById(R.id.action_at);
-        mHolder.mEmotion = findViewById(R.id.action_emotion);
-
-        decorView.setTag(mHolder);
+        mHolder = ViewHolder.from(decorView);
     }
 
     /**
@@ -399,5 +377,32 @@ public class SendActivity extends Activity implements OnClickListener,
         private View mAt;
         private View mEmotion;
 
+        static ViewHolder from(View v) {
+            Object tag = v.getTag();
+            if (tag != null && tag instanceof ViewHolder) {
+                return (ViewHolder) tag;
+            }
+
+            ViewHolder holder = new ViewHolder();
+            v.setTag(holder);
+
+            holder.mContent = (EditText) v.findViewById(R.id.content);
+            holder.mTitle = (TextView) v.findViewById(R.id.title);
+            holder.mRemainCharCount = (TextView) v
+                    .findViewById(R.id.remain_char_count);
+
+            holder.mRepost = (CheckBox) v.findViewById(R.id.repost_weibo);
+            holder.mComment = (CheckBox) v.findViewById(R.id.comment_weibo);
+            holder.mCommentOriginal = (CheckBox) v
+                    .findViewById(R.id.comment_original_weibo);
+
+            holder.mBack = v.findViewById(R.id.back);
+            holder.mSend = v.findViewById(R.id.send);
+            holder.mTrend = v.findViewById(R.id.action_trend);
+            holder.mAt = v.findViewById(R.id.action_at);
+            holder.mEmotion = v.findViewById(R.id.action_emotion);
+
+            return holder;
+        }
     }
 }

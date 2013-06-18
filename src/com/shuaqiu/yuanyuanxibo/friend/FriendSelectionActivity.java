@@ -38,6 +38,7 @@ public class FriendSelectionActivity extends FragmentActivity implements
         initViewHolder();
         initTab();
         mHolder.mSelectedFriends.setText("@");
+        mHolder.mSelectedFriends.setSelection("@".length());
 
         mHolder.mOk.setOnClickListener(this);
         mHolder.mBack.setOnClickListener(this);
@@ -49,24 +50,7 @@ public class FriendSelectionActivity extends FragmentActivity implements
         }
 
         View decorView = getWindow().getDecorView();
-        Object tag = decorView.getTag();
-        if (tag != null && tag instanceof ViewHolder) {
-            mHolder = (ViewHolder) tag;
-            return;
-        }
-
-        mHolder = new ViewHolder();
-
-        mHolder.mSelectedFriends = (EditText) findViewById(R.id.selected_friends);
-        mHolder.mOk = findViewById(R.id.ok);
-        mHolder.mBack = findViewById(R.id.back);
-
-        mHolder.mPager = (ViewPager) findViewById(R.id.pager);
-
-        mHolder.mRecent = findViewById(R.id.recent);
-        mHolder.mAll = findViewById(R.id.all);
-
-        decorView.setTag(mHolder);
+        mHolder = ViewHolder.from(decorView);
     }
 
     private void initTab() {
@@ -91,7 +75,8 @@ public class FriendSelectionActivity extends FragmentActivity implements
     private void selected() {
         Editable text = mHolder.mSelectedFriends.getText();
         Intent data = new Intent();
-        data.putExtra("selectedFriends", text.toString());
+        String friends = text.toString().replaceFirst("@$", "");
+        data.putExtra("selectedFriends", friends);
         setResult(RESULT_OK, data);
         finish();
     }
@@ -106,6 +91,28 @@ public class FriendSelectionActivity extends FragmentActivity implements
 
         private View mRecent;
         private View mAll;
+
+        static ViewHolder from(View v) {
+            Object tag = v.getTag();
+            if (tag != null && tag instanceof ViewHolder) {
+                return (ViewHolder) tag;
+            }
+
+            ViewHolder holder = new ViewHolder();
+            v.setTag(holder);
+
+            holder.mSelectedFriends = (EditText) v
+                    .findViewById(R.id.selected_friends);
+            holder.mOk = v.findViewById(R.id.ok);
+            holder.mBack = v.findViewById(R.id.back);
+
+            holder.mPager = (ViewPager) v.findViewById(R.id.pager);
+
+            holder.mRecent = v.findViewById(R.id.recent);
+            holder.mAll = v.findViewById(R.id.all);
+
+            return holder;
+        }
     }
 
     private static class TabPagerAdapter extends FragmentTabPagerAdapter {

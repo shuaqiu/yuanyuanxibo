@@ -36,19 +36,25 @@ public class FriendshipTask implements Runnable {
     public void run() {
         mHelper.openForWrite();
 
-        for (Type type : Type.values()) {
-            int netCount = getCount(type);
-            int dbCount = getCountFromDb(type);
-            if (netCount > dbCount) {
-                downloadNewDatas(type, netCount - dbCount);
+        try {
+            for (Type type : Type.values()) {
+                int netCount = getCount(type);
+                int dbCount = getCountFromDb(type);
+                if (netCount > dbCount) {
+                    Log.d(TAG, String.format("type: %s, online: %i, local: %i",
+                            type, netCount, dbCount));
+                    downloadNewDatas(type, netCount - dbCount);
+                }
             }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            mHelper.close();
         }
 
-        mHelper.close();
     }
 
     private void downloadNewDatas(Type type, int count) {
-        Log.d(TAG, "have " + count + " new " + type);
         int cursor = 0;
         while (count > 0) {
             int c = MAX_COUNT_PER_REQ;

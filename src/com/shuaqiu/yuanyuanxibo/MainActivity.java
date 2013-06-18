@@ -78,23 +78,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
             return;
         }
         View decorView = getWindow().getDecorView();
-        Object tag = decorView.getTag();
-        if (tag != null && tag instanceof ViewHolder) {
-            mHolder = (ViewHolder) tag;
-            return;
-        }
-
-        mHolder = new ViewHolder();
-        decorView.setTag(mHolder);
-
-        mHolder.mViewPager = (ViewPager) findViewById(R.id.pager);
-
-        mHolder.mHome = findViewById(R.id.home);
-        mHolder.mAtMe = findViewById(R.id.at_me);
-        mHolder.mComments = findViewById(R.id.comments);
-        mHolder.mMessages = findViewById(R.id.messages);
-
-        mHolder.mRefresh = findViewById(R.id.refresh);
+        mHolder = ViewHolder.from(decorView);
     }
 
     @Override
@@ -166,5 +150,26 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         View mMessages;
 
         View mRefresh;
+
+        static ViewHolder from(View v) {
+            Object tag = v.getTag();
+            if (tag != null && tag instanceof ViewHolder) {
+                return (ViewHolder) tag;
+            }
+
+            ViewHolder holder = new ViewHolder();
+            v.setTag(holder);
+
+            holder.mViewPager = (ViewPager) v.findViewById(R.id.pager);
+
+            holder.mHome = v.findViewById(R.id.home);
+            holder.mAtMe = v.findViewById(R.id.at_me);
+            holder.mComments = v.findViewById(R.id.comments);
+            holder.mMessages = v.findViewById(R.id.messages);
+
+            holder.mRefresh = v.findViewById(R.id.refresh);
+
+            return holder;
+        }
     }
 }
