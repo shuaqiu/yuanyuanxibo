@@ -74,9 +74,10 @@ public class FriendSelectionActivity extends FragmentActivity implements
 
     private void selected() {
         Editable text = mHolder.mSelectedFriends.getText();
-        Intent data = new Intent();
         String friends = text.toString().replaceFirst("@$", "");
-        data.putExtra("selectedFriends", friends);
+
+        Intent data = new Intent();
+        data.putExtra("selected", friends);
         setResult(RESULT_OK, data);
         finish();
     }

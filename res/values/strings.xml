@@ -40,8 +40,8 @@
     <string name="repost">repost</string>
     <string name="comment">comment</string>
     <string name="favorite">favorite</string>
-    <string name="action_trend">Trend</string>
-    <string name="action_at">\@</string>
+    <string name="action_trend">trend</string>
+    <string name="action_at_user">user</string>
     <string name="action_emotion">emotion</string>
     <string name="repost_weibo">Repost Weibo</string>
     <string name="send">Send</string>
@@ -70,6 +70,7 @@
     <string name="reposts">Reposts</string>
     <string name="comment_original">Comment Original Weibo</string>
     <string name="comment_weibo">Comment Weibo</string>
+    <string name="max_char_count">140</string>
     
     <string name="default_repost_content">Forward</string>
     <string name="default_comment_content">Reply@%s:</string>
@@ -82,5 +83,10 @@
     <string name="recent">Recent</string>
     <string name="all">All</string>
 
+    <string name="trends">Trends</string>
+    <string name="recommended_topic">Recommended Topic</string>
+    <string name="hourly">Hourly</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
     
 </resources>

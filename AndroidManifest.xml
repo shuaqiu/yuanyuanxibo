@@ -71,7 +71,11 @@
         </activity>
         <activity
             android:name="com.shuaqiu.yuanyuanxibo.trend.TrendActivity"
-            android:label="@string/friends" >
+            android:label="@string/trends" >
+        </activity>
+        <activity
+            android:name="com.shuaqiu.yuanyuanxibo.trend.TrendSelectionActivity"
+            android:label="@string/trends" >
         </activity>
 
         <service

@@ -372,4 +372,131 @@ public interface API {
          */
         String DESTROY = "2/friendships/destroy.json";
     }
+
+    interface Trend {
+
+        /**
+         * 獲取某人的話題列表
+         * <p>
+         * <b>HTTP請求</b>：GET
+         * </p>
+         * <b>參數</b>：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>uid</b>：需要獲取話題的用戶ID, <b>必填</b>, int64</li>
+         * <li><b>count</b>：單頁返回的記錄數, 默認爲10, 可選, int</li>
+         * <li><b>page</b>：返回結果的頁碼, 默認爲1, 可選, int</li>
+         * </ul>
+         * <p>
+         * <b>返回</b>:
+         * </p>
+         * 
+         * <pre>
+         * 
+         * </pre>
+         */
+        String TRENDS = "2/trends.json";
+
+        /**
+         * 獲取最近一小時內的熱門話題
+         * <p>
+         * <b>HTTP請求</b>：GET
+         * </p>
+         * <b>參數</b>：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>base_app</b>：是否只獲取當前應用的數據, 0: 否, 獲取所有數據, 1: 是, 僅獲取當前應用數據,
+         * 默認爲0, 可選, int</li>
+         * </ul>
+         * <p>
+         * <b>返回</b>:
+         * </p>
+         * 
+         * <pre>
+         * {
+         *     "trends": {
+         *         "2013-06-19 09:44": [
+         *             {
+         *                 "name": "古川雄辉微访谈",
+         *                 "query": "古川雄辉微访谈",
+         *                 "amount": "649675",
+         *                 "delta": "21655"
+         *             },
+         *             ... // 其餘9 條記錄
+         *         ]
+         *     },
+         *     "as_of": 1371606277
+         * }
+         * </pre>
+         */
+        String HOURLY = "2/trends/hourly.json";
+
+        /**
+         * 獲取最近一天的熱門話題
+         * <p>
+         * <b>HTTP請求</b>：GET
+         * </p>
+         * <b>參數</b>：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>base_app</b>：是否只獲取當前應用的數據, 0: 否, 獲取所有數據, 1: 是, 僅獲取當前應用數據,
+         * 默認爲0, 可選, int</li>
+         * </ul>
+         * <p>
+         * <b>返回</b>:
+         * </p>
+         * 
+         * <pre>
+         * {
+         *     "trends": {
+         *         "2013-06-19 09:44": [
+         *             {
+         *                 "name": "古川雄辉微访谈",
+         *                 "query": "古川雄辉微访谈",
+         *                 "amount": "649675",
+         *                 "delta": "21655"
+         *             },
+         *             ... // 其餘9 條記錄
+         *         ]
+         *     },
+         *     "as_of": 1371606277
+         * }
+         * </pre>
+         */
+        String DAILY = "2/trends/daily.json";
+
+        /**
+         * 獲取最近一周的熱門話題
+         * <p>
+         * <b>HTTP請求</b>：GET
+         * </p>
+         * <b>參數</b>：
+         * <ul>
+         * <li><b>access_token</b>：獲取的用戶授權token, <b>必填</b>, string</li>
+         * <li><b>base_app</b>：是否只獲取當前應用的數據, 0: 否, 獲取所有數據, 1: 是, 僅獲取當前應用數據,
+         * 默認爲0, 可選, int</li>
+         * </ul>
+         * <p>
+         * <b>返回</b>:
+         * </p>
+         * 
+         * <pre>
+         * {
+         *     "trends": {
+         *         "2013-06-19 09:44": [
+         *             {
+         *                 "name": "古川雄辉微访谈",
+         *                 "query": "古川雄辉微访谈",
+         *                 "amount": "649675",
+         *                 "delta": "21655"
+         *             },
+         *             ... // 其餘9 條記錄
+         *         ]
+         *     },
+         *     "as_of": 1371606277
+         * }
+         * </pre>
+         */
+        String WEEKLY = "2/trends/weekly.json";
+    }
 }

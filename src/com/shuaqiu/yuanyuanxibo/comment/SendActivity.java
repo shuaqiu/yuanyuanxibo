@@ -27,7 +27,7 @@ import com.shuaqiu.yuanyuanxibo.Actions.Comment;
 import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.friend.FriendSelectionActivity;
-import com.shuaqiu.yuanyuanxibo.trend.TrendActivity;
+import com.shuaqiu.yuanyuanxibo.trend.TrendSelectionActivity;
 
 /**
  * @author shuaqiu Jun 3, 2013
@@ -79,7 +79,7 @@ public class SendActivity extends Activity implements OnClickListener,
         mHolder.mRemainCharCount.setOnClickListener(this);
 
         mHolder.mTrend.setOnClickListener(this);
-        mHolder.mAt.setOnClickListener(this);
+        mHolder.mAtUser.setOnClickListener(this);
         mHolder.mEmotion.setOnClickListener(this);
     }
 
@@ -113,7 +113,7 @@ public class SendActivity extends Activity implements OnClickListener,
         case R.id.action_trend:
             showTrends();
             break;
-        case R.id.action_at:
+        case R.id.action_at_user:
             showFriends();
             break;
         case R.id.action_emotion:
@@ -261,7 +261,7 @@ public class SendActivity extends Activity implements OnClickListener,
      * 
      */
     private void showTrends() {
-        Intent intent = new Intent(this, TrendActivity.class);
+        Intent intent = new Intent(this, TrendSelectionActivity.class);
         startActivityForResult(intent, CODE_TREND);
     }
 
@@ -277,12 +277,11 @@ public class SendActivity extends Activity implements OnClickListener,
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
         case CODE_TREND:
-            break;
         case CODE_FRIEND:
             if (resultCode == RESULT_OK) {
-                String friends = data.getStringExtra("selectedFriends");
+                String selected = data.getStringExtra("selected");
                 int cursorPosition = mHolder.mContent.getSelectionEnd();
-                mHolder.mContent.getText().insert(cursorPosition, friends);
+                mHolder.mContent.getText().insert(cursorPosition, selected);
             }
             break;
         }
@@ -374,7 +373,7 @@ public class SendActivity extends Activity implements OnClickListener,
         private View mBack;
         private View mSend;
         private View mTrend;
-        private View mAt;
+        private View mAtUser;
         private View mEmotion;
 
         static ViewHolder from(View v) {
@@ -399,7 +398,7 @@ public class SendActivity extends Activity implements OnClickListener,
             holder.mBack = v.findViewById(R.id.back);
             holder.mSend = v.findViewById(R.id.send);
             holder.mTrend = v.findViewById(R.id.action_trend);
-            holder.mAt = v.findViewById(R.id.action_at);
+            holder.mAtUser = v.findViewById(R.id.action_at_user);
             holder.mEmotion = v.findViewById(R.id.action_emotion);
 
             return holder;

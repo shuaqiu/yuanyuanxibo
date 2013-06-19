@@ -46,8 +46,6 @@
         android:layout_below="@+id/title_bar"
         android:gravity="top"
         android:inputType="textMultiLine" >
-
-        <requestFocus />
     </EditText>
 
     <CheckBox
@@ -85,7 +83,7 @@
         android:layout_marginBottom="@dimen/ten_dp"
         android:layout_marginRight="@dimen/ten_dp"
         android:drawableRight="@drawable/ic_action_delete"
-        android:text="@string/empty" />
+        android:text="@string/max_char_count" />
 
     <LinearLayout
         android:id="@+id/action_bar"
@@ -105,10 +103,10 @@
             android:src="@drawable/ic_action_trend" />
 
         <ImageView
-            android:id="@+id/action_at"
+            android:id="@+id/action_at_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/action_at"
+            android:contentDescription="@string/action_at_user"
             android:padding="@dimen/five_dp"
             android:src="@drawable/ic_action_at" />
 
@@ -120,5 +118,15 @@
             android:padding="@dimen/five_dp"
             android:src="@drawable/ic_action_emotion" />
     </LinearLayout>
+
+    <ViewStub
+        android:id="@+id/stub_emotions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/action_bar"
+        android:inflatedId="@+id/emotions"
+        android:layout="@layout/stub_emotions" />
 
 </RelativeLayout>
