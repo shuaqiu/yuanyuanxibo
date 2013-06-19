@@ -170,7 +170,6 @@ public class SendActivity extends Activity implements OnClickListener,
      *            內容
      * @return 參數設置
      * @see API.Status.REPOST
-     * 
      */
     private Bundle buildRepostParam(Editable content) {
         Intent intent = getIntent();
@@ -198,7 +197,6 @@ public class SendActivity extends Activity implements OnClickListener,
      * @return 參數設置
      * @see API.Status.CREATE
      * @see API.Status.REPLY
-     * 
      */
     private Bundle buildCommentParam(Editable content) {
         Intent intent = getIntent();
@@ -294,6 +292,7 @@ public class SendActivity extends Activity implements OnClickListener,
      */
     private void showEmotions() {
         if (mHolder.mEmotions == null) {
+            Log.d(TAG, "inflate view stub");
             mHolder.mEmotions = mHolder.mStubEmotions.inflate();
         }
         mHolder.mEmotions.setVisibility(View.VISIBLE);

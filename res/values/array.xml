@@ -14,4 +14,15 @@
         <item>@string/original_image_value</item>
     </string-array>
 
+    <string-array name="prefetch_interval">
+        <item>@string/two_minutes</item>
+        <item>@string/five_minutes</item>
+        <item>@string/ten_minutes</item>
+    </string-array>
+    <string-array name="prefetch_interval_value">
+        <item>@string/two_minutes_value</item>
+        <item>@string/five_minutes_value</item>
+        <item>@string/ten_minutes_value</item>
+    </string-array>
+
 </resources>

@@ -63,14 +63,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 
         initViewHolder();
 
-        mTabHelper = new FragmentTabHelper(this);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the app.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(
-                getSupportFragmentManager(), mHolder);
-        mTabHelper.setPagerAdapter(mSectionsPagerAdapter);
-
-        mHolder.mRefresh.setOnClickListener(this);
+        initTab();
+        initAction();
+        startService();
     }
 
     private void initViewHolder() {
@@ -79,6 +74,24 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         }
         View decorView = getWindow().getDecorView();
         mHolder = ViewHolder.from(decorView);
+    }
+
+    private void initTab() {
+        mTabHelper = new FragmentTabHelper(this);
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the app.
+        mSectionsPagerAdapter = new SectionsPagerAdapter(
+                getSupportFragmentManager(), mHolder);
+        mTabHelper.setPagerAdapter(mSectionsPagerAdapter);
+    }
+
+    private void initAction() {
+        mHolder.mRefresh.setOnClickListener(this);
+    }
+
+    private void startService() {
+        Intent service = new Intent(this, MainService.class);
+        startService(service);
     }
 
     @Override

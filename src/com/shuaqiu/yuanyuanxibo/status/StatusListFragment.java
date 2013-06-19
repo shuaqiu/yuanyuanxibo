@@ -52,7 +52,6 @@ public class StatusListFragment extends ListFragment implements Refreshable {
                 StatusHelper.ORDER_BY, "100");
         getLoaderManager().initLoader(0, null, loadCallback);
 
-        startService(context);
         receiveBroadcast();
     }
 
@@ -71,16 +70,6 @@ public class StatusListFragment extends ListFragment implements Refreshable {
         intent.putExtra("maxId", maxId);
 
         startActivity(intent);
-    }
-
-    private void startService(Context context) {
-        if (StatusService.isRunning) {
-            Log.d(TAG, "Service is running");
-            return;
-        }
-
-        Intent service = new Intent(context, StatusService.class);
-        context.startService(service);
     }
 
     private void receiveBroadcast() {

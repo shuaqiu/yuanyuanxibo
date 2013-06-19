@@ -48,22 +48,6 @@
     <string name="cancel">Cancel</string>
     <string name="sent">Sent</string>
     
-    <string name="image_quality">Image Quality</string>
-    <string name="image_quality_wifi">Image Quality (WIFI)</string>
-    <string name="image_quality_weibo_list">Weibo List Image</string>
-    <string name="image_quality_weibo_detail">Weibo Detail Image</string>
-    <string name="image_quality_weibo_original">Weibo Original Image</string>
-    
-    <string name="no_image">No Image</string>
-    <string name="thumbnail">Thumbnail</string>
-    <string name="large_image">Large Image</string>
-    <string name="original_image">Original Image</string>
-    
-    <string name="no_image_value">NONE</string>
-    <string name="thumbnail_value">THUMBNAIL</string>
-    <string name="large_image_value">LARGE</string>
-    <string name="original_image_value">ORIGINAL</string>
-    
     <string name="save">Save</string>
     <string name="back">Back</string>
     <string name="send_comment">Send Comment</string>
@@ -88,5 +72,6 @@
     <string name="hourly">Hourly</string>
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
+
     
 </resources>

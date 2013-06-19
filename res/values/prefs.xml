@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_quality">Image Quality</string>
+    <string name="image_quality_wifi">Image Quality (WIFI)</string>
+    <string name="image_quality_weibo_list">Weibo List Image</string>
+    <string name="image_quality_weibo_detail">Weibo Detail Image</string>
+    <string name="image_quality_weibo_original">Weibo Original Image</string>
+    
+    <string name="no_image">No Image</string>
+    <string name="thumbnail">Thumbnail</string>
+    <string name="large_image">Large Image</string>
+    <string name="original_image">Original Image</string>
+    
+    <string name="no_image_value">NONE</string>
+    <string name="thumbnail_value">THUMBNAIL</string>
+    <string name="large_image_value">LARGE</string>
+    <string name="original_image_value">ORIGINAL</string>
+    
+    <string name="prefetch">Data Prefetch</string>
+    <string name="prefetch_wifi">Data Prefetch (WIFI)</string>
+    <string name="prefetch_desc_wifi">Auto download weibo data when using WIFI</string>
+    <string name="prefetch_interval_wifi">Prefetch Interval(WIFI)</string>
+    <string name="prefetch_interval_desc_wifi">The interval for downloading weibo when using WIFI</string>
+    <string name="prefetch_image_wifi">Image Prefetch (WIFI)</string>
+    <string name="prefetch_image_desc_wifi">Auto download weibo image when using WIFI</string>
+    
+    <string name="prefetch_mobile">Data Prefetch (Mobile Network)</string>
+    <string name="prefetch_desc_mobile">Auto download weibo data when using Mobile Network</string>
+    <string name="prefetch_interval_mobile">Prefetch Interval(Mobile Network)</string>
+    <string name="prefetch_interval_desc_mobile">The interval for downloading weibo when using Mobile Network</string>
+    <string name="prefetch_image_mobile">Image Prefetch (Mobile Network)</string>
+    <string name="prefetch_image_desc_mobile">Auto download weibo image when using  Mobile Network</string>
+
+    <string name="two_minutes">2 Minutes</string>
+    <string name="five_minutes">5 Minutes</string>
+    <string name="ten_minutes">10 Minutes</string>
+    
+    <string name="two_minutes_value">120</string>
+    <string name="five_minutes_value">300</string>
+    <string name="ten_minutes_value">600</string>
+</resources>

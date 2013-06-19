@@ -18,7 +18,7 @@ import com.shuaqiu.yuanyuanxibo.HttpCursor.CursorPair;
 import com.shuaqiu.yuanyuanxibo.HttpCursorKeeper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 
-class StatusDownloader implements Runnable {
+public class StatusDownloader implements Runnable {
 
     private static final String TAG = "StatusDownloader";
 
@@ -69,7 +69,7 @@ class StatusDownloader implements Runnable {
         saveHttpCursor(httpCursor, data);
 
         if (isBroadcast) {
-            sendBoardcast(savedCount);
+            sendBoardcast(respText, savedCount);
         }
     }
 
@@ -114,11 +114,13 @@ class StatusDownloader implements Runnable {
     }
 
     /**
+     * @param result
      * @param savedCount
      */
-    private void sendBoardcast(int savedCount) {
+    private void sendBoardcast(String result, int savedCount) {
         Log.d(TAG, "send boardcast");
         Intent intent = new Intent(Status.NEW_RECEIVED);
+        intent.putExtra("result", result);
         intent.putExtra("count", savedCount);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <PreferenceScreen android:title="@string/image_quality" >
+    <PreferenceCategory android:title="@string/image_quality" >
         <ListPreference
             android:defaultValue="@string/thumbnail_value"
             android:dialogTitle="@string/image_quality_weibo_list"
@@ -23,8 +23,8 @@
             android:entryValues="@array/image_quality_value"
             android:key="image_quality_original"
             android:title="@string/image_quality_weibo_original" />
-    </PreferenceScreen>
-    <PreferenceScreen android:title="@string/image_quality_wifi" >
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/image_quality_wifi" >
         <ListPreference
             android:defaultValue="@string/thumbnail_value"
             android:dialogTitle="@string/image_quality_weibo_list"
@@ -46,6 +46,49 @@
             android:entryValues="@array/image_quality_value"
             android:key="image_quality_original_wifi"
             android:title="@string/image_quality_weibo_original" />
-    </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/prefetch" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefetch_wifi"
+            android:summary="@string/prefetch_desc_wifi"
+            android:title="@string/prefetch_wifi" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="prefetch_wifi"
+            android:key="prefetch_image_wifi"
+            android:summary="@string/prefetch_image_desc_wifi"
+            android:title="@string/prefetch_image_wifi" />
+
+        <ListPreference
+            android:defaultValue="@string/two_minutes_value"
+            android:dependency="prefetch_wifi"
+            android:entries="@array/prefetch_interval"
+            android:entryValues="@array/prefetch_interval_value"
+            android:key="prefetch_interval_wifi"
+            android:summary="@string/prefetch_interval_desc_wifi"
+            android:title="@string/prefetch_interval_wifi" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefetch_mobile"
+            android:summary="@string/prefetch_desc_mobile"
+            android:title="@string/prefetch_mobile" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="prefetch_mobile"
+            android:key="prefetch_image_mobile"
+            android:summary="@string/prefetch_image_desc_mobile"
+            android:title="@string/prefetch_image_mobile" />
+
+        <ListPreference
+            android:defaultValue="@string/ten_minutes_value"
+            android:dependency="prefetch_mobile"
+            android:entries="@array/prefetch_interval"
+            android:entryValues="@array/prefetch_interval_value"
+            android:key="prefetch_interval_mobile"
+            android:summary="@string/prefetch_interval_desc_mobile"
+            android:title="@string/prefetch_interval_mobile" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

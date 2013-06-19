@@ -29,6 +29,21 @@ public class BitmapUtil {
      */
     public static Bitmap fromUrl(ImageType type, String urlStr)
             throws IOException {
+        File cacheFile = cacheBitmap(type, urlStr);
+        if (cacheFile == null) {
+            return null;
+        }
+        cacheFile.setLastModified(System.currentTimeMillis());
+
+        return BitmapFactory.decodeFile(cacheFile.getPath());
+    }
+
+    /**
+     * @param type
+     * @param urlStr
+     * @return
+     */
+    public static File cacheBitmap(ImageType type, String urlStr) {
         if (type == null || urlStr == null || "".equals(urlStr.trim())) {
             return null;
         }
@@ -46,9 +61,7 @@ public class BitmapUtil {
                 return null;
             }
         }
-        cacheFile.setLastModified(System.currentTimeMillis());
-
-        return BitmapFactory.decodeFile(cacheFile.getPath());
+        return cacheFile;
     }
 
 }
