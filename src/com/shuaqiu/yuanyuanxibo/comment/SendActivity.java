@@ -13,6 +13,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewStub;
 import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -292,6 +293,10 @@ public class SendActivity extends Activity implements OnClickListener,
      * 
      */
     private void showEmotions() {
+        if (mHolder.mEmotions == null) {
+            mHolder.mEmotions = mHolder.mStubEmotions.inflate();
+        }
+        mHolder.mEmotions.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -376,6 +381,9 @@ public class SendActivity extends Activity implements OnClickListener,
         private View mAtUser;
         private View mEmotion;
 
+        private ViewStub mStubEmotions;
+        private View mEmotions;
+
         static ViewHolder from(View v) {
             Object tag = v.getTag();
             if (tag != null && tag instanceof ViewHolder) {
@@ -400,6 +408,8 @@ public class SendActivity extends Activity implements OnClickListener,
             holder.mTrend = v.findViewById(R.id.action_trend);
             holder.mAtUser = v.findViewById(R.id.action_at_user);
             holder.mEmotion = v.findViewById(R.id.action_emotion);
+
+            holder.mStubEmotions = (ViewStub) v.findViewById(R.id.emotions);
 
             return holder;
         }
