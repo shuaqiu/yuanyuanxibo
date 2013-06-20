@@ -1,19 +1,14 @@
 package com.shuaqiu.yuanyuanxibo;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -27,24 +22,23 @@ import com.shuaqiu.yuanyuanxibo.status.StatusDownloader;
  * @author shuaqiu Jun 19, 2013
  */
 public class MainService extends Service {
+
     static final String TAG = "PrefetchService";
 
-    private static final long DELAY = 30;
+    private static final int WHAT_STATUS_TASK = 1;
 
-    private static final long DEFAULT_PERIOD = 60 * 10;
+    private static final long DELAY = 30 * 1000;
 
-    private long period = DEFAULT_PERIOD;
+    private static final long DEFAULT_PERIOD = 10 * 60 * 1000;
 
     private boolean isRunning = false;
-
-    private ScheduledExecutorService mThreadPoll;
-
-    private Map<String, ScheduledFuture<?>> futures;
 
     private BroadcastReceiver mWifiReceiver;
     private BroadcastReceiver mImageTaskReceiver;
 
     private SharedPreferences mPref;
+
+    private Handler mHandler = new Handler();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -53,12 +47,8 @@ public class MainService extends Service {
 
     @Override
     public void onCreate() {
-        mThreadPoll = Executors.newScheduledThreadPool(1);
-        futures = new HashMap<String, ScheduledFuture<?>>();
-
+        mHandler = new Handler();
         mPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        period = getPeriod();
     }
 
     @Override
@@ -70,11 +60,11 @@ public class MainService extends Service {
 
         isRunning = true;
 
-        startStatusTask();
+        handleStatusTask();
 
         //
         FriendshipTask friendshipTask = new FriendshipTask(this);
-        mThreadPoll.schedule(friendshipTask, DELAY, TimeUnit.SECONDS);
+        mHandler.postDelayed(friendshipTask, DELAY * 1000);
 
         registerWifiReceiver();
 
@@ -84,17 +74,29 @@ public class MainService extends Service {
     /**
      * 根據配置, 啟動微博的下載任務
      */
-    private void startStatusTask() {
-        String key = "statusFuture";
-
-        ScheduledFuture<?> future = futures.remove(key);
-        cancel(future, false);
-
+    private void handleStatusTask() {
         if (isPrefetchData()) {
-            StatusDownloader command = new StatusDownloader(this);
-            future = mThreadPoll.scheduleWithFixedDelay(command, DELAY, period,
-                    TimeUnit.SECONDS);
-            futures.put("statusFuture", future);
+            final StatusDownloader command = new StatusDownloader(this);
+
+            Message message = Message.obtain(mHandler, new Runnable() {
+
+                @Override
+                public void run() {
+                    command.run();
+
+                    if (isPrefetchData()) {
+                        mHandler.postDelayed(this, getPeriod());
+
+                        if (isPrefetchImage()) {
+                            registerImageTaskReceiver();
+                        } else {
+                            unregisterImageTaskReceiver();
+                        }
+                    }
+                }
+            });
+            message.what = WHAT_STATUS_TASK;
+            mHandler.sendMessageDelayed(message, DELAY);
 
             if (isPrefetchImage()) {
                 registerImageTaskReceiver();
@@ -132,10 +134,25 @@ public class MainService extends Service {
      * 註冊微博下載完成的receiver, 獲取其中的圖片URL, 并進行下載
      */
     private void registerImageTaskReceiver() {
-        mImageTaskReceiver = new ImageTaskReceiver(this, mThreadPoll);
+        if (mImageTaskReceiver != null) {
+            return;
+        }
+        mImageTaskReceiver = new ImageTaskReceiver(this, mHandler);
         IntentFilter filter = new IntentFilter(Status.NEW_RECEIVED);
         LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
         manager.registerReceiver(mImageTaskReceiver, filter);
+    }
+
+    /**
+     * 
+     */
+    private void unregisterImageTaskReceiver() {
+        if (mImageTaskReceiver == null) {
+            return;
+        }
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        manager.unregisterReceiver(mImageTaskReceiver);
+        mImageTaskReceiver = null;
     }
 
     /**
@@ -149,7 +166,7 @@ public class MainService extends Service {
             key = "prefetch_interval_wifi";
         }
         String str = mPref.getString(key, "" + DEFAULT_PERIOD);
-        return Long.parseLong(str);
+        return Long.parseLong(str) * 1000;
     }
 
     /**
@@ -166,20 +183,10 @@ public class MainService extends Service {
     public void onDestroy() {
         isRunning = false;
 
-        for (ScheduledFuture<?> future : futures.values()) {
-            cancel(future, true);
-        }
-        mThreadPoll.shutdown();
+        mHandler.removeMessages(WHAT_STATUS_TASK);
+        mHandler = null;
 
         unregisterReceiver(mWifiReceiver);
-
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
-        manager.unregisterReceiver(mImageTaskReceiver);
-    }
-
-    private void cancel(ScheduledFuture<?> future, boolean mayInterruptIfRunning) {
-        if (future != null && !future.isDone()) {
-            future.cancel(mayInterruptIfRunning);
-        }
+        unregisterImageTaskReceiver();
     }
 }

@@ -8,8 +8,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +16,7 @@ import org.json.JSONObject;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 
 import com.shuaqiu.common.ImageType;
@@ -35,18 +34,14 @@ public class ImageTaskReceiver extends BroadcastReceiver {
     private static final String TAG = "StartImageDownloadReceiver";
 
     private Context mContext;
-    private ScheduledExecutorService mThreadPoll;
     /** 用來解析微博中的圖片, 直接用現成的代碼 */
     private JsonStatusBinder mBinder;
 
-    /**
-     * @param context
-     * @param mThreadPoll
-     */
-    public ImageTaskReceiver(Context context,
-            ScheduledExecutorService threadPoll) {
+    private Handler mHandler;
+
+    public ImageTaskReceiver(Context context, Handler handler) {
         mContext = context;
-        mThreadPoll = threadPoll;
+        mHandler = handler;
         mBinder = new JsonStatusBinder(mContext, null);
     }
 
@@ -61,7 +56,7 @@ public class ImageTaskReceiver extends BroadcastReceiver {
 
         List<String> pics = resolvePics(statuses, qualities);
 
-        mThreadPoll.schedule(new ImageTask(pics), 0, TimeUnit.SECONDS);
+        mHandler.post(new ImageTask(pics));
     }
 
     /**
