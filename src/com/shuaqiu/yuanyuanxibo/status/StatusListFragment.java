@@ -28,12 +28,15 @@ import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 public class StatusListFragment extends ListFragment implements Refreshable {
 
     private static final String TAG = "StatusListFragment";
+    private NewStatusReceiver receiver;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         showFriendStatuses();
+
+        receiveBroadcast();
     }
 
     /**
@@ -52,7 +55,6 @@ public class StatusListFragment extends ListFragment implements Refreshable {
                 StatusHelper.ORDER_BY, "100");
         getLoaderManager().initLoader(0, null, loadCallback);
 
-        receiveBroadcast();
     }
 
     @Override
@@ -73,11 +75,16 @@ public class StatusListFragment extends ListFragment implements Refreshable {
     }
 
     private void receiveBroadcast() {
-        NewStatusReceiver receiver = new NewStatusReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Status.NEW_RECEIVED);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
-                receiver, filter);
+        if (receiver != null) {
+            // avoid duplicate register
+            return;
+        }
+
+        receiver = new NewStatusReceiver();
+        IntentFilter filter = new IntentFilter(Status.NEW_RECEIVED);
+        LocalBroadcastManager manager = LocalBroadcastManager
+                .getInstance(getActivity());
+        manager.registerReceiver(receiver, filter);
     }
 
     @Override
