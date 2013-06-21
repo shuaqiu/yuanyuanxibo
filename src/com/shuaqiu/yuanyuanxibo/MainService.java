@@ -16,6 +16,7 @@ import android.util.Log;
 import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.friend.FriendshipTask;
 import com.shuaqiu.yuanyuanxibo.status.ImageTaskReceiver;
+import com.shuaqiu.yuanyuanxibo.status.NewStatusReceiver;
 import com.shuaqiu.yuanyuanxibo.status.StatusDownloader;
 
 /**
@@ -35,6 +36,7 @@ public class MainService extends Service {
 
     private BroadcastReceiver mWifiReceiver;
     private BroadcastReceiver mImageTaskReceiver;
+    private BroadcastReceiver mNewStatusReceiver;
 
     private SharedPreferences mPref;
 
@@ -63,12 +65,16 @@ public class MainService extends Service {
         handleStatusTask();
 
         //
-        FriendshipTask friendshipTask = new FriendshipTask(this);
-        mHandler.postDelayed(friendshipTask, DELAY * 1000);
+        handleFriendshipTask();
 
         registerWifiReceiver();
 
         return START_NOT_STICKY;
+    }
+
+    private void handleFriendshipTask() {
+        FriendshipTask friendshipTask = new FriendshipTask(this);
+        mHandler.postDelayed(friendshipTask, DELAY);
     }
 
     /**
@@ -77,30 +83,16 @@ public class MainService extends Service {
     private void handleStatusTask() {
         if (isPrefetchData()) {
             final StatusDownloader command = new StatusDownloader(this);
-
-            Message message = Message.obtain(mHandler, new Runnable() {
-
-                @Override
-                public void run() {
-                    command.run();
-
-                    if (isPrefetchData()) {
-                        mHandler.postDelayed(this, getPeriod());
-
-                        if (isPrefetchImage()) {
-                            registerImageTaskReceiver();
-                        } else {
-                            unregisterImageTaskReceiver();
-                        }
-                    }
-                }
-            });
+            Message message = Message.obtain(mHandler, new StatusTask(command));
             message.what = WHAT_STATUS_TASK;
             mHandler.sendMessageDelayed(message, DELAY);
 
             if (isPrefetchImage()) {
                 registerImageTaskReceiver();
             }
+
+            // 註冊用於notification 提醒的receiver
+            receiveNewStatusBroadcast();
         }
     }
 
@@ -131,6 +123,20 @@ public class MainService extends Service {
     }
 
     /**
+     * 獲取下載週期的設置
+     * 
+     * @return
+     */
+    private long getPeriod() {
+        String key = "prefetch_interval_mobile";
+        if (StateKeeper.isWifi) {
+            key = "prefetch_interval_wifi";
+        }
+        String str = mPref.getString(key, "" + DEFAULT_PERIOD);
+        return Long.parseLong(str) * 1000;
+    }
+
+    /**
      * 註冊微博下載完成的receiver, 獲取其中的圖片URL, 并進行下載
      */
     private void registerImageTaskReceiver() {
@@ -155,18 +161,25 @@ public class MainService extends Service {
         mImageTaskReceiver = null;
     }
 
-    /**
-     * 獲取下載週期的設置
-     * 
-     * @return
-     */
-    private long getPeriod() {
-        String key = "prefetch_interval_mobile";
-        if (StateKeeper.isWifi) {
-            key = "prefetch_interval_wifi";
+    private void receiveNewStatusBroadcast() {
+        if (mNewStatusReceiver != null) {
+            // avoid duplicate register
+            return;
         }
-        String str = mPref.getString(key, "" + DEFAULT_PERIOD);
-        return Long.parseLong(str) * 1000;
+
+        mNewStatusReceiver = NewStatusReceiver.getInstance();
+        IntentFilter filter = new IntentFilter(Status.NEW_RECEIVED);
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        manager.registerReceiver(mNewStatusReceiver, filter);
+    }
+
+    private void unreceiveNewStatusBroadcast() {
+        if (mNewStatusReceiver == null) {
+            return;
+        }
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        manager.unregisterReceiver(mNewStatusReceiver);
+        mNewStatusReceiver = null;
     }
 
     /**
@@ -188,5 +201,46 @@ public class MainService extends Service {
 
         unregisterReceiver(mWifiReceiver);
         unregisterImageTaskReceiver();
+        receiveNewStatusBroadcast();
+    }
+
+    /**
+     * 微博的下載任務
+     * 
+     * @author shuaqiu 2013-6-21
+     * 
+     */
+    private final class StatusTask implements Runnable {
+
+        private final StatusDownloader command;
+
+        /**
+         * @param command
+         */
+        private StatusTask(StatusDownloader command) {
+            this.command = command;
+        }
+
+        @Override
+        public void run() {
+            mHandler.postDelayed(this, getPeriod());
+
+            if (isPrefetchData()) {
+                command.run();
+
+                if (isPrefetchImage()) {
+                    // 註冊用於微博圖片下載的receiver
+                    registerImageTaskReceiver();
+                } else {
+                    // 取消註冊用於微博圖片下載的receiver
+                    unregisterImageTaskReceiver();
+                }
+                // 註冊用於notification 提醒的receiver
+                receiveNewStatusBroadcast();
+            } else {
+                // 取消註冊用於notification 提醒的receiver
+                unreceiveNewStatusBroadcast();
+            }
+        }
     }
 }

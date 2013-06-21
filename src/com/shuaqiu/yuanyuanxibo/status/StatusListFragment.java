@@ -2,12 +2,10 @@ package com.shuaqiu.yuanyuanxibo.status;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -16,7 +14,6 @@ import com.shuaqiu.common.promiss.Callback;
 import com.shuaqiu.common.promiss.DeferredManager;
 import com.shuaqiu.common.widget.SimpleCursorAdapter;
 import com.shuaqiu.common.widget.ViewBinder;
-import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.R;
 import com.shuaqiu.yuanyuanxibo.Refreshable;
 import com.shuaqiu.yuanyuanxibo.content.CursorLoaderCallbacks;
@@ -28,15 +25,12 @@ import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 public class StatusListFragment extends ListFragment implements Refreshable {
 
     private static final String TAG = "StatusListFragment";
-    private NewStatusReceiver receiver;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         showFriendStatuses();
-
-        receiveBroadcast();
     }
 
     /**
@@ -72,19 +66,6 @@ public class StatusListFragment extends ListFragment implements Refreshable {
         intent.putExtra("maxId", maxId);
 
         startActivity(intent);
-    }
-
-    private void receiveBroadcast() {
-        if (receiver != null) {
-            // avoid duplicate register
-            return;
-        }
-
-        receiver = new NewStatusReceiver();
-        IntentFilter filter = new IntentFilter(Status.NEW_RECEIVED);
-        LocalBroadcastManager manager = LocalBroadcastManager
-                .getInstance(getActivity());
-        manager.registerReceiver(receiver, filter);
     }
 
     @Override

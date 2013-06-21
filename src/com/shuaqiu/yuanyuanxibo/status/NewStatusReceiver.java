@@ -25,6 +25,18 @@ public class NewStatusReceiver extends BroadcastReceiver {
 
     private static final int NOTIFICATION_ID = 0;
 
+    private static NewStatusReceiver instance;
+
+    private NewStatusReceiver() {
+    }
+
+    public static BroadcastReceiver getInstance() {
+        if (instance == null) {
+            instance = new NewStatusReceiver();
+        }
+        return instance;
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "received broadcast that downloaded some new status");
