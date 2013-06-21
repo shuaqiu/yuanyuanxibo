@@ -3,20 +3,36 @@
  */
 package com.shuaqiu.yuanyuanxibo.comment;
 
-import android.app.Activity;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.ListAdapter;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,13 +43,17 @@ import com.shuaqiu.yuanyuanxibo.API;
 import com.shuaqiu.yuanyuanxibo.Actions.Comment;
 import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.content.EmotionHelper;
+import com.shuaqiu.yuanyuanxibo.content.EmotionHelper.Column;
+import com.shuaqiu.yuanyuanxibo.content.QueryCallable;
+import com.shuaqiu.yuanyuanxibo.content.QueryCallable.Builder;
 import com.shuaqiu.yuanyuanxibo.friend.FriendSelectionActivity;
 import com.shuaqiu.yuanyuanxibo.trend.TrendSelectionActivity;
 
 /**
  * @author shuaqiu Jun 3, 2013
  */
-public class SendActivity extends Activity implements OnClickListener,
+public class SendActivity extends FragmentActivity implements OnClickListener,
         Callback<String>, TextWatcher, DialogInterface.OnClickListener {
 
     private static final String TAG = "SendActivity";
@@ -296,6 +316,36 @@ public class SendActivity extends Activity implements OnClickListener,
             mHolder.mEmotions = mHolder.mStubEmotions.inflate();
         }
         mHolder.mEmotions.setVisibility(View.VISIBLE);
+
+        initEmotionsViewPager((ViewPager) mHolder.mEmotions);
+    }
+
+    private void initEmotionsViewPager(final ViewPager viewPager) {
+        final EmotionHelper helper = new EmotionHelper(this);
+        helper.openForRead();
+        Builder builder = new QueryCallable.Builder(helper)
+                .columns(new String[] { Column.url.name() });
+        DeferredManager.when(builder.build()).then(new Callback<Cursor>() {
+            @Override
+            public void apply(Cursor result) {
+
+                List<String> emotions = extract(result);
+                helper.close();
+
+                PagerAdapter adapter = new EmotionPagerAdapter(
+                        getSupportFragmentManager(), emotions);
+                viewPager.setAdapter(adapter);
+            }
+
+            private List<String> extract(Cursor result) {
+                List<String> urls = new ArrayList<String>(result.getCount());
+                while (result.moveToNext()) {
+                    urls.add(result.getString(0));
+                }
+                return urls;
+            }
+        });
+
     }
 
     /**
@@ -365,6 +415,98 @@ public class SendActivity extends Activity implements OnClickListener,
         mHolder.mRepost.setVisibility(View.VISIBLE);
         mHolder.mComment.setVisibility(View.GONE);
         mHolder.mCommentOriginal.setVisibility(View.GONE);
+    }
+
+    private static class EmotionPagerAdapter extends FragmentStatePagerAdapter {
+
+        private static final int PAGE_EMOTION_COUNT = 24;
+
+        private List<String> mEmotions;
+
+        public EmotionPagerAdapter(FragmentManager fm, List<String> emotions) {
+            super(fm);
+            mEmotions = emotions;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            EmotionFragment fragment = new EmotionFragment();
+            fragment.setArguments(buildArg(position));
+            return fragment;
+        }
+
+        /**
+         * @param position
+         * @return
+         */
+        protected Bundle buildArg(int position) {
+            String[] emotionsArr = getPageEmotions(position);
+
+            Bundle args = new Bundle(1);
+            args.putStringArray("emotions", emotionsArr);
+            return args;
+        }
+
+        /**
+         * @param position
+         * @return
+         */
+        protected String[] getPageEmotions(int position) {
+            int start = position * PAGE_EMOTION_COUNT;
+            int end = Math.min(start + PAGE_EMOTION_COUNT, mEmotions.size());
+            String[] emotionsArr = new String[PAGE_EMOTION_COUNT];
+            emotionsArr = mEmotions.subList(start, end).toArray(emotionsArr);
+            return emotionsArr;
+        }
+
+        @Override
+        public int getCount() {
+            return (mEmotions.size() - 1) / PAGE_EMOTION_COUNT + 1;
+        }
+
+    }
+
+    public static class EmotionFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_emotions, container,
+                    false);
+            initView(view);
+
+            return view;
+        }
+
+        /**
+         * @param view
+         */
+        protected void initView(View view) {
+            GridView gridView = (GridView) view;
+
+            List<? extends Map<String, ?>> data = getData();
+            ListAdapter adapter = new SimpleAdapter(getActivity(), data,
+                    R.layout.grid_emotion, new String[] { "emotion" },
+                    new int[] { R.id.emotion });
+
+            gridView.setAdapter(adapter);
+        }
+
+        /**
+         * @return
+         */
+        protected List<? extends Map<String, ?>> getData() {
+            Bundle args = getArguments();
+            String[] emotions = args.getStringArray("emotions");
+            List<Map<String, String>> data = new ArrayList<Map<String, String>>(
+                    emotions.length);
+            for (String url : emotions) {
+                Map<String, String> m = new HashMap<String, String>();
+                m.put("emotion", url);
+                data.add(m);
+            }
+            return data;
+        }
+
     }
 
     private static class ViewHolder {

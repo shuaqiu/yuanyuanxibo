@@ -73,5 +73,6 @@
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
 
+    <string name="emotion">Emotion</string>
     
 </resources>
