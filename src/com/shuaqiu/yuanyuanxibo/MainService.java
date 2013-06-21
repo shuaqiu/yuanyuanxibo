@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -24,7 +25,7 @@ import com.shuaqiu.yuanyuanxibo.status.StatusDownloader;
  */
 public class MainService extends Service {
 
-    static final String TAG = "PrefetchService";
+    static final String TAG = "MainService";
 
     private static final int WHAT_STATUS_TASK = 1;
 
@@ -40,7 +41,8 @@ public class MainService extends Service {
 
     private SharedPreferences mPref;
 
-    private Handler mHandler = new Handler();
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -49,7 +51,11 @@ public class MainService extends Service {
 
     @Override
     public void onCreate() {
-        mHandler = new Handler();
+        // start the handle in another thread.
+        mHandlerThread = new HandlerThread(TAG);
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
+
         mPref = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
@@ -92,7 +98,7 @@ public class MainService extends Service {
             }
 
             // 註冊用於notification 提醒的receiver
-            receiveNewStatusBroadcast();
+            registerNewStatusReceiver();
         }
     }
 
@@ -161,7 +167,7 @@ public class MainService extends Service {
         mImageTaskReceiver = null;
     }
 
-    private void receiveNewStatusBroadcast() {
+    private void registerNewStatusReceiver() {
         if (mNewStatusReceiver != null) {
             // avoid duplicate register
             return;
@@ -173,7 +179,7 @@ public class MainService extends Service {
         manager.registerReceiver(mNewStatusReceiver, filter);
     }
 
-    private void unreceiveNewStatusBroadcast() {
+    private void unregisterNewStatusReceiver() {
         if (mNewStatusReceiver == null) {
             return;
         }
@@ -198,17 +204,21 @@ public class MainService extends Service {
 
         mHandler.removeMessages(WHAT_STATUS_TASK);
         mHandler = null;
+        mHandlerThread.quit();
+        mHandlerThread = null;
 
         unregisterReceiver(mWifiReceiver);
+        mWifiReceiver = null;
         unregisterImageTaskReceiver();
-        receiveNewStatusBroadcast();
+        registerNewStatusReceiver();
+
+        mPref = null;
     }
 
     /**
      * 微博的下載任務
      * 
      * @author shuaqiu 2013-6-21
-     * 
      */
     private final class StatusTask implements Runnable {
 
@@ -236,10 +246,10 @@ public class MainService extends Service {
                     unregisterImageTaskReceiver();
                 }
                 // 註冊用於notification 提醒的receiver
-                receiveNewStatusBroadcast();
+                registerNewStatusReceiver();
             } else {
                 // 取消註冊用於notification 提醒的receiver
-                unreceiveNewStatusBroadcast();
+                unregisterNewStatusReceiver();
             }
         }
     }

@@ -19,7 +19,7 @@ import com.shuaqiu.yuanyuanxibo.R;
 /**
  * @author shuaqiu May 27, 2013
  */
-public class NewStatusReceiver extends BroadcastReceiver {
+public final class NewStatusReceiver extends BroadcastReceiver {
 
     private static final String TAG = "statusreceiver";
 
@@ -82,4 +82,16 @@ public class NewStatusReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof NewStatusReceiver) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
 }

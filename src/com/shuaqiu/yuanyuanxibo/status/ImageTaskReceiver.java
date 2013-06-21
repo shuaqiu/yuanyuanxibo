@@ -3,10 +3,9 @@
  */
 package com.shuaqiu.yuanyuanxibo.status;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -31,7 +30,7 @@ import com.shuaqiu.yuanyuanxibo.status.StatusBinder.Type;
  */
 public class ImageTaskReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "StartImageDownloadReceiver";
+    private static final String TAG = "ImageTaskReceiver";
 
     private Context mContext;
     /** 用來解析微博中的圖片, 直接用現成的代碼 */
@@ -54,7 +53,7 @@ public class ImageTaskReceiver extends BroadcastReceiver {
 
         JSONArray statuses = getStatuses(intent);
 
-        List<String> pics = resolvePics(statuses, qualities);
+        Collection<String> pics = resolvePics(statuses, qualities);
 
         mHandler.post(new ImageTask(pics));
     }
@@ -110,9 +109,9 @@ public class ImageTaskReceiver extends BroadcastReceiver {
      *            圖片質量
      * @return
      */
-    private List<String> resolvePics(JSONArray statuses,
+    private Collection<String> resolvePics(JSONArray statuses,
             Set<ImageQuality> qualities) {
-        List<String> pics = new ArrayList<String>();
+        Set<String> pics = new HashSet<String>();
         for (int i = 0; i < statuses.length(); i++) {
             JSONObject status = statuses.optJSONObject(i);
 
@@ -147,9 +146,9 @@ public class ImageTaskReceiver extends BroadcastReceiver {
     private static class ImageTask implements Runnable {
         private static final int INTERVEL = 500;
 
-        private List<String> pics;
+        private Collection<String> pics;
 
-        private ImageTask(List<String> pics) {
+        private ImageTask(Collection<String> pics) {
             this.pics = pics;
         }
 
