@@ -38,94 +38,119 @@
             android:text="@string/send" />
     </RelativeLayout>
 
-    <EditText
-        android:id="@+id/content"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/action_bar"
-        android:layout_below="@+id/title_bar"
-        android:gravity="top"
-        android:inputType="textMultiLine" >
-    </EditText>
-
-    <CheckBox
-        android:id="@+id/repost_weibo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/action_bar"
+        android:layout_above="@+id/emotions"
         android:layout_alignParentLeft="true"
-        android:layout_marginBottom="@dimen/ten_dp"
-        android:text="@string/repost_weibo" />
-
-    <CheckBox
-        android:id="@+id/comment_original_weibo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/comment_weibo"
-        android:layout_alignParentLeft="true"
-        android:text="@string/comment_original" />
-
-    <CheckBox
-        android:id="@+id/comment_weibo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/action_bar"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="@dimen/ten_dp"
-        android:text="@string/comment_weibo" />
-
-    <TextView
-        android:id="@+id/remain_char_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/action_bar"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="@dimen/ten_dp"
-        android:layout_marginRight="@dimen/ten_dp"
-        android:drawableRight="@drawable/ic_action_delete"
-        android:text="@string/max_char_count" />
+        android:layout_below="@+id/title_bar" >
+
+        <EditText
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/action_bar"
+            android:gravity="top"
+            android:inputType="textMultiLine" >
+        </EditText>
+
+        <CheckBox
+            android:id="@+id/repost_weibo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/action_bar"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="@dimen/ten_dp"
+            android:text="@string/repost_weibo" />
+
+        <CheckBox
+            android:id="@+id/comment_original_weibo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/comment_weibo"
+            android:layout_alignParentLeft="true"
+            android:text="@string/comment_original" />
+
+        <CheckBox
+            android:id="@+id/comment_weibo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/action_bar"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="@dimen/ten_dp"
+            android:text="@string/comment_weibo" />
+
+        <TextView
+            android:id="@+id/remain_char_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/action_bar"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/ten_dp"
+            android:layout_marginRight="@dimen/ten_dp"
+            android:drawableRight="@drawable/ic_action_delete"
+            android:text="@string/max_char_count" />
+
+        <LinearLayout
+            android:id="@+id/action_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:padding="@dimen/five_dp" >
+
+            <ImageView
+                android:id="@+id/action_trend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/action_trend"
+                android:padding="@dimen/five_dp"
+                android:src="@drawable/ic_action_trend" />
+
+            <ImageView
+                android:id="@+id/action_at_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/action_at_user"
+                android:padding="@dimen/five_dp"
+                android:src="@drawable/ic_action_at" />
+
+            <ImageView
+                android:id="@+id/action_emotion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/action_emotion"
+                android:padding="@dimen/five_dp"
+                android:src="@drawable/ic_action_emotion" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/action_bar"
-        android:layout_width="wrap_content"
+        android:id="@+id/emotions"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:padding="@dimen/five_dp" >
+        android:orientation="vertical"
+        android:visibility="gone" >
 
-        <ImageView
-            android:id="@+id/action_trend"
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:flipInterval="30"
+            android:persistentDrawingCache="animation" />
+
+        <LinearLayout
+            android:id="@+id/indicators"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/action_trend"
-            android:padding="@dimen/five_dp"
-            android:src="@drawable/ic_action_trend" />
-
-        <ImageView
-            android:id="@+id/action_at_user"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/action_at_user"
-            android:padding="@dimen/five_dp"
-            android:src="@drawable/ic_action_at" />
-
-        <ImageView
-            android:id="@+id/action_emotion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/action_emotion"
-            android:padding="@dimen/five_dp"
-            android:src="@drawable/ic_action_emotion" />
+            android:layout_margin="@dimen/three_dp"
+            android:gravity="center" >
+        </LinearLayout>
     </LinearLayout>
-
-    <ViewStub
-        android:id="@+id/emotions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/action_bar"
-        android:layout="@layout/stub_emotions" />
 
 </RelativeLayout>
