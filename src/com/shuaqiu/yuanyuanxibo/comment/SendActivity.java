@@ -16,7 +16,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,7 +24,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -36,6 +38,7 @@ import android.widget.Toast;
 import com.shuaqiu.common.ImageType;
 import com.shuaqiu.common.promiss.Callback;
 import com.shuaqiu.common.promiss.DeferredManager;
+import com.shuaqiu.common.promiss.impl.DeferredTask.TaskJob;
 import com.shuaqiu.common.task.PostCallable;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.common.widget.SimpleBindAdapter;
@@ -312,25 +315,25 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
      * 
      */
     private void toggleEmotions() {
-        if (mHolder.mEmotions.getVisibility() == View.VISIBLE) {
-            mHolder.mEmotions.setVisibility(View.GONE);
-        } else {
-            mHolder.mEmotions.setVisibility(View.VISIBLE);
+        if (mHolder.mEmotions == null) {
+            mHolder.inflateViewStub();
+
             if (mHolder.mPager.getAdapter() == null) {
                 Log.d(TAG, "init emotions view pager");
                 initEmotionsViewPager(mHolder.mPager);
             }
         }
+
+        if (mHolder.mEmotions.getVisibility() == View.VISIBLE) {
+            mHolder.mEmotions.setVisibility(View.GONE);
+        } else {
+            mHolder.mEmotions.setVisibility(View.VISIBLE);
+        }
     }
 
     private void initEmotionsViewPager(final ViewPager viewPager) {
-        final EmotionHelper helper = new EmotionHelper(this);
-        helper.openForRead();
-        Builder builder = new QueryCallable.Builder(helper)
-                .columns(new String[] { Column.url.name() });
-        EmotionCallback callback = new EmotionCallback(this, viewPager, helper);
-        DeferredManager.when(builder.build()).then(callback);
-
+        EmotionJob callback = new EmotionJob(this, viewPager);
+        DeferredManager.when(callback).then(callback);
     }
 
     /**
@@ -366,6 +369,7 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
             String current = intent.getStringExtra("text");
             String content = String.format("//@%s:%s", username, current);
             mHolder.mContent.setText(content);
+            ViewUtil.addLinks(mHolder.mContent, ViewUtil.EMOTION);
 
             mHolder.mCommentOriginal.setVisibility(View.VISIBLE);
         } else {
@@ -405,40 +409,51 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
     /**
      * @author shuaqiu Jun 22, 2013
      */
-    private static final class EmotionCallback implements Callback<Cursor> {
+    private static final class EmotionJob implements TaskJob<Cursor> {
         private FragmentActivity mFragmentActivity;
         private final ViewPager mViewPager;
-        private final EmotionHelper mHelper;
+        private EmotionHelper mHelper;
 
-        private EmotionCallback(FragmentActivity fragmentActivity,
-                ViewPager viewPager, EmotionHelper helper) {
+        private EmotionJob(FragmentActivity fragmentActivity,
+                ViewPager viewPager) {
             mFragmentActivity = fragmentActivity;
             mViewPager = viewPager;
-            mHelper = helper;
+        }
+
+        @Override
+        public Cursor call() throws Exception {
+            mHelper = new EmotionHelper(mFragmentActivity);
+            mHelper.openForRead();
+            String[] columns = new String[] { Column.phrase.name(),
+                    Column.url.name() };
+            Builder builder = new QueryCallable.Builder(mHelper)
+                    .columns(columns);
+            return builder.build().call();
         }
 
         @Override
         public void apply(Cursor result) {
-            List<String> emotions = extract(result);
+            List<Bundle> emotions = extract(result);
 
             result.close();
             mHelper.close();
 
             FragmentManager manager = mFragmentActivity
                     .getSupportFragmentManager();
-            PagerAdapter adapter = new EmotionPagerAdapter(manager, emotions);
+            EmotionPagerAdapter adapter = new EmotionPagerAdapter(manager,
+                    emotions);
             mViewPager.setAdapter(adapter);
-            // mViewPager.setLayoutParams(new LinearLayout.LayoutParams(
-            // ViewGroup.LayoutParams.MATCH_PARENT,
-            // ViewGroup.LayoutParams.WRAP_CONTENT));
         }
 
-        private List<String> extract(Cursor result) {
-            List<String> urls = new ArrayList<String>(result.getCount());
+        private List<Bundle> extract(Cursor result) {
+            List<Bundle> emotions = new ArrayList<Bundle>(result.getCount());
             while (result.moveToNext()) {
-                urls.add(result.getString(0));
+                Bundle emotion = new Bundle(2);
+                emotion.putString(Column.phrase.name(), result.getString(0));
+                emotion.putString(Column.url.name(), result.getString(1));
+                emotions.add(emotion);
             }
-            return urls;
+            return emotions;
         }
     }
 
@@ -446,18 +461,23 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
 
         private static final int PAGE_EMOTION_COUNT = 24;
 
-        private List<String> mEmotions;
+        private List<Bundle> mEmotions;
+        private Fragment[] items;
 
-        public EmotionPagerAdapter(FragmentManager fm, List<String> emotions) {
+        public EmotionPagerAdapter(FragmentManager fm, List<Bundle> emotions) {
             super(fm);
             mEmotions = emotions;
+            items = new Fragment[getCount()];
         }
 
         @Override
         public Fragment getItem(int position) {
-            EmotionFragment fragment = new EmotionFragment();
-            fragment.setArguments(buildArg(position));
-            return fragment;
+            if (items[position] == null) {
+                EmotionFragment fragment = new EmotionFragment();
+                fragment.setArguments(buildArg(position));
+                items[position] = fragment;
+            }
+            return items[position];
         }
 
         /**
@@ -465,10 +485,8 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
          * @return
          */
         protected Bundle buildArg(int position) {
-            String[] emotionsArr = getPageEmotions(position);
-
             Bundle args = new Bundle(1);
-            args.putStringArray("emotions", emotionsArr);
+            args.putParcelableArray("emotions", getPageEmotions(position));
             return args;
         }
 
@@ -476,10 +494,10 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
          * @param position
          * @return
          */
-        protected String[] getPageEmotions(int position) {
+        protected Bundle[] getPageEmotions(int position) {
             int start = position * PAGE_EMOTION_COUNT;
             int end = Math.min(start + PAGE_EMOTION_COUNT, mEmotions.size());
-            String[] emotionsArr = new String[PAGE_EMOTION_COUNT];
+            Bundle[] emotionsArr = new Bundle[PAGE_EMOTION_COUNT];
             emotionsArr = mEmotions.subList(start, end).toArray(emotionsArr);
             return emotionsArr;
         }
@@ -491,7 +509,12 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
 
     }
 
-    public static class EmotionFragment extends Fragment {
+    public static final class EmotionFragment extends Fragment implements
+            OnItemClickListener {
+        private GridView mGridView;
+
+        private EditText mContent;
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
@@ -506,23 +529,45 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
          * @param view
          */
         protected void initView(View view) {
-            GridView gridView = (GridView) view;
+            mGridView = (GridView) view;
 
-            List<String> data = getData();
+            List<Bundle> data = getData();
             EmotionBinder binder = new EmotionBinder();
-            ListAdapter adapter = new SimpleBindAdapter<String>(getActivity(),
+            ListAdapter adapter = new SimpleBindAdapter<Bundle>(getActivity(),
                     data, R.layout.grid_emotion, binder);
 
-            gridView.setAdapter(adapter);
+            mGridView.setAdapter(adapter);
+            mGridView.setOnItemClickListener(this);
         }
 
         /**
          * @return
          */
-        protected List<String> getData() {
+        protected List<Bundle> getData() {
             Bundle args = getArguments();
-            String[] emotions = args.getStringArray("emotions");
+            Bundle[] emotions = (Bundle[]) args.getParcelableArray("emotions");
             return Arrays.asList(emotions);
+        }
+
+        private EditText getContentView() {
+            if (mContent == null) {
+                FragmentActivity activity = getActivity();
+                mContent = (EditText) activity.findViewById(R.id.content);
+            }
+            return mContent;
+        }
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+                long id) {
+            Bundle item = (Bundle) parent.getAdapter().getItem(position);
+            String phrase = item.getString(Column.phrase.name());
+            Log.d(TAG, "click on " + phrase);
+
+            EditText contentView = getContentView();
+            int cursorPosition = contentView.getSelectionEnd();
+            contentView.getText().insert(cursorPosition, phrase);
+            ViewUtil.addLinks(contentView, ViewUtil.EMOTION);
         }
 
     }
@@ -530,10 +575,11 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
     /**
      * @author shuaqiu Jun 22, 2013
      */
-    private static final class EmotionBinder implements ViewBinder<String> {
+    private static final class EmotionBinder implements ViewBinder<Bundle> {
         @Override
-        public void bindView(View view, String data) {
-            ViewUtil.setImage(view, ImageType.EMOTION, data);
+        public void bindView(View view, Bundle data) {
+            String url = data.getString(Column.url.name());
+            ViewUtil.setImage(view, ImageType.EMOTION, url);
         }
     }
 
@@ -550,6 +596,7 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
         private View mAtUser;
         private View mEmotion;
 
+        private ViewStub mEmotionsStub;
         private View mEmotions;
         private ViewPager mPager;
 
@@ -578,10 +625,20 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
             holder.mAtUser = v.findViewById(R.id.action_at_user);
             holder.mEmotion = v.findViewById(R.id.action_emotion);
 
-            holder.mEmotions = v.findViewById(R.id.emotions);
-            holder.mPager = (ViewPager) v.findViewById(R.id.pager);
+            holder.mEmotionsStub = (ViewStub) v
+                    .findViewById(R.id.stub_emotions);
 
             return holder;
+        }
+
+        void inflateViewStub() {
+            if (mEmotions != null) {
+                return;
+            }
+
+            Log.d(TAG, "inflate view stub");
+            mEmotions = mEmotionsStub.inflate();
+            mPager = (ViewPager) mEmotions.findViewById(R.id.pager);
         }
     }
 }

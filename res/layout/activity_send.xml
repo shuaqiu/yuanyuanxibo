@@ -40,8 +40,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/emotions"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_bar"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/title_bar" >
@@ -50,7 +50,6 @@
             android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/action_bar"
             android:gravity="top"
             android:inputType="textMultiLine" >
         </EditText>
@@ -59,7 +58,7 @@
             android:id="@+id/repost_weibo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/action_bar"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_marginBottom="@dimen/ten_dp"
             android:text="@string/repost_weibo" />
@@ -77,6 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/action_bar"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_marginBottom="@dimen/ten_dp"
             android:text="@string/comment_weibo" />
@@ -86,19 +86,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/action_bar"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_marginBottom="@dimen/ten_dp"
             android:layout_marginRight="@dimen/ten_dp"
             android:drawableRight="@drawable/ic_action_delete"
             android:text="@string/max_char_count" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:orientation="vertical" >
 
         <LinearLayout
             android:id="@+id/action_bar"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
             android:padding="@dimen/five_dp" >
 
             <ImageView
@@ -125,32 +133,13 @@
                 android:padding="@dimen/five_dp"
                 android:src="@drawable/ic_action_emotion" />
         </LinearLayout>
-    </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/emotions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:orientation="vertical"
-        android:visibility="gone" >
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/pager"
+        <ViewStub
+            android:id="@+id/stub_emotions"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:flipInterval="30"
-            android:persistentDrawingCache="animation" />
-
-        <LinearLayout
-            android:id="@+id/indicators"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/three_dp"
-            android:gravity="center" >
-        </LinearLayout>
+            android:inflatedId="@+id/emotion"
+            android:layout="@layout/stub_emotions" />
     </LinearLayout>
 
 </RelativeLayout>
