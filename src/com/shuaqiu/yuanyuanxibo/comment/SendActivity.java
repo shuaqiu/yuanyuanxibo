@@ -426,8 +426,8 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
             mHelper.openForRead();
             String[] columns = new String[] { Column.phrase.name(),
                     Column.url.name() };
-            Builder builder = new QueryCallable.Builder(mHelper)
-                    .columns(columns);
+            Builder builder = new QueryCallable.Builder(mHelper).columns(
+                    columns).selection(Column.hot.name() + " = 1");
             return builder.build().call();
         }
 
