@@ -21,8 +21,10 @@
             android:id="@+id/new_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:contentDescription="@string/refresh"
             android:src="@drawable/ic_action_new" />
+
         <TextView
             android:id="@+id/username"
             android:layout_width="0dp"
@@ -37,6 +39,7 @@
             android:id="@+id/refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:contentDescription="@string/refresh"
             android:src="@drawable/ic_refresh" />
     </LinearLayout>
@@ -48,7 +51,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/title_bar"
-        android:background="@drawable/bg_round_title" >
+        android:background="@drawable/bg_round_title"
+        android:paddingBottom="@dimen/five_dp" >
 
         <TextView
             android:id="@+id/home"
