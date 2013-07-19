@@ -2,10 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/five_dp"
-    android:paddingLeft="@dimen/five_dp"
-    android:paddingRight="@dimen/five_dp"
-    android:paddingTop="@dimen/five_dp"
     tools:context=".MainActivity" >
 
     <LinearLayout
@@ -44,19 +40,30 @@
             android:src="@drawable/ic_refresh" />
     </LinearLayout>
 
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/action_bar"
+        android:layout_below="@+id/title_bar"
+        android:flipInterval="30"
+        android:persistentDrawingCache="animation" >
+
+    </android.support.v4.view.ViewPager>
+
     <LinearLayout
         android:id="@+id/action_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/title_bar"
         android:background="@drawable/bg_round_title"
-        android:paddingBottom="@dimen/five_dp" >
+        android:paddingTop="@dimen/five_dp" >
 
         <TextView
             android:id="@+id/home"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:gravity="center"
@@ -67,7 +74,7 @@
 
         <TextView
             android:id="@+id/at_me"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:gravity="center"
@@ -78,7 +85,7 @@
 
         <TextView
             android:id="@+id/comments"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:gravity="center"
@@ -89,7 +96,7 @@
 
         <TextView
             android:id="@+id/messages"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:gravity="center"
@@ -98,13 +105,5 @@
             android:text="@string/messages"
             android:textStyle="bold" />
     </LinearLayout>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/action_bar"
-        android:flipInterval="30"
-        android:persistentDrawingCache="animation" />
 
 </RelativeLayout>

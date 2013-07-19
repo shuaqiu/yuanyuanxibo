@@ -29,7 +29,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 
     private FragmentTabHelper mTabHelper;
 
-    SectionsPagerAdapter mSectionsPagerAdapter;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +86,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     }
 
     private void initAction() {
+        mHolder.mNewStatus.setOnClickListener(this);
         mHolder.mRefresh.setOnClickListener(this);
     }
 
@@ -116,12 +117,21 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+        case R.id.new_status:
+            newStatus();
+            break;
         case R.id.refresh:
             refresh();
             break;
         default:
             break;
         }
+    }
+
+    /**
+     * 新建微博
+     */
+    private void newStatus() {
     }
 
     /**
@@ -162,6 +172,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         View mComments;
         View mMessages;
 
+        View mNewStatus;
         View mRefresh;
 
         static ViewHolder from(View v) {
@@ -180,6 +191,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
             holder.mComments = v.findViewById(R.id.comments);
             holder.mMessages = v.findViewById(R.id.messages);
 
+            holder.mNewStatus = v.findViewById(R.id.new_status);
             holder.mRefresh = v.findViewById(R.id.refresh);
 
             return holder;
