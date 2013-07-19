@@ -1,5 +1,8 @@
 package com.shuaqiu.yuanyuanxibo.content;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONObject;
 
 import android.content.ContentValues;
@@ -136,6 +139,16 @@ public class StatusHelper extends AbsObjectHelper {
 
     public static String[] names() {
         return names(COLUMNS);
+    }
+
+    public static List<Bundle> toBundles(Cursor cursor) {
+        List<Bundle> bundles = new ArrayList<Bundle>(cursor.getCount());
+        cursor.moveToPosition(-1);
+        while (cursor.moveToNext()) {
+            bundles.add(toBundle(cursor));
+        }
+
+        return bundles;
     }
 
     public static Bundle toBundle(Cursor cursor, int position) {

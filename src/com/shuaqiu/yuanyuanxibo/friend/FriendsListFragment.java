@@ -3,70 +3,49 @@
  */
 package com.shuaqiu.yuanyuanxibo.friend;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.ListFragment;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.shuaqiu.common.ImageType;
-import com.shuaqiu.common.promiss.Callback;
-import com.shuaqiu.common.promiss.DeferredManager;
 import com.shuaqiu.common.util.ViewUtil;
-import com.shuaqiu.common.widget.SimpleBindAdapter;
+import com.shuaqiu.common.widget.AbsPaginationListFragment;
 import com.shuaqiu.common.widget.ViewBinder;
 import com.shuaqiu.yuanyuanxibo.R;
+import com.shuaqiu.yuanyuanxibo.content.AbsObjectHelper;
 import com.shuaqiu.yuanyuanxibo.content.FriendshipHelper;
 import com.shuaqiu.yuanyuanxibo.content.FriendshipHelper.Column;
-import com.shuaqiu.yuanyuanxibo.content.QueryCallable;
 import com.shuaqiu.yuanyuanxibo.content.QueryCallable.Builder;
 
 /**
  * @author shuaqiu 2013-6-14
  */
-public class FriendsListFragment extends ListFragment implements
-        OnScrollListener, Callback<Cursor> {
+public class FriendsListFragment extends AbsPaginationListFragment {
 
-    private static final String TAG = "FriendshipListFragment";
+    static final String TAG = "FriendshipListFragment";
 
     private static final String SELECTCOUNT_UPDATE_SQL = String.format(
             "update %s set %s = ifnull(%s, 0) + 1 where %s = ?",
             FriendshipHelper.TABLE, Column.selected_count.name(),
             Column.selected_count.name(), Column.screen_name.name());
 
-    private Type mType;
+    Type mType;
 
     private EditText mSelected;
 
-    private FriendshipHelper mHelper;
-    private List<Bundle> mFriends;
-
-    private boolean isLoading;
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
         initType();
-        initListView();
-
-        mHelper = new FriendshipHelper(getActivity());
-        mHelper.openForRead();
-
-        String limit = "20";
-        doQuery(limit);
+        super.onViewCreated(view, savedInstanceState);
     }
 
     private void initType() {
@@ -84,24 +63,33 @@ public class FriendsListFragment extends ListFragment implements
         }
     }
 
-    private void initListView() {
-        mFriends = new ArrayList<Bundle>();
+    @Override
+    protected AbsObjectHelper initHelper() {
+        return new FriendshipHelper(getActivity());
+    }
 
-        FragmentActivity context = getActivity();
-        ViewBinder<Bundle> binder = new FriendshipBinder();
-        BaseAdapter adapter = new SimpleBindAdapter<Bundle>(context, mFriends,
-                R.layout.listview_friendship, binder);
-        setListAdapter(adapter);
-
+    @Override
+    protected void initScollListener() {
         if (mType == Type.ALL) {
             getListView().setOnScrollListener(this);
         }
     }
 
-    private void doQuery(String limit) {
+    @Override
+    protected ViewBinder<Bundle> initViewBinder() {
+        return new FriendshipBinder();
+    }
+
+    @Override
+    protected int getLayout() {
+        return R.layout.listview_friendship;
+    }
+
+    @Override
+    protected void configQuery(Builder builder) {
         String selection = Column.following.name() + " = 1";
-        Builder builder = new QueryCallable.Builder(mHelper).selection(
-                selection).limit(limit);
+        builder.selection(selection);
+
         if (mType == Type.RECENT) {
             // 只查找選擇過的
             builder.selection(selection + " and "
@@ -109,26 +97,11 @@ public class FriendsListFragment extends ListFragment implements
             // 如果是查找最近使用過的關注好友, 則根據選擇的次數倒序排列
             builder.orderBy(Column.selected_count.name() + " desc");
         }
-        QueryCallable query = builder.build();
-        DeferredManager.when(query).then(this);
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        mHelper.close();
-        mFriends = null;
-    }
-
-    @Override
-    public void apply(Cursor cursor) {
-        mFriends.addAll(FriendshipHelper.toBundles(cursor));
-        ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-
-        if (cursor != null && !cursor.isClosed()) {
-            cursor.close();
-        }
+    protected List<Bundle> toList(Cursor cursor) {
+        return FriendshipHelper.toBundles(cursor);
     }
 
     @Override
@@ -177,24 +150,6 @@ public class FriendsListFragment extends ListFragment implements
             mSelected = (EditText) activity.findViewById(R.id.selected_friends);
         }
         return mSelected;
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem,
-            int visibleItemCount, int totalItemCount) {
-        boolean isAtBottom = firstVisibleItem + visibleItemCount >= totalItemCount;
-        if (!isLoading && firstVisibleItem > 0 && isAtBottom) {
-            isLoading = true;
-
-            Log.d(TAG, "load more after " + totalItemCount);
-            doQuery(totalItemCount + ", 20");
-        } else {
-            isLoading = false;
-        }
     }
 
     enum Type {
