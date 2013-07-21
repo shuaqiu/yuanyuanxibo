@@ -233,7 +233,10 @@ public class MainService extends Service {
 
         @Override
         public void run() {
-            mHandler.postDelayed(this, getPeriod());
+            // mHandler.postDelayed(this, getPeriod());
+            Message message = Message.obtain(mHandler, this);
+            message.what = WHAT_STATUS_TASK;
+            mHandler.sendMessageDelayed(message, getPeriod());
 
             if (isPrefetchData()) {
                 command.run();
