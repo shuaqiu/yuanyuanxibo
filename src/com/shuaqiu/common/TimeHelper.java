@@ -26,10 +26,44 @@ public class TimeHelper {
 
     private static final String JSON_TIME_FORMAT = "EEE MMM dd HH:mm:ss zzz yyyy";
 
+    private static final String DAY_FORMAT = "yyyy-MM-dd";
+
+    private static DateFormat dateParser;
+    private static DateFormat dayFormat;
+
     private Context mContext;
-    private DateFormat dateParser;
+
     private DateFormat dateFormat;
     private DateFormat timeFormat;
+
+    public static String formatToDay(String timeStr) {
+        return format(timeStr, getDayFormat());
+    }
+
+    public static String format(String timeStr, DateFormat formatter) {
+        try {
+            return formatter.format(getJsonTimeFormatter().parse(timeStr));
+        } catch (ParseException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return timeStr;
+    }
+
+    public static DateFormat getJsonTimeFormatter() {
+        if (dateParser == null) {
+            Locale locale = Locale.getDefault();
+            dateParser = new SimpleDateFormat(JSON_TIME_FORMAT, locale);
+        }
+        return dateParser;
+    }
+
+    private static DateFormat getDayFormat() {
+        if (dayFormat == null) {
+            Locale locale = Locale.getDefault();
+            dayFormat = new SimpleDateFormat(DAY_FORMAT, locale);
+        }
+        return dayFormat;
+    }
 
     public TimeHelper(Context context) {
         mContext = context;
@@ -42,14 +76,14 @@ public class TimeHelper {
      */
     public String beautyTime(String timeStr) {
         try {
-            return format(getDateParser().parse(timeStr));
+            return beautyTime(getJsonTimeFormatter().parse(timeStr));
         } catch (ParseException e) {
             Log.e(TAG, e.getMessage(), e);
         }
         return timeStr;
     }
 
-    public String format(Date date) {
+    public String beautyTime(Date date) {
         long diff = System.currentTimeMillis() - date.getTime();
 
         if (diff < ONE_MINUTE) {
@@ -64,20 +98,6 @@ public class TimeHelper {
         return getDateFormat().format(date);
     }
 
-    /**
-     * @return
-     */
-    private DateFormat getDateParser() {
-        if (dateParser == null) {
-            Locale locale = Locale.getDefault();
-            dateParser = new SimpleDateFormat(JSON_TIME_FORMAT, locale);
-        }
-        return dateParser;
-    }
-
-    /**
-     * @return
-     */
     private DateFormat getDateFormat() {
         if (dateFormat == null) {
             Locale locale = Locale.getDefault();

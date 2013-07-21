@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
 
@@ -61,6 +62,12 @@ public class BundleStatusBinder extends StatusBinder<Bundle> {
     protected String optCreateTime(Bundle status) {
         String createdAt = status.getString(Column.created_at.name());
         return mTimeHelper.beautyTime(createdAt);
+    }
+
+    @Override
+    protected String optCreateDay(Bundle status) {
+        String createdAt = status.getString(Column.created_at.name());
+        return TimeHelper.formatToDay(createdAt);
     }
 
     @Override

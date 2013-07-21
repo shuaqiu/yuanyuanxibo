@@ -53,6 +53,8 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
 
     private FrameLayout.LayoutParams mLayoutParams;
 
+    private String mDate;
+
     private String[] mPicUrls;
 
     @Override
@@ -63,6 +65,7 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         setContentView(R.layout.activity_picture_viewer);
 
         Intent intent = getIntent();
+        mDate = intent.getStringExtra("date");
         mPicUrls = intent.getStringArrayExtra("pics");
         int position = intent.getIntExtra("position", 0);
 
@@ -104,7 +107,7 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
     }
 
     private void initGallery(int position) {
-        mHolder.mGallery.setAdapter(new ImageAdapter(this,
+        mHolder.mGallery.setAdapter(new ImageAdapter(this, mDate,
                 toThumbnail(mPicUrls)));
         mHolder.mGallery.setOnItemClickListener(this);
         mHolder.mGallery.setSelection(position);
@@ -201,7 +204,7 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
         nextView.setTag(ZoomClickListener.SCALE_SIZE_KEY, null);
 
         // 設置圖片
-        ViewUtil.setImage(mHolder.mSwitcher, mPicUrls[position]);
+        ViewUtil.setImage(mHolder.mSwitcher, mDate, mPicUrls[position]);
 
         if (mHolder.mZoomer != null) {
             mHolder.mZoomer.setIsZoomInEnabled(true);
@@ -277,12 +280,14 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
     private static class ImageAdapter extends BaseAdapter {
 
         private Context mContext;
+        private String mDate;
         private String[] mThumbnailUrls;
 
         private Gallery.LayoutParams mLayoutParams;
 
-        public ImageAdapter(Context context, String[] thumbnailUrls) {
+        public ImageAdapter(Context context, String date, String[] thumbnailUrls) {
             mContext = context;
+            mDate = date;
             mThumbnailUrls = thumbnailUrls;
         }
 
@@ -309,7 +314,7 @@ public class PictureViewerActivity extends Activity implements OnClickListener,
             imageView.setLayoutParams(getLayoutParams());
             imageView.setImageResource(R.drawable.ic_launcher);
 
-            ViewUtil.setImage(imageView, mThumbnailUrls[position]);
+            ViewUtil.setImage(imageView, mDate, mThumbnailUrls[position]);
             return imageView;
         }
 

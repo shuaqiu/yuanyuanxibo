@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 
-import com.shuaqiu.common.ImageType;
 import com.shuaqiu.common.promiss.Callback;
 import com.shuaqiu.common.promiss.DeferredManager;
 import com.shuaqiu.common.task.GetCallable;
@@ -62,7 +61,7 @@ public class UserInfoActivity extends Activity implements Callback<String> {
             return;
         }
 
-        ViewUtil.setImage(findViewById(R.id.profile_image), ImageType.PROFILE,
+        ViewUtil.setProfileImage(findViewById(R.id.profile_image),
                 data.optString("profile_image_url", null));
         ViewUtil.setText(findViewById(R.id.user_name),
                 data.optString("screen_name"));

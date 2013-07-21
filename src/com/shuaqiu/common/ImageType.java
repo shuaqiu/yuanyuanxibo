@@ -11,7 +11,6 @@ import com.shuaqiu.yuanyuanxibo.StateKeeper;
  * 圖片類型
  * 
  * @author shuaqiu 2013-6-13
- * 
  */
 public enum ImageType {
     /** 表情圖片 */
@@ -21,7 +20,12 @@ public enum ImageType {
     PROFILE("profile"),
 
     /** 微博圖片 */
-    PIC("pic");
+    PIC("pic") {
+        @Override
+        public File getFolder(String subfolderName) {
+            return new File(super.getFolder(null), subfolderName);
+        }
+    };
 
     private String folder;
 
@@ -32,7 +36,7 @@ public enum ImageType {
         this.folder = folder;
     }
 
-    public File getFolder() {
+    public File getFolder(String subfolderName) {
         return new File(StateKeeper.pictureDir, folder);
     }
 }

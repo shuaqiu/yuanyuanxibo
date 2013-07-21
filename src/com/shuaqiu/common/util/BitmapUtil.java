@@ -22,14 +22,16 @@ public class BitmapUtil {
      * 
      * @param type
      *            圖片類型
+     * @param subfolderName
+     *            子文件夾名稱
      * @param urlStr
      *            URL 地址
      * @return 返回獲取到的Bitmap. 如果類型或URL 地址錯誤, 或者不能下載指定URL 的圖片, 則返回null.
      * @throws IOException
      */
-    public static Bitmap fromUrl(ImageType type, String urlStr)
-            throws IOException {
-        File cacheFile = cacheBitmap(type, urlStr);
+    public static Bitmap fromUrl(ImageType type, String subfolderName,
+            String urlStr) throws IOException {
+        File cacheFile = cacheBitmap(type, subfolderName, urlStr);
         if (cacheFile == null) {
             return null;
         }
@@ -40,10 +42,12 @@ public class BitmapUtil {
 
     /**
      * @param type
+     * @param subfolderName
      * @param urlStr
      * @return
      */
-    public static File cacheBitmap(ImageType type, String urlStr) {
+    public static File cacheBitmap(ImageType type, String subfolderName,
+            String urlStr) {
         if (type == null || urlStr == null || "".equals(urlStr.trim())) {
             return null;
         }
@@ -54,7 +58,7 @@ public class BitmapUtil {
 
         String cacheFilename = SecurityUtil.md5(urlStr);
 
-        File cacheFile = new File(type.getFolder(), cacheFilename);
+        File cacheFile = new File(type.getFolder(subfolderName), cacheFilename);
         if (!cacheFile.exists()) {
             boolean isDownloaded = HttpUtil.downloadTo(url, cacheFile);
             if (!isDownloaded) {

@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
+import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper;
 import com.shuaqiu.yuanyuanxibo.content.StatusHelper.Column;
 
@@ -58,6 +59,12 @@ public class JsonStatusBinder extends StatusBinder<JSONObject> {
     protected String optCreateTime(JSONObject status) {
         String createdAt = status.optString(Column.created_at.name());
         return mTimeHelper.beautyTime(createdAt);
+    }
+
+    @Override
+    protected String optCreateDay(JSONObject status) {
+        String createdAt = status.optString(Column.created_at.name());
+        return TimeHelper.formatToDay(createdAt);
     }
 
     @Override

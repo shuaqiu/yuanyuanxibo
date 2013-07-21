@@ -5,7 +5,9 @@ package com.shuaqiu.yuanyuanxibo.status;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -53,9 +55,9 @@ public class ImageTaskReceiver extends BroadcastReceiver {
 
         JSONArray statuses = getStatuses(intent);
 
-        Collection<String> pics = resolvePics(statuses, qualities);
+        Map<String, Collection<String>> picsByDate = resolvePics(statuses, qualities);
 
-        mHandler.post(new ImageTask(pics));
+        mHandler.post(new ImageTask(picsByDate));
     }
 
     /**
@@ -109,9 +111,9 @@ public class ImageTaskReceiver extends BroadcastReceiver {
      *            圖片質量
      * @return
      */
-    private Collection<String> resolvePics(JSONArray statuses,
+    private Map<String, Collection<String>> resolvePics(JSONArray statuses,
             Set<ImageQuality> qualities) {
-        Set<String> pics = new HashSet<String>();
+        Map<String, Collection<String>> picsByDate = new HashMap<String, Collection<String>>();
         for (int i = 0; i < statuses.length(); i++) {
             JSONObject status = statuses.optJSONObject(i);
 
@@ -120,10 +122,19 @@ public class ImageTaskReceiver extends BroadcastReceiver {
                 // 微博沒有圖片
                 continue;
             }
+
+            String date = mBinder.optCreateDay(status);
+            Collection<String> pics = picsByDate.get(date);
+            if (pics == null) {
+                pics = new HashSet<String>();
+                picsByDate.put(date, pics);
+            }
+
             for (ImageQuality quality : qualities) {
                 if (quality == ImageQuality.NONE) {
                     continue;
                 }
+
                 if (quality == ImageQuality.THUMBNAIL) {
                     pics.addAll(Arrays.asList(optPics));
                     continue;
@@ -135,7 +146,7 @@ public class ImageTaskReceiver extends BroadcastReceiver {
                 }
             }
         }
-        return pics;
+        return picsByDate;
     }
 
     /**
@@ -146,24 +157,27 @@ public class ImageTaskReceiver extends BroadcastReceiver {
     private static class ImageTask implements Runnable {
         private static final int INTERVEL = 500;
 
-        private Collection<String> pics;
+        private Map<String, Collection<String>> picsByDate;
 
-        private ImageTask(Collection<String> pics) {
-            this.pics = pics;
+        private ImageTask(Map<String, Collection<String>> pics) {
+            this.picsByDate = pics;
         }
 
         @Override
         public void run() {
-            for (String pic : pics) {
-                try {
-                    BitmapUtil.cacheBitmap(ImageType.PIC, pic);
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
-                }
-                try {
-                    Thread.sleep(INTERVEL);
-                } catch (InterruptedException e) {
-                    Log.e(TAG, e.getMessage(), e);
+            for (String date : picsByDate.keySet()) {
+                Collection<String> pics = picsByDate.get(date);
+                for (String pic : pics) {
+                    try {
+                        BitmapUtil.cacheBitmap(ImageType.PIC, date, pic);
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+                    try {
+                        Thread.sleep(INTERVEL);
+                    } catch (InterruptedException e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
                 }
             }
         }

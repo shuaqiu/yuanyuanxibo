@@ -19,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
-import com.shuaqiu.common.ImageType;
 import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.common.widget.ViewBinder;
@@ -65,8 +64,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
     protected void setProfileImage(ViewHolder holder, final Data status) {
         String profileImage = optProfileImage(status);
         if (profileImage != null) {
-            ViewUtil.setImage(holder.mProfileImage, ImageType.PROFILE,
-                    profileImage);
+            ViewUtil.setProfileImage(holder.mProfileImage, profileImage);
         }
     }
 
@@ -153,7 +151,8 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
         }
 
         // 顯示微博圖片
-        ViewUtil.setImage(holder.mThumbnailPic, thumbnailPic, holder.mProgress);
+        String date = optCreateDay(status);
+        ViewUtil.setImage(holder.mThumbnailPic, date, thumbnailPic, holder.mProgress);
 
         if (mType == Type.DETAIL) {
             // 對於微博詳細界面, 要顯示微博的所有圖片
@@ -166,7 +165,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             }
 
             String[] pics = optPics(status, picViewerQuality);
-            OnClickListener l = new ViewImageClickListener(mContext, pics);
+            OnClickListener l = new ViewImageClickListener(mContext, date, pics);
 
             holder.mThumbnailPic.setTag(0);
             holder.mThumbnailPic.setOnClickListener(l);
@@ -254,6 +253,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             return;
         }
 
+        String date = optCreateDay(status);
         LayoutParams params = getLayoutParams();
         for (int i = 1; i < pics.length; i++) {
             String pic = pics[i];
@@ -275,7 +275,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             }
             holder.mStatusContent.addView(v);
 
-            ViewUtil.setImage(v, pic);
+            ViewUtil.setImage(v, date, pic);
         }
     }
 
@@ -357,6 +357,18 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      * @see TimeHelper#beautyTime(String)
      */
     protected abstract String optCreateTime(Data status);
+
+    /**
+     * 獲取微博的發送日期, 並格式化爲yyyy-MM-dd 的格式, 其中微博中的時間格式爲: <br/>
+     * "Sat Apr 27 00:59:08 +0800 2013"<br/>
+     * 即: EEE MMM dd HH:mm:ss zzz yyyy
+     * 
+     * @param status
+     *            微博信息
+     * @return yyyy-MM-dd 的格式的字符串
+     * @see TimeHelper#beautyTime(String)
+     */
+    protected abstract String optCreateDay(Data status);
 
     /**
      * 獲取微博的發送客戶端名稱
@@ -508,15 +520,19 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
      */
     private static class ViewImageClickListener implements OnClickListener {
         private Context mContext;
+        private String mDate;
         private String[] mPics;
 
         /**
          * @param mContext
+         * @param date
          * @param pics
          *            圖片的URL 路徑列表
          */
-        public ViewImageClickListener(Context context, String[] pics) {
+        public ViewImageClickListener(Context context, String date,
+                String[] pics) {
             mContext = context;
+            mDate = date;
             mPics = pics;
         }
 
@@ -526,6 +542,7 @@ public abstract class StatusBinder<Data> implements ViewBinder<Data> {
             Integer position = (Integer) v.getTag();
 
             Intent intent = new Intent(mContext, PictureViewerActivity.class);
+            intent.putExtra("date", mDate);
             intent.putExtra("pics", mPics);
             intent.putExtra("position", position);
             mContext.startActivity(intent);

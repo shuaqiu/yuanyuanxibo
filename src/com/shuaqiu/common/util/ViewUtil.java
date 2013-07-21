@@ -69,13 +69,16 @@ public class ViewUtil {
      * 
      * @param v
      *            要設置圖片的view, 現在支持ImageView 或者ImageSwitcher
+     * @param date
+     *            微博的日期
      * @param url
      *            圖片的URL 地址
      * @return 設置圖片的Promise 對象, 用於對在設置圖片後可能還有的後續動作進行處理
      * @see ImageType#PIC
      */
-    public static Promiss<Bitmap, Throwable> setImage(View v, String url) {
-        return setImage(v, url, null);
+    public static Promiss<Bitmap, Throwable> setImage(View v, String date,
+            String url) {
+        return setImage(v, date, url, null);
     }
 
     /**
@@ -83,6 +86,8 @@ public class ViewUtil {
      * 
      * @param v
      *            要設置圖片的view, 現在支持ImageView 或者ImageSwitcher
+     * @param date
+     *            微博的日期
      * @param url
      *            圖片的URL 地址
      * @param progress
@@ -90,25 +95,35 @@ public class ViewUtil {
      * @return 設置圖片的Promise 對象, 用於對在設置圖片後可能還有的後續動作進行處理
      * @see ImageType#PIC
      */
-    public static Promiss<Bitmap, Throwable> setImage(View v, String url,
-            View progress) {
-        return setImage(v, ImageType.PIC, url, progress);
+    public static Promiss<Bitmap, Throwable> setImage(View v, String date,
+            String url, View progress) {
+        return setImage(v, ImageType.PIC, date, url, progress);
     }
 
     /**
-     * 設置圖片
+     * 設置頭像圖片
      * 
      * @param v
      *            要設置圖片的view, 現在支持ImageView 或者ImageSwitcher
-     * @param type
-     *            圖片的類型
      * @param url
      *            圖片的URL 地址
      * @return 設置圖片的Promise 對象, 用於對在設置圖片後可能還有的後續動作進行處理
      */
-    public static Promiss<Bitmap, Throwable> setImage(View v, ImageType type,
-            String url) {
-        return setImage(v, type, url, null);
+    public static Promiss<Bitmap, Throwable> setProfileImage(View v, String url) {
+        return setImage(v, ImageType.PROFILE, null, url, null);
+    }
+
+    /**
+     * 設置表情圖片
+     * 
+     * @param v
+     *            要設置圖片的view, 現在支持ImageView 或者ImageSwitcher
+     * @param url
+     *            圖片的URL 地址
+     * @return 設置圖片的Promise 對象, 用於對在設置圖片後可能還有的後續動作進行處理
+     */
+    public static Promiss<Bitmap, Throwable> setEmotionImage(View v, String url) {
+        return setImage(v, ImageType.EMOTION, null, url, null);
     }
 
     /**
@@ -118,6 +133,8 @@ public class ViewUtil {
      *            要設置圖片的view, 現在支持ImageView 或者ImageSwitcher
      * @param type
      *            圖片的類型
+     * @param date
+     *            微博的日期
      * @param url
      *            圖片的URL 地址
      * @param progress
@@ -125,12 +142,12 @@ public class ViewUtil {
      * @return 設置圖片的Promise 對象, 用於對在設置圖片後可能還有的後續動作進行處理
      */
     public static Promiss<Bitmap, Throwable> setImage(View v, ImageType type,
-            String url, View progress) {
+            String date, String url, View progress) {
         if (v == null) {
             return null;
         }
         if (v instanceof ImageView || v instanceof ImageSwitcher) {
-            TaskJob<Bitmap> job = new ImageJob(v, type, url, progress);
+            TaskJob<Bitmap> job = new ImageJob(v, type, date, url, progress);
             return DeferredManager.when(job).then(job);
         }
         return null;
@@ -224,7 +241,8 @@ public class ViewUtil {
                 String url = getEmotionUrl(s, start, end);
                 if (url != null) {
                     try {
-                        Bitmap b = BitmapUtil.fromUrl(ImageType.EMOTION, url);
+                        Bitmap b = BitmapUtil.fromUrl(ImageType.EMOTION, null,
+                                url);
                         map.put(new Tuple<Integer, Integer>(start, end), b);
                     } catch (IOException e) {
                         Log.e(TAG, e.getMessage(), e);
@@ -314,18 +332,22 @@ public class ViewUtil {
     private static final class ImageJob implements TaskJob<Bitmap> {
         private View mView;
         private ImageType mType;
+        private String mDate;
         private String mUrl;
         private View mProgressView;
 
         /**
          * @param view
          * @param type
+         * @param date
          * @param url
          * @param progressView
          */
-        public ImageJob(View view, ImageType type, String url, View progressView) {
+        public ImageJob(View view, ImageType type, String date, String url,
+                View progressView) {
             mView = view;
             mType = type;
+            mDate = date;
             mUrl = url;
             mProgressView = progressView;
         }
@@ -333,7 +355,7 @@ public class ViewUtil {
         @Override
         public Bitmap call() throws Exception {
             try {
-                return BitmapUtil.fromUrl(mType, mUrl);
+                return BitmapUtil.fromUrl(mType, mDate, mUrl);
             } catch (IOException e) {
                 Log.e(TAG, e.getMessage(), e);
             }

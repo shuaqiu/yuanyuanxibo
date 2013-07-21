@@ -35,7 +35,6 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.shuaqiu.common.ImageType;
 import com.shuaqiu.common.promiss.Callback;
 import com.shuaqiu.common.promiss.DeferredManager;
 import com.shuaqiu.common.promiss.impl.DeferredTask.TaskJob;
@@ -579,7 +578,7 @@ public class SendActivity extends FragmentActivity implements OnClickListener,
         @Override
         public void bindView(View view, Bundle data) {
             String url = data.getString(Column.url.name());
-            ViewUtil.setImage(view, ImageType.EMOTION, url);
+            ViewUtil.setEmotionImage(view, url);
         }
     }
 

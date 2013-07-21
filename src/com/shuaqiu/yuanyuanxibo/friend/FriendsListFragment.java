@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.shuaqiu.common.ImageType;
 import com.shuaqiu.common.util.ViewUtil;
 import com.shuaqiu.common.widget.AbsPaginationListFragment;
 import com.shuaqiu.common.widget.ViewBinder;
@@ -167,7 +166,7 @@ public class FriendsListFragment extends AbsPaginationListFragment {
             holder.mSelected.setChecked(false);
 
             String url = data.getString(Column.profile_image_url.name());
-            ViewUtil.setImage(holder.mProfileImage, ImageType.PROFILE, url);
+            ViewUtil.setProfileImage(holder.mProfileImage, url);
 
             String name = data.getString(Column.screen_name.name());
             ViewUtil.setText(holder.mScreenName, name);
