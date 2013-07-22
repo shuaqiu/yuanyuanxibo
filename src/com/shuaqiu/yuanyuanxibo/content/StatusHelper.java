@@ -1,6 +1,8 @@
 package com.shuaqiu.yuanyuanxibo.content;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -11,6 +13,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.shuaqiu.common.TimeHelper;
 import com.shuaqiu.common.Tuple;
 
 /**
@@ -42,7 +45,7 @@ public class StatusHelper extends AbsObjectHelper {
         /** 微博ID */
         id(ColumnType.INTEGER),
         /** 微博創建時間 */
-        created_at(ColumnType.TEXT),
+        created_at(ColumnType.INTEGER),
         /** 微博內容 */
         text(ColumnType.TEXT),
         /** 微博來源 */
@@ -85,7 +88,7 @@ public class StatusHelper extends AbsObjectHelper {
         /** 微博ID */
         retweeted_id(ColumnType.INTEGER),
         /** 微博創建時間 */
-        retweeted_created_at(ColumnType.TEXT),
+        retweeted_created_at(ColumnType.INTEGER),
         /** 微博內容 */
         retweeted_text(ColumnType.TEXT),
         /** 微博來源 */
@@ -233,6 +236,15 @@ public class StatusHelper extends AbsObjectHelper {
                 Object val = target.opt(field);
                 if (val != null) {
                     values.put(c.name(), val.toString());
+                }
+            } else if (field.equals("created_at")) {
+                String createAt = target.optString(field);
+                try {
+                    Date date = TimeHelper.getJsonTimeFormatter().parse(
+                            createAt);
+                    values.put(c.name(), date.getTime());
+                } catch (ParseException e) {
+                    Log.e(TAG, e.getMessage(), e);
                 }
             } else if (c.columnType == ColumnType.TEXT) {
                 values.put(c.name(), target.optString(field));

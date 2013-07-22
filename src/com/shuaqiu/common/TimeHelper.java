@@ -57,7 +57,7 @@ public class TimeHelper {
         return dateParser;
     }
 
-    private static DateFormat getDayFormat() {
+    public static DateFormat getDayFormat() {
         if (dayFormat == null) {
             Locale locale = Locale.getDefault();
             dayFormat = new SimpleDateFormat(DAY_FORMAT, locale);
@@ -96,6 +96,21 @@ public class TimeHelper {
             return getTimeFormat().format(date);
         }
         return getDateFormat().format(date);
+    }
+
+    public String beautyTime(long time) {
+        long diff = System.currentTimeMillis() - time;
+
+        if (diff < ONE_MINUTE) {
+            return "刚刚";
+        }
+        if (diff < ONE_HOUR) {
+            return diff / ONE_MINUTE + "分钟前";
+        }
+        if (diff < ONE_DAY) {
+            return getTimeFormat().format(time);
+        }
+        return getDateFormat().format(time);
     }
 
     private DateFormat getDateFormat() {

@@ -117,4 +117,7 @@ public abstract class AbsObjectHelper extends DatabaseHelper {
 
     protected abstract ContentValues extract(JSONObject json);
 
+    public int delete(String whereClause, String[] whereArgs) {
+        return delete(table, whereClause, whereArgs);
+    }
 }

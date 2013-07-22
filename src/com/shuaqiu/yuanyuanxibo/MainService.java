@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.shuaqiu.yuanyuanxibo.Actions.Status;
 import com.shuaqiu.yuanyuanxibo.friend.FriendshipTask;
+import com.shuaqiu.yuanyuanxibo.misc.CleanExpiredDataTask;
 import com.shuaqiu.yuanyuanxibo.status.ImageTaskReceiver;
 import com.shuaqiu.yuanyuanxibo.status.NewStatusReceiver;
 import com.shuaqiu.yuanyuanxibo.status.StatusDownloader;
@@ -73,6 +74,8 @@ public class MainService extends Service {
         //
         handleFriendshipTask();
 
+        handleCleanDataTask();
+
         registerWifiReceiver();
 
         return START_NOT_STICKY;
@@ -81,6 +84,11 @@ public class MainService extends Service {
     private void handleFriendshipTask() {
         FriendshipTask friendshipTask = new FriendshipTask(this);
         mHandler.postDelayed(friendshipTask, DELAY);
+    }
+
+    private void handleCleanDataTask() {
+        CleanExpiredDataTask task = new CleanExpiredDataTask(this);
+        mHandler.postDelayed(task, 2 * DELAY);
     }
 
     /**

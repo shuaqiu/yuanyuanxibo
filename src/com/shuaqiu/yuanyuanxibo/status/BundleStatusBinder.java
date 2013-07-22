@@ -60,14 +60,14 @@ public class BundleStatusBinder extends StatusBinder<Bundle> {
     // "Sat Apr 27 00:59:08 +0800 2013"
     @Override
     protected String optCreateTime(Bundle status) {
-        String createdAt = status.getString(Column.created_at.name());
+        long createdAt = status.getLong(Column.created_at.name());
         return mTimeHelper.beautyTime(createdAt);
     }
 
     @Override
     protected String optCreateDay(Bundle status) {
-        String createdAt = status.getString(Column.created_at.name());
-        return TimeHelper.formatToDay(createdAt);
+        long createdAt = status.getLong(Column.created_at.name());
+        return TimeHelper.getDayFormat().format(createdAt);
     }
 
     @Override

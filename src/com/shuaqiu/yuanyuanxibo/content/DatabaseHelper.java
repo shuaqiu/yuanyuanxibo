@@ -57,6 +57,10 @@ public class DatabaseHelper {
                 orderBy, limit);
     }
 
+    public int delete(String table, String whereClause, String[] whereArgs) {
+        return mDb.delete(table, whereClause, whereArgs);
+    }
+
     public Cursor rawQuery(String sql, String[] selectionArgs) {
         return mDb.rawQuery(sql, selectionArgs);
     }
