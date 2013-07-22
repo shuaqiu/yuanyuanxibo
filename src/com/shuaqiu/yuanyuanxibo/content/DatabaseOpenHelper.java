@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "yyxibo.db";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 1;
 
     public DatabaseOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -22,11 +22,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(StatusHelper.getDdl());
         db.execSQL(EmotionHelper.getDdl());
+        db.execSQL(FriendshipHelper.getDdl());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(FriendshipHelper.getDdl());
     }
 
 }
