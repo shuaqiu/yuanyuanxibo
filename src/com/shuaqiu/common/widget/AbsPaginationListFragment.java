@@ -25,13 +25,14 @@ import com.shuaqiu.yuanyuanxibo.content.QueryCallable.Builder;
  * @author shuaqiu Jul 19, 2013
  */
 public abstract class AbsPaginationListFragment extends ListFragment implements
-        Callback<Cursor>, OnScrollListener {
+        OnScrollListener {
 
     private static final String TAG = "AbsPaginationListFragment";
 
     protected AbsObjectHelper mHelper;
     protected int mPageSize = 20;
     protected List<Bundle> mDatas;
+    protected QueryCallback mQueryCallback;
 
     private boolean isLoading;
     private int mMaxLoadedItem = 0;
@@ -41,6 +42,8 @@ public abstract class AbsPaginationListFragment extends ListFragment implements
         super.onViewCreated(view, savedInstanceState);
 
         initListView();
+
+        mQueryCallback = new QueryCallback(this);
 
         mHelper = initHelper();
         mHelper.openForRead();
@@ -98,7 +101,7 @@ public abstract class AbsPaginationListFragment extends ListFragment implements
         Builder builder = new QueryCallable.Builder(mHelper).limit(limit);
         configQuery(builder);
         QueryCallable query = builder.build();
-        DeferredManager.when(query).then(this);
+        DeferredManager.when(query).then(mQueryCallback);
     }
 
     /**
@@ -113,16 +116,6 @@ public abstract class AbsPaginationListFragment extends ListFragment implements
         super.onDestroy();
         mHelper.close();
         mDatas = null;
-    }
-
-    @Override
-    public void apply(Cursor cursor) {
-        mDatas.addAll(toList(cursor));
-        notifyDataSetChanged();
-
-        if (cursor != null && !cursor.isClosed()) {
-            cursor.close();
-        }
     }
 
     protected void notifyDataSetChanged() {
@@ -166,5 +159,24 @@ public abstract class AbsPaginationListFragment extends ListFragment implements
 
         doQuery();
         ((ArrayList<Bundle>) mDatas).trimToSize();
+    }
+
+    protected static final class QueryCallback implements Callback<Cursor> {
+
+        private AbsPaginationListFragment mFragment;
+
+        public QueryCallback(AbsPaginationListFragment fragment) {
+            mFragment = fragment;
+        }
+
+        @Override
+        public void apply(Cursor cursor) {
+            mFragment.mDatas.addAll(mFragment.toList(cursor));
+            mFragment.notifyDataSetChanged();
+
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
     }
 }

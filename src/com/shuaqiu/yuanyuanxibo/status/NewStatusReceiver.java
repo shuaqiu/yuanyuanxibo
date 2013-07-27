@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.shuaqiu.yuanyuanxibo.Actions.Status;
+import com.shuaqiu.yuanyuanxibo.Defs;
 import com.shuaqiu.yuanyuanxibo.MainActivity;
 import com.shuaqiu.yuanyuanxibo.R;
 
@@ -22,8 +23,6 @@ import com.shuaqiu.yuanyuanxibo.R;
 public final class NewStatusReceiver extends BroadcastReceiver {
 
     private static final String TAG = "statusreceiver";
-
-    private static final int NOTIFICATION_ID = 0;
 
     private static NewStatusReceiver instance;
 
@@ -60,7 +59,7 @@ public final class NewStatusReceiver extends BroadcastReceiver {
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
-        manager.notify(NOTIFICATION_ID, notification);
+        manager.notify(Defs.NOTIFICATION_ID_NEW_STATUS, notification);
     }
 
     private PendingIntent createPendingIntent(Context context) {

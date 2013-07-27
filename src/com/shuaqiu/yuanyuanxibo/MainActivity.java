@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.TextView;
 
 import com.shuaqiu.common.widget.FragmentTabHelper;
 import com.shuaqiu.yuanyuanxibo.auth.AccessTokenKeeper;
@@ -174,6 +175,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 
         View mNewStatus;
         View mRefresh;
+        TextView mUsername;
 
         static ViewHolder from(View v) {
             Object tag = v.getTag();
@@ -193,6 +195,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 
             holder.mNewStatus = v.findViewById(R.id.new_status);
             holder.mRefresh = v.findViewById(R.id.refresh);
+            holder.mUsername = (TextView) v.findViewById(R.id.user_name);
 
             return holder;
         }

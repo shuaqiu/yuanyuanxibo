@@ -15,4 +15,6 @@ public interface Defs {
 
     String TREND_SCHEME = "yyxibo://trend_info";
     String TREND_NAME = "name";
+
+    int NOTIFICATION_ID_NEW_STATUS = 0;
 }
